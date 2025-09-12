@@ -35,8 +35,8 @@ func main() {
 	if PORT == "" || DBUSER == "" || DBPASS == "" || DBHOST == "" || DBPORT == "" || DBNAME == "" {
 		log.Fatal("Error configuring database from .env file")
 	}
-	db := repositories.InitDatabase(DBUSER, DBPASS, DBHOST, DBPORT, DBNAME)
-	defer db.Close()
+	repositories.InitDatabase(DBUSER, DBPASS, DBHOST, DBPORT, DBNAME)
+	defer repositories.DB.Close()
 
 	routes.InitRoutes(r)
 	r.Run("localhost:" + PORT)
