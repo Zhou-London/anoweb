@@ -11,12 +11,6 @@ import (
 )
 
 var r = gin.Default()
-var PORT string
-var DBUSER string
-var DBPASS string
-var DBHOST string
-var DBPORT string
-var DBNAME string
 
 func main() {
 
@@ -25,12 +19,12 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	PORT = os.Getenv("PORT")
-	DBUSER = os.Getenv("DBUSER")
-	DBPASS = os.Getenv("DBPASS")
-	DBHOST = os.Getenv("DBHOST")
-	DBPORT = os.Getenv("DBPORT")
-	DBNAME = os.Getenv("DBNAME")
+	PORT := os.Getenv("PORT")
+	DBUSER := os.Getenv("DBUSER")
+	DBPASS := os.Getenv("DBPASS")
+	DBHOST := os.Getenv("DBHOST")
+	DBPORT := os.Getenv("DBPORT")
+	DBNAME := os.Getenv("DBNAME")
 
 	if PORT == "" || DBUSER == "" || DBPASS == "" || DBHOST == "" || DBPORT == "" || DBNAME == "" {
 		log.Fatal("Error configuring database from .env file")
@@ -38,6 +32,8 @@ func main() {
 	repositories.InitDatabase(DBUSER, DBPASS, DBHOST, DBPORT, DBNAME)
 	defer repositories.DB.Close()
 
-	routes.InitRoutes(r)
+	profile_repo := repositories.NewProfileRepository()
+
+	routes.InitRoutes(r, profile_repo)
 	r.Run("localhost:" + PORT)
 }
