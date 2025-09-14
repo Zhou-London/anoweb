@@ -33,7 +33,9 @@ func main() {
 	defer repositories.DB.Close()
 
 	profile_repo := repositories.NewProfileRepository()
+	experiences_repo := repositories.NewExperienceRepository()
+	educations_repo := repositories.NewEducationRepository()
 
-	routes.InitRoutes(r, profile_repo)
+	routes.InitRoutes(r, profile_repo, experiences_repo, educations_repo)
 	r.Run("localhost:" + PORT)
 }
