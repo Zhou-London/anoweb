@@ -11,6 +11,7 @@ type EducationRepository interface {
 	GetAll() ([]*models.Education, error)
 	Create(education *models.Education) (int, error)
 	Update(id int, education *models.Education) (*models.Education, error)
+	UpdateImageUrl(id int, image_url string) (*models.Education, error)
 	Delete(id int) error
 	Counts() (int, error)
 }
@@ -78,6 +79,15 @@ func (r *educationRepository) Update(id int, education *models.Education) (*mode
 
 	education.ID = id
 	return education, nil
+}
+
+func (r *educationRepository) UpdateImageUrl(id int, image_url string) (*models.Education, error) {
+	_, err := r.db.Exec("UPDATE educations SET image_url = ? WHERE id = ?", image_url, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 func (r *educationRepository) Delete(id int) error {

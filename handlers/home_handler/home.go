@@ -177,6 +177,24 @@ func PostEducation(c *gin.Context, education_repo repositories.EducationReposito
 	c.JSON(http.StatusCreated, education)
 }
 
+func PostEducationImg(c *gin.Context, education_repo repositories.EducationRepository) {
+	id := c.PostForm("id")
+	educationID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"PostEducationImg() error": "Invalid education ID"})
+		return
+	}
+
+	image_url := c.PostForm("image_url")
+	education, err := education_repo.UpdateImageUrl(educationID, image_url)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"PostEducationImg() error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, education)
+}
+
 func PutEducation(c *gin.Context, education_repo repositories.EducationRepository) {
 
 	id := c.PostForm("id")
