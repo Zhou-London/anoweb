@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AdminContext } from "../Contexts/admin_context";
 
 type Profile = {
   id: number;
@@ -30,6 +31,7 @@ type Experience = {
 };
 
 export default function Home() {
+  const { isAdmin } = useContext(AdminContext);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [education, setEducation] = useState<Education[]>([]);
   const [experience, setExperience] = useState<Experience[]>([]);
@@ -169,6 +171,32 @@ export default function Home() {
             </ul>
           </div>
         )}
+
+        {/* Admin Status Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 w-full md:max-w-sm">
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">
+            Admin Status
+          </h2>
+          {isAdmin ? (
+            <div className="flex flex-col items-center space-y-3 text-center">
+              <span className="text-4xl">🛡️</span>
+              <p className="text-green-700 font-bold">
+                You are now in <span className="underline">Admin Mode</span>!
+              </p>
+              <p className="text-sm text-gray-600">
+                Hello myself! If you are not, I will find you. I swear.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center space-y-3 text-center">
+              <span className="text-4xl">🙅</span>
+              <p className="text-red-600 font-bold">No admin rights for you!</p>
+              <p className="text-sm text-gray-600">
+                This is my personal website. I won't give you access to change a thing.
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* New Card... */}
       </div>
