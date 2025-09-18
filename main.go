@@ -37,10 +37,23 @@ func main() {
 	experiences_repo := repositories.NewExperienceRepository()
 	educations_repo := repositories.NewEducationRepository()
 
+	// * Basic Information
+	DOMAIN := os.Getenv("DOMAIN")
+	if DOMAIN == "" {
+		log.Fatal("Error configuring domain from .env file")
+	}
+
+	// * Authorization
+	KEY := os.Getenv("KEY")
+	ADMIN_PASS := os.Getenv("ADMIN_PASS")
+	if KEY == "" || ADMIN_PASS == "" {
+		log.Fatal("Error configuring key from .env file")
+	}
+
 	// * Image
 	IMG_PATH := os.Getenv("IMG_PATH")
 	IMG_URL_PREFIX := os.Getenv("IMG_URL_PREFIX")
 
-	routes.InitRoutes(r, IMG_PATH, IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo)
+	routes.InitRoutes(r, DOMAIN, ADMIN_PASS, KEY, IMG_PATH, IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo)
 	r.Run("localhost:" + PORT)
 }
