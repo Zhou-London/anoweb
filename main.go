@@ -19,6 +19,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	// * DB
 	PORT := os.Getenv("PORT")
 	DBUSER := os.Getenv("DBUSER")
 	DBPASS := os.Getenv("DBPASS")
@@ -36,6 +37,10 @@ func main() {
 	experiences_repo := repositories.NewExperienceRepository()
 	educations_repo := repositories.NewEducationRepository()
 
-	routes.InitRoutes(r, profile_repo, experiences_repo, educations_repo)
+	// * Image
+	IMG_PATH := os.Getenv("IMG_PATH")
+	IMG_URL_PREFIX := os.Getenv("IMG_URL_PREFIX")
+
+	routes.InitRoutes(r, IMG_PATH, IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo)
 	r.Run("localhost:" + PORT)
 }
