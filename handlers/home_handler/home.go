@@ -10,9 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var img_path string = "/var/www/img"
-var img_url_prefix string = "/image"
-
 func GetHomeMsg(c *gin.Context) {
 	msg := "This is my personal website."
 
@@ -22,7 +19,7 @@ func GetHomeMsg(c *gin.Context) {
 }
 
 // * Profile
-func UploadProfileImg(c *gin.Context) {
+func UploadProfileImg(c *gin.Context, img_path string, img_url_prefix string) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.String(http.StatusBadRequest, "file not found")
@@ -35,7 +32,10 @@ func UploadProfileImg(c *gin.Context) {
 		return
 	}
 
-	c.String(http.StatusOK, "upload success: %s", dst)
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "upload success",
+		"img_path": img_url_prefix + "/profile-img.png",
+	})
 }
 
 func GetProfileInfo(c *gin.Context, profile_repo repositories.ProfileRepository) {
@@ -131,7 +131,7 @@ func GetExperiencesShort(c *gin.Context, experience_repo repositories.Experience
 }
 
 // * Education
-func UploadEducationImg(c *gin.Context) {
+func UploadEducationImg(c *gin.Context, img_path string, img_url_prefix string) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.String(http.StatusBadRequest, "file not found")
