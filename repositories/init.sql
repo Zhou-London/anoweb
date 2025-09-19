@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS experiences (
     end_date DATE,
     present BOOLEAN,
     description TEXT,
-    image_url VARCHAR(200)
+    image_url VARCHAR(200),
+    order_index INT
 );
 CREATE TABLE IF NOT EXISTS educations (
     id INT PRIMARY KEY AUTO_INCREMENT,
