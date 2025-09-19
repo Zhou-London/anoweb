@@ -12,6 +12,7 @@ type ExperienceRepository interface {
 	GetAllShort() ([]*models.ExperienceShort, error)
 	Create(experience *models.Experience) (int, error)
 	Update(id int, experience *models.Experience) (*models.Experience, error)
+	UpdateOrderIndex(id int, order_index int) (*models.Experience, error)
 	Delete(id int) error
 	Counts() (int, error)
 }
@@ -25,10 +26,10 @@ func NewExperienceRepository() ExperienceRepository {
 }
 
 func (r *experienceRepository) GetByID(id int) (*models.Experience, error) {
-	row := r.db.QueryRow("SELECT id, company, position, start_date, end_date, present, description, image_url FROM experiences WHERE id = ?", id)
+	row := r.db.QueryRow("SELECT id, company, position, start_date, end_date, present, description, image_url, order_index FROM experiences WHERE id = ?", id)
 
 	var experience models.Experience
-	err := row.Scan(&experience.ID, &experience.Company, &experience.Position, &experience.StartDate, &experience.EndDate, &experience.Present, &experience.Description, &experience.ImageURL)
+	err := row.Scan(&experience.ID, &experience.Company, &experience.Position, &experience.StartDate, &experience.EndDate, &experience.Present, &experience.Description, &experience.ImageURL, &experience.OrderIndex)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +38,7 @@ func (r *experienceRepository) GetByID(id int) (*models.Experience, error) {
 }
 
 func (r *experienceRepository) GetAll() ([]*models.Experience, error) {
-	rows, err := r.db.Query("SELECT id, company, position, start_date, end_date, present, description, image_url FROM experiences")
+	rows, err := r.db.Query("SELECT id, company, position, start_date, end_date, present, description, image_url, order_index FROM experiences")
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +47,7 @@ func (r *experienceRepository) GetAll() ([]*models.Experience, error) {
 	var experiences []*models.Experience
 	for rows.Next() {
 		var experience models.Experience
-		if err := rows.Scan(&experience.ID, &experience.Company, &experience.Position, &experience.StartDate, &experience.EndDate, &experience.Present, &experience.Description, &experience.ImageURL); err != nil {
+		if err := rows.Scan(&experience.ID, &experience.Company, &experience.Position, &experience.StartDate, &experience.EndDate, &experience.Present, &experience.Description, &experience.ImageURL, &experience.OrderIndex); err != nil {
 			return nil, err
 		}
 		experiences = append(experiences, &experience)
@@ -60,7 +61,7 @@ func (r *experienceRepository) GetAll() ([]*models.Experience, error) {
 }
 
 func (r *experienceRepository) GetAllShort() ([]*models.ExperienceShort, error) {
-	rows, err := r.db.Query("SELECT id, company, position, start_date, end_date, present, image_url FROM experiences")
+	rows, err := r.db.Query("SELECT id, company, position, start_date, end_date, present, image_url, order_index FROM experiences")
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +70,7 @@ func (r *experienceRepository) GetAllShort() ([]*models.ExperienceShort, error) 
 	var experiences []*models.ExperienceShort
 	for rows.Next() {
 		var experience models.ExperienceShort
-		if err := rows.Scan(&experience.ID, &experience.Company, &experience.Position, &experience.StartDate, &experience.EndDate, &experience.Present, &experience.ImageURL); err != nil {
+		if err := rows.Scan(&experience.ID, &experience.Company, &experience.Position, &experience.StartDate, &experience.EndDate, &experience.Present, &experience.ImageURL, &experience.OrderIndex); err != nil {
 			return nil, err
 		}
 		experiences = append(experiences, &experience)
@@ -84,7 +85,7 @@ func (r *experienceRepository) GetAllShort() ([]*models.ExperienceShort, error) 
 }
 
 func (r *experienceRepository) Create(experience *models.Experience) (int, error) {
-	result, err := r.db.Exec("INSERT INTO experiences (company, position, start_date, end_date, present, description, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)", experience.Company, experience.Position, experience.StartDate, experience.EndDate, experience.Present, experience.Description, experience.ImageURL)
+	result, err := r.db.Exec("INSERT INTO experiences (company, position, start_date, end_date, present, description, image_url, order_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", experience.Company, experience.Position, experience.StartDate, experience.EndDate, experience.Present, experience.Description, experience.ImageURL, experience.OrderIndex)
 	if err != nil {
 		return 0, err
 	}
@@ -96,13 +97,22 @@ func (r *experienceRepository) Create(experience *models.Experience) (int, error
 }
 
 func (r *experienceRepository) Update(id int, experience *models.Experience) (*models.Experience, error) {
-	_, err := r.db.Exec("UPDATE experiences SET company = ?, position = ?, start_date = ?, end_date = ?, present = ?, description = ?, image_url = ? WHERE id = ?", experience.Company, experience.Position, experience.StartDate, experience.EndDate, experience.Present, experience.Description, experience.ImageURL, id)
+	_, err := r.db.Exec("UPDATE experiences SET company = ?, position = ?, start_date = ?, end_date = ?, present = ?, description = ?, image_url = ? , order_index = ? WHERE id = ?", experience.Company, experience.Position, experience.StartDate, experience.EndDate, experience.Present, experience.Description, experience.ImageURL, experience.OrderIndex, id)
 	if err != nil {
 		return nil, err
 	}
 
 	experience.ID = id
 	return experience, nil
+}
+
+func (r *experienceRepository) UpdateOrderIndex(id int, order_index int) (*models.Experience, error) {
+	_, err := r.db.Exec("UPDATE experiences SET order_index = ? WHERE id = ?", order_index, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 func (r *experienceRepository) Delete(id int) error {
