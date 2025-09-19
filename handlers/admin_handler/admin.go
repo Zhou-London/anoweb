@@ -7,8 +7,18 @@ import (
 )
 
 func PostAdminCheck(c *gin.Context, domain string, admin_pass string, key string) {
-	pass := c.PostForm("pass")
-	if pass == admin_pass {
+
+	type PostAdminCheckRequest struct {
+		Pass string `json:"pass"`
+	}
+
+	var req PostAdminCheckRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.Pass == admin_pass {
 		c.SetCookie("key", key, 86400, "/", domain, false, true)
 		c.JSON(http.StatusOK, gin.H{"message": "Validated"})
 	} else {

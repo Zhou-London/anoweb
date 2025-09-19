@@ -70,13 +70,10 @@ func PostProfileInfo(c *gin.Context, profile_repo repositories.ProfileRepository
 		return
 	}
 
-	profile := models.Profile{
-		ID:       1,
-		Name:     c.PostForm("name"),
-		Email:    c.PostForm("email"),
-		Github:   c.PostForm("github"),
-		Linkedin: c.PostForm("linkedin"),
-		Bio:      c.PostForm("bio"),
+	var profile models.Profile
+	if err := c.ShouldBind(&profile); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"PostCreateProfileInfo() error": err.Error()})
+		return
 	}
 
 	createErr := profile_repo.Create(&profile)
@@ -101,14 +98,17 @@ func PutProfileInfo(c *gin.Context, profile_repo repositories.ProfileRepository)
 		return
 	}
 
-	profile := models.Profile{
-		ID:       1,
-		Name:     util.PickOrDefault(c.PostForm("name"), oldProfile.Name),
-		Email:    util.PickOrDefault(c.PostForm("email"), oldProfile.Email),
-		Github:   util.PickOrDefault(c.PostForm("github"), oldProfile.Github),
-		Linkedin: util.PickOrDefault(c.PostForm("linkedin"), oldProfile.Linkedin),
-		Bio:      util.PickOrDefault(c.PostForm("bio"), oldProfile.Bio),
+	var profile models.Profile
+	if err := c.ShouldBind(&profile); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"PutUpdateProfileInfo() error": err.Error()})
+		return
 	}
+
+	profile.Name = util.PickOrDefault(profile.Name, oldProfile.Name)
+	profile.Email = util.PickOrDefault(profile.Email, oldProfile.Email)
+	profile.Github = util.PickOrDefault(profile.Github, oldProfile.Github)
+	profile.Linkedin = util.PickOrDefault(profile.Linkedin, oldProfile.Linkedin)
+	profile.Bio = util.PickOrDefault(profile.Bio, oldProfile.Bio)
 
 	updatedProfile, err := profile_repo.Update(&profile)
 	if err != nil {
@@ -128,6 +128,30 @@ func GetExperiencesShort(c *gin.Context, experience_repo repositories.Experience
 	}
 
 	c.JSON(http.StatusOK, experiences)
+}
+
+func PutExperienceOrder(c *gin.Context, experience_repo repositories.ExperienceRepository) {
+
+	type PutExperienceOrderRequest struct {
+		ID         int `json:"id"`
+		OrderIndex int `json:"order_index"`
+	}
+
+	var req []PutExperienceOrderRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	for _, r := range req {
+		_, err := experience_repo.UpdateOrderIndex(r.ID, r.OrderIndex)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"PutExperienceOrder() error": err.Error()})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Experience order updated successfully"})
 }
 
 // * Education
@@ -158,13 +182,10 @@ func GetEducations(c *gin.Context, education_repo repositories.EducationReposito
 }
 
 func PostEducation(c *gin.Context, education_repo repositories.EducationRepository) {
-	education := models.Education{
-		School:    c.PostForm("school"),
-		Degree:    c.PostForm("degree"),
-		StartDate: c.PostForm("start_date"),
-		EndDate:   c.PostForm("end_date"),
-		Link:      c.PostForm("link"),
-		ImageURL:  c.PostForm("image_url"),
+	var education models.Education
+	if err := c.ShouldBind(&education); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"PostEducation() error 1": err.Error()})
+		return
 	}
 
 	id, err := education_repo.Create(&education)
@@ -178,15 +199,18 @@ func PostEducation(c *gin.Context, education_repo repositories.EducationReposito
 }
 
 func PostEducationImg(c *gin.Context, education_repo repositories.EducationRepository) {
-	id := c.PostForm("id")
-	educationID, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"PostEducationImg() error": "Invalid education ID"})
+	type PostEducationImgRequest struct {
+		ID       int    `json:"id"`
+		ImageURL string `json:"image_url"`
+	}
+
+	var req PostEducationImgRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"PostEducationImg() error": err.Error()})
 		return
 	}
 
-	image_url := c.PostForm("image_url")
-	education, err := education_repo.UpdateImageUrl(educationID, image_url)
+	education, err := education_repo.UpdateImageUrl(req.ID, req.ImageURL)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"PostEducationImg() error": err.Error()})
 		return
@@ -197,36 +221,39 @@ func PostEducationImg(c *gin.Context, education_repo repositories.EducationRepos
 
 func PutEducation(c *gin.Context, education_repo repositories.EducationRepository) {
 
-	id := c.PostForm("id")
-	educationID, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"PutEducation() error": "Invalid education ID"})
+	var education models.Education
+
+	if err := c.ShouldBind(&education); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"PutEducation() error": err.Error()})
 		return
 	}
 
-	oldEducation, err := education_repo.GetByID(educationID)
+	oldEducation, err := education_repo.GetByID(education.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"PutEducation() error": err.Error()})
 		return
 	}
 
-	newEducation := models.Education{
-		ID:        oldEducation.ID,
-		School:    util.PickOrDefault(c.PostForm("school"), oldEducation.School),
-		Degree:    util.PickOrDefault(c.PostForm("degree"), oldEducation.Degree),
-		StartDate: util.PickOrDefault(c.PostForm("start_date"), oldEducation.StartDate),
-		EndDate:   util.PickOrDefault(c.PostForm("end_date"), oldEducation.EndDate),
-		Link:      util.PickOrDefault(c.PostForm("link"), oldEducation.Link),
-		ImageURL:  util.PickOrDefault(c.PostForm("image_url"), oldEducation.ImageURL),
+	if oldEducation == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"PutEducation() error": "Education does not exist"})
+		return
 	}
 
-	updatedEducation, err := education_repo.Update(newEducation.ID, &newEducation)
+	education.School = util.PickOrDefault(education.School, oldEducation.School)
+	education.Degree = util.PickOrDefault(education.Degree, oldEducation.Degree)
+	education.StartDate = util.PickOrDefault(education.StartDate, oldEducation.StartDate)
+	education.EndDate = util.PickOrDefault(education.EndDate, oldEducation.EndDate)
+	education.ImageURL = util.PickOrDefault(education.ImageURL, oldEducation.ImageURL)
+	education.Link = util.PickOrDefault(education.Link, oldEducation.Link)
+
+	updatedEducation, err := education_repo.Update(education.ID, &education)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"PutEducation() error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, updatedEducation)
+
 }
 
 func DeleteEducation(c *gin.Context, education_repo repositories.EducationRepository) {
