@@ -58,13 +58,17 @@ func InitRoutes(r *gin.Engine,
 			homehandler.GetExperiencesShort(ctx, experiences_repo)
 		})
 
+		home.PUT("/experience/order", func(ctx *gin.Context) {
+			homehandler.PutExperienceOrder(ctx, experiences_repo)
+		})
+
 		home.POST("/upload-education-img", func(ctx *gin.Context) {
 			homehandler.UploadEducationImg(ctx, img_path, img_url_prefix)
 		})
 		home.GET("/education", func(ctx *gin.Context) {
 			homehandler.GetEducations(ctx, educations_repo)
 		})
-		home.DELETE("/education", func(ctx *gin.Context) {
+		home.DELETE("/education/:id", func(ctx *gin.Context) {
 			homehandler.DeleteEducation(ctx, educations_repo)
 		})
 		home.POST("/education", func(ctx *gin.Context) {
