@@ -28,6 +28,7 @@ type Experience = {
   end_date: string;
   present: boolean;
   image_url: string;
+  order_index: number;
 };
 
 export default function Home() {
@@ -110,7 +111,10 @@ export default function Home() {
                 <li
                   key={edu.id}
                   className="flex items-center space-x-3 p-3 rounded-xl cursor-pointer
-                     transition-transform transform hover:scale-105 hover:shadow-xl"
+                     transition-transform duration-200 ease-in-out transform
+                     hover:scale-105 hover:shadow-xl
+                     active:scale-105 active:shadow-xl
+                     focus:scale-105 focus:shadow-xl"
                   onClick={() => window.open(edu.link, "_blank")}
                 >
                   <img
@@ -140,34 +144,81 @@ export default function Home() {
               Experience
             </h2>
             <ul className="space-y-3">
-              {experience.map((exp) => {
-                const endDisplay = exp.present ? "Present" : exp.end_date;
-                return (
-                  <li
-                    key={exp.id}
-                    className="flex items-center space-x-3 p-3 rounded-xl cursor-pointer
-                       transition-transform transform hover:scale-105 hover:shadow-xl"
-                    onClick={() => {
-                      console.log(`Clicked on ${exp.company}`);
-                    }}
-                  >
-                    <img
-                      src={exp.image_url}
-                      alt={exp.company}
-                      className="w-12 h-12 rounded-md object-cover shadow-sm"
-                    />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-800">
-                        {exp.company}
-                      </p>
-                      <p className="text-xs text-gray-600">{exp.position}</p>
-                      <p className="text-xs text-gray-500">
-                        {exp.start_date} – {endDisplay}
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
+              {experience
+                .slice()
+                .sort((a, b) => a.order_index - b.order_index)
+                .map((exp, index) => {
+                  const endDisplay = exp.present ? "Present" : exp.end_date;
+
+                  return (
+                    <li
+                      key={exp.id}
+                      draggable={isAdmin}
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData("text/plain", index.toString());
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                      }}
+                      onDrop={(e) => {
+                        const fromIndex = Number(
+                          e.dataTransfer.getData("text/plain")
+                        );
+                        const toIndex = index;
+                        if (fromIndex === toIndex) return;
+
+                        const updated = [...experience].sort(
+                          (a, b) => a.order_index - b.order_index
+                        );
+
+                        const [moved] = updated.splice(fromIndex, 1);
+                        updated.splice(toIndex, 0, moved);
+
+                        const newOrder = updated.map((item, idx) => ({
+                          id: item.id,
+                          order_index: idx,
+                        }));
+
+                        setExperience(
+                          updated.map((item, idx) => ({
+                            ...item,
+                            order_index: idx,
+                          }))
+                        );
+
+                        fetch("/api/home/experience/order", {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(newOrder),
+                          credentials: "include",
+                        });
+                      }}
+                      className={`flex items-center space-x-3 p-3 rounded-xl cursor-pointer
+                         transition-transform duration-200 ease-in-out transform
+                         hover:scale-105 hover:shadow-xl
+                         active:scale-105 active:shadow-xl
+                         focus:scale-105 focus:shadow-xl
+                         ${
+                           isAdmin ? "border border-dashed border-gray-300" : ""
+                         }`}
+                    >
+                      <img
+                        src={exp.image_url}
+                        alt={exp.company}
+                        className="w-12 h-12 rounded-md object-cover shadow-sm"
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-800">
+                          {exp.company}
+                        </p>
+                        <p className="text-xs text-gray-600">{exp.position}</p>
+                        <p className="text-xs text-gray-500">
+                          {exp.start_date} – {endDisplay}
+                        </p>
+                      </div>
+                    </li>
+                  );
+                })}
             </ul>
           </div>
         )}
@@ -192,7 +243,8 @@ export default function Home() {
               <span className="text-4xl">🙅</span>
               <p className="text-red-600 font-bold">No admin rights for you!</p>
               <p className="text-sm text-gray-600">
-                This is my personal website. I won't give you access to change a thing.
+                This is my personal website. I won't give you access to change a
+                thing.
               </p>
             </div>
           )}
