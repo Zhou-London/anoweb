@@ -8,3 +8,11 @@ func PickOrDefault[T comparable](newVal, oldVal T) T {
 	}
 	return oldVal
 }
+
+func IsImage(filename string) bool {
+	if len(filename) < 4 {
+		return false
+	}
+	ext := filename[len(filename)-4:]
+	return ext == ".png" || ext == ".jpg" || ext == "jpeg"
+}
