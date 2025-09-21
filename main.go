@@ -36,6 +36,8 @@ func main() {
 	profile_repo := repositories.NewProfileRepository()
 	experiences_repo := repositories.NewExperienceRepository()
 	educations_repo := repositories.NewEducationRepository()
+	projects_repo := repositories.NewProjectRepository()
+	posts_repo := repositories.NewPostRepository()
 
 	// * Basic Information
 	DOMAIN := os.Getenv("DOMAIN")
@@ -54,6 +56,6 @@ func main() {
 	IMG_PATH := os.Getenv("IMG_PATH")
 	IMG_URL_PREFIX := os.Getenv("IMG_URL_PREFIX")
 
-	routes.InitRoutes(r, DOMAIN, ADMIN_PASS, KEY, IMG_PATH, IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo)
+	routes.InitRoutes(r, DOMAIN, ADMIN_PASS, KEY, IMG_PATH, IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo)
 	r.Run("localhost:" + PORT)
 }
