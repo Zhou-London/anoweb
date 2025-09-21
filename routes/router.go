@@ -4,6 +4,8 @@ import (
 	adminhandler "anonchihaya.co.uk/handlers/admin_handler"
 	experiencehandler "anonchihaya.co.uk/handlers/experience_handler"
 	homehandler "anonchihaya.co.uk/handlers/home_handler"
+	projecthandler "anonchihaya.co.uk/handlers/project_handler"
+	statichandler "anonchihaya.co.uk/handlers/static_handler"
 	"anonchihaya.co.uk/middlewares"
 	"anonchihaya.co.uk/repositories"
 	"github.com/gin-gonic/gin"
@@ -20,6 +22,8 @@ func InitRoutes(r *gin.Engine,
 	profile_repo repositories.ProfileRepository,
 	experiences_repo repositories.ExperienceRepository,
 	educations_repo repositories.EducationRepository,
+	projects_repo repositories.ProjectRepository,
+	posts_repo repositories.PostRepository,
 ) {
 
 	// * Admin
@@ -30,6 +34,15 @@ func InitRoutes(r *gin.Engine,
 		})
 		admin.GET("/status", func(ctx *gin.Context) {
 			adminhandler.GetStatusCheck(ctx, key)
+		})
+	}
+
+	// * Static File
+	static := r.Group(prefix + "/static")
+	static.Use(middlewares.KeyChecker(key))
+	{
+		static.POST("/upload-image", func(ctx *gin.Context) {
+			statichandler.UploadImage(ctx, img_path, img_url_prefix)
 		})
 	}
 
@@ -103,6 +116,42 @@ func InitRoutes(r *gin.Engine,
 		})
 		exp.DELETE("/:id", func(ctx *gin.Context) {
 			experiencehandler.DeleteExperience(ctx, experiences_repo)
+		})
+	}
+
+	// * Projects
+	proj := r.Group(prefix + "/project")
+	proj.Use(middlewares.KeyChecker(key))
+	{
+		proj.GET("", func(ctx *gin.Context) {
+			projecthandler.GetProjects(ctx, projects_repo)
+		})
+		proj.POST("", func(ctx *gin.Context) {
+			projecthandler.PostProject(ctx, projects_repo)
+		})
+		proj.POST("/update-image-url", func(ctx *gin.Context) {
+			projecthandler.PostProjectImg(ctx, projects_repo)
+		})
+		proj.PUT("", func(ctx *gin.Context) {
+			projecthandler.PutProject(ctx, projects_repo)
+		})
+		proj.DELETE("/:id", func(ctx *gin.Context) {
+			projecthandler.DeleteProject(ctx, projects_repo)
+		})
+		proj.GET("/:id/posts", func(ctx *gin.Context) {
+			projecthandler.GetPostsShort(ctx, posts_repo)
+		})
+		proj.GET("/post/:id", func(ctx *gin.Context) {
+			projecthandler.GetPost(ctx, posts_repo)
+		})
+		proj.POST("/post", func(ctx *gin.Context) {
+			projecthandler.PostPost(ctx, posts_repo)
+		})
+		proj.PUT("/post", func(ctx *gin.Context) {
+			projecthandler.PutPost(ctx, posts_repo)
+		})
+		proj.DELETE("/post/:id", func(ctx *gin.Context) {
+			projecthandler.DeletePost(ctx, posts_repo)
 		})
 	}
 
