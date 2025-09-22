@@ -17,7 +17,6 @@ export function PostCardRail({
   const railRef = useRef<HTMLDivElement | null>(null);
   const cardRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
-  // 1. ✨ 按日期降序排列帖子
   const sortedPosts = useMemo(() => {
     return [...posts].sort(
       (a, b) =>
@@ -25,7 +24,6 @@ export function PostCardRail({
     );
   }, [posts]);
 
-  // 2. ✨ 动态滚动效果的 useEffect
   useEffect(() => {
     const rail = railRef.current;
     if (!rail) return;
@@ -40,16 +38,12 @@ export function PostCardRail({
           const cardRect = card.getBoundingClientRect();
           const cardCenterX = cardRect.left + cardRect.width / 2;
 
-          // 计算卡片中心与容器中心的距离
           const delta = cardCenterX - railCenterX;
 
-          // 根据距离计算旋转角度 (可以微调 0.05 这个系数来改变灵敏度)
           const rotation = delta * 0.05;
 
-          // 根据距离计算缩放比例 (离中心越远越小)
           const scale = Math.max(1 - Math.abs(delta) / 2000, 0.9);
 
-          // 应用 3D transform 样式
           card.style.transform = `perspective(1000px) rotateY(${rotation}deg) scale(${scale})`;
         }
       }
@@ -61,7 +55,6 @@ export function PostCardRail({
       animationFrameId = requestAnimationFrame(handleScroll);
     };
 
-    // 初始化时执行一次，以设置初始卡片位置
     handleScroll();
 
     rail.addEventListener("scroll", onScroll, { passive: true });
@@ -70,11 +63,10 @@ export function PostCardRail({
       cancelAnimationFrame(animationFrameId);
       rail.removeEventListener("scroll", onScroll);
     };
-  }, [sortedPosts]); // 当帖子列表变化时，重新设置效果
+  }, [sortedPosts]);
 
   return (
     <section className="h-60 shrink-0">
-      {/* 3. ✨ 为容器添加 perspective 以激活 3D 效果 */}
       <div
         ref={railRef}
         style={{ perspective: "1000px" }}
@@ -97,7 +89,6 @@ export function PostCardRail({
                   shadow-md flex flex-col justify-between
                   transition-shadow duration-300 hover:shadow-lg hover:shadow-blue-200/60
                 "
-              // 4. ✨ 移除了基于 state 的 transform 类，现在由 JS 直接控制
             >
               <h3 className="font-semibold text-slate-800 line-clamp-4 text-base">
                 {post.name}
