@@ -50,7 +50,7 @@ export default function Home() {
 
             {/* Admin Status Card */}
             <div className="bg-white rounded-2xl shadow-lg p-6 w-full h-full flex flex-col">
-              <h2 className="text-lg font-semibold text-gray-800 mb-3">Admin Status</h2>
+              <h2 className="text-lg font-semibold text-gray-800 mb-3 text-center">Admin Status</h2>
               {isAdmin ? (
                 <div className="flex flex-col items-center justify-center text-center flex-1 space-y-3">
                   <span className="text-4xl">🛡️</span>
