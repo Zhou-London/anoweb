@@ -144,15 +144,24 @@ func GetPost(c *gin.Context, post_repo repositories.PostRepository) {
 }
 
 func PostPost(c *gin.Context, post_repo repositories.PostRepository) {
-	var post models.Post
-	if err := c.ShouldBind(&post); err != nil {
+
+	type PostPostReq struct {
+		ParentID  int    `json:"parent_id"`
+		Name      string `json:"name"`
+		ContentMD string `json:"content_md"`
+	}
+
+	var postReq PostPostReq
+	if err := c.ShouldBindJSON(&postReq); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if post.ParentType != "project" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid parent type"})
-		return
+	post := models.Post{
+		ParentID:   postReq.ParentID,
+		ParentType: "project",
+		Name:       postReq.Name,
+		ContentMD:  postReq.ContentMD,
 	}
 
 	id, err := post_repo.Create(&post)
@@ -166,13 +175,19 @@ func PostPost(c *gin.Context, post_repo repositories.PostRepository) {
 }
 
 func PutPost(c *gin.Context, post_repo repositories.PostRepository) {
-	var post models.Post
-	if err := c.ShouldBind(&post); err != nil {
+	type PutPostReq struct {
+		ID        int    `json:"id"`
+		Name      string `json:"name"`
+		ContentMD string `json:"content_md"`
+	}
+
+	var putPostReq PutPostReq
+	if err := c.ShouldBind(&putPostReq); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	oldPost, err := post_repo.GetByID(post.ID)
+	oldPost, err := post_repo.GetByID(putPostReq.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -183,10 +198,14 @@ func PutPost(c *gin.Context, post_repo repositories.PostRepository) {
 		return
 	}
 
-	post.Name = util.PickOrDefault(post.Name, oldPost.Name)
-	post.ContentMD = util.PickOrDefault(post.ContentMD, oldPost.ContentMD)
+	var newPost models.Post
+	newPost.ID = putPostReq.ID
+	newPost.ParentID = oldPost.ParentID
+	newPost.ParentType = oldPost.ParentType
+	newPost.Name = util.PickOrDefault(putPostReq.Name, oldPost.Name)
+	newPost.ContentMD = util.PickOrDefault(putPostReq.ContentMD, oldPost.ContentMD)
 
-	updatedPost, err := post_repo.Update(post.ID, &post)
+	updatedPost, err := post_repo.Update(newPost.ID, &newPost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

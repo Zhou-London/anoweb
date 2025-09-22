@@ -65,7 +65,7 @@ export function useProjectData() {
       updated_at: "",
     });
 
-    fetch(`/api/post/${postId}`)
+    fetch(`/api/project/post/${postId}`)
       .then((res) => res.json())
       .then((data: Post) => {
         setViewingPost(data);
