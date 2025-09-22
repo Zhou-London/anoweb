@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router";
 import About from "./Pages/About/about";
-import Home from "./Pages/Home/home";
 import ProjectPage from "./Pages/Projects";
+import Home from "./Pages/Home";
 
 export default function AppRouter() {
   return (
