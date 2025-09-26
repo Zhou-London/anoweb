@@ -53,6 +53,7 @@ export default function ProjectPage() {
     openCreatePostModal,
     closeCreatePostModal,
     refreshPosts,
+    handleDeletePost,
   } = useProjectData();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -73,14 +74,14 @@ export default function ProjectPage() {
 
         {/* Mobile Overlay */}
         {isSidebarOpen && (
-          <div 
+          <div
             className="md:hidden fixed inset-0 bg-black/30 z-30"
             onClick={() => setIsSidebarOpen(false)}
           />
         )}
 
         {/* Left Sidebar */}
-        <ProjectList 
+        <ProjectList
           projects={projects}
           selectedProjectId={selectedProjectId}
           isLoading={isLoadingProjects}
@@ -96,15 +97,16 @@ export default function ProjectPage() {
         <main className="flex-1 flex flex-col p-4 md:p-6 overflow-hidden">
           {selectedProject ? (
             <>
-              <ProjectDetails 
-                project={selectedProject} 
+              <ProjectDetails
+                project={selectedProject}
                 onProjectUpdate={refreshProjects}
               />
-              <PostCardRail 
+              <PostCardRail
                 posts={posts}
                 isLoading={isLoadingPosts}
                 onViewPost={handleViewPost}
                 onOpenCreateModal={openCreatePostModal}
+                onDeletePost={handleDeletePost}
               />
             </>
           ) : (
@@ -116,7 +118,7 @@ export default function ProjectPage() {
 
         {/* Post Detail Modal (conditionally rendered) */}
         {viewingPost && (
-          <PostDetailModal 
+          <PostDetailModal
             post={viewingPost}
             isLoading={isLoadingPostDetail}
             onClose={() => setViewingPost(null)}
@@ -125,7 +127,7 @@ export default function ProjectPage() {
 
         {/* Create Project Modal (conditionally rendered) */}
         {isCreateModalOpen && (
-          <CreateProjectModal 
+          <CreateProjectModal
             onClose={closeCreateModal}
             onSuccess={() => {
               refreshProjects();

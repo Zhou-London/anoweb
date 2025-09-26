@@ -9,6 +9,7 @@ type PostCardRailProps = {
   isLoading: boolean;
   onViewPost: (postId: number) => void;
   onOpenCreateModal: () => void;
+  onDeletePost: (postId: number) => void;
 };
 
 export function PostCardRail({
@@ -16,6 +17,7 @@ export function PostCardRail({
   isLoading,
   onViewPost,
   onOpenCreateModal,
+  onDeletePost,
 }: PostCardRailProps) {
   const railRef = useRef<HTMLDivElement | null>(null);
   const cardRefs = useRef<Record<number, HTMLDivElement | null>>({});
@@ -114,6 +116,7 @@ export function PostCardRail({
                   bg-white/80 hover:bg-white/95 backdrop-blur-md border border-blue-200/50
                   shadow-md flex flex-col justify-between
                   transition-shadow duration-300 hover:shadow-lg hover:shadow-blue-200/60
+                  relative
                   ${focusedPostId === post.id ? "focused-card" : ""}
                 `}
             >
@@ -123,6 +126,18 @@ export function PostCardRail({
               <p className="text-xs text-slate-500 mt-2">
                 Updated: {new Date(post.updated_at).toLocaleDateString()}
               </p>
+              {isAdmin && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeletePost(post.id);
+                  }}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                  aria-label="Delete post"
+                >
+                  X
+                </button>
+              )}
             </div>
           ))
         ) : (

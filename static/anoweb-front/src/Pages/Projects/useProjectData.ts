@@ -79,6 +79,29 @@ export function useProjectData() {
       .finally(() => setIsLoadingPostDetail(false));
   };
 
+  const handleDeletePost = useCallback(
+    async (postId: number) => {
+      if (!window.confirm("Are you sure you want to delete this post?")) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/project/post/${postId}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete post");
+        }
+
+        refreshPosts();
+      } catch (err) {
+        console.error("Failed to delete post:", err);
+      }
+    },
+    [refreshPosts]
+  );
+
   const selectedProject = useMemo(
     () => projects.find((p) => p.id === selectedProjectId),
     [projects, selectedProjectId]
@@ -104,5 +127,6 @@ export function useProjectData() {
     openCreatePostModal: () => setIsCreatePostModalOpen(true),
     closeCreatePostModal: () => setIsCreatePostModalOpen(false),
     refreshPosts,
+    handleDeletePost,
   };
 }
