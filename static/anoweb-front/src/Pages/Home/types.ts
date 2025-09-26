@@ -35,5 +35,5 @@ export type Post = {
   name: string;
   content_md: string;
   created_at: string;
-  UpdatedAt: string;
+  updated_at: string;
 };

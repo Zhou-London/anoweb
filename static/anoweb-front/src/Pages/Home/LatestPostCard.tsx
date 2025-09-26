@@ -11,7 +11,7 @@ export default function LatestPostCard({ post }: LatestPostCardProps) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 w-full h-full transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-xl">
+    <div className="bg-white rounded-2xl shadow-lg p-6 w-48 h-48 flex-shrink-0 transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-xl flex flex-col justify-between">
       <h2 className="text-lg font-semibold text-gray-800 mb-3">
         Latest Post
       </h2>
@@ -19,7 +19,7 @@ export default function LatestPostCard({ post }: LatestPostCardProps) {
         <div className="flex flex-col">
           <p className="text-sm font-medium text-gray-800">{post.name}</p>
           <p className="text-xs text-gray-500">
-            Updated: {new Date(post.UpdatedAt).toLocaleDateString()}
+            Updated: {new Date(post.updated_at).toLocaleDateString()}
           </p>
         </div>
       </Link>

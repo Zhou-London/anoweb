@@ -1,5 +1,4 @@
 // src/components/Home/index.tsx
-
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AdminContext } from "../../Contexts/admin_context";
@@ -11,66 +10,69 @@ import LatestPostCard from "./LatestPostCard";
 
 export default function Home() {
   const { isAdmin } = useContext(AdminContext);
-  const { profile, education, experience, setExperience, latestPost } = useHomeData();
+  const { profile, education, experience, setExperience, latestPost } =
+    useHomeData();
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-r from-blue-100 to-purple-200">
-      <div className="flex flex-col lg:flex-row gap-8 w-full items-start">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          {/* Left: Profile */}
+          <aside className="w-full lg:w-[340px] shrink-0 lg:sticky lg:top-8">
+            <ProfileCard profile={profile} />
+          </aside>
 
-        {/* Left Column: ProfileCard (no change) */}
-        <div className="w-full lg:w-auto lg:max-w-sm shrink-0">
-          <ProfileCard profile={profile} />
-        </div>
-
-        {/* Right Column: Now with two sub-columns */}
-        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6">
-
-          {/* Right Column's Left Sub-column: Education and Experience */}
-          <div className="flex flex-col gap-6">
-            <EducationCard education={education} />
-            <ExperienceCard experience={experience} setExperience={setExperience} />
-          </div>
-
-          {/* Right Column's Right Sub-column: Projects, Latest Post, and Admin */}
-          <div className="flex flex-col gap-6">
-            {/* Projects Card */}
-            <Link
-              to="/projects"
-              className="block bg-white rounded-2xl shadow-lg p-6 w-full h-full transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-xl no-underline"
-            >
-              <div className="text-center flex flex-col justify-center items-center h-full">
-                <h2 className="text-lg font-semibold text-gray-800 mb-3">Projects</h2>
-                <div className="flex flex-col items-center">
-                  <span className="text-4xl mb-2">🚀</span>
-                  <p className="text-gray-600">
-                    Explore my portfolio of work and personal projects.
-                  </p>
-                </div>
+          {/* Right: two groups side-by-side on lg */}
+          <main className="flex-1 flex flex-col lg:flex-row gap-6 items-start">
+            {/* ===== Group A (center): one card per row ===== */}
+            <section className="flex-1 grid grid-cols-1 gap-4 content-start">
+              <div className="w-full">
+                <LatestPostCard post={latestPost} />
               </div>
-            </Link>
+              <div className="w-full">
+                <EducationCard education={education} />
+              </div>
+              <div className="w-full">
+                <ExperienceCard
+                  experience={experience}
+                  setExperience={setExperience}
+                />
+              </div>
+            </section>
 
-            {/* Latest Post Card */}
-            <LatestPostCard post={latestPost} />
-
-            {/* Admin Status Card */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 w-full h-full flex flex-col">
-              <h2 className="text-lg font-semibold text-gray-800 mb-3 text-center">Admin Status</h2>
-              {isAdmin ? (
-                <div className="flex flex-col items-center justify-center text-center flex-1 space-y-3">
-                  <span className="text-4xl">🛡️</span>
-                  <p className="text-green-700 font-bold">
-                    You are now in <span className="underline">Admin Mode</span>!
-                  </p>
+            {/* ===== Group B (right): Projects then Admin Status ===== */}
+            <aside className="w-full lg:max-w-sm lg:basis-1/3 flex flex-col space-y-4">
+              <Link
+                to="/projects"
+                className="block bg-white rounded-2xl shadow-lg p-6 w-full transition-transform duration-150 hover:scale-[1.01] hover:shadow-xl no-underline"
+              >
+                <div className="text-center flex flex-col items-center">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-2">Projects</h2>
+                  <span className="text-3xl mb-1">🚀</span>
+                  <p className="text-gray-600">Explore my portfolio of work and personal projects.</p>
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center text-center flex-1 space-y-3">
-                  <span className="text-4xl">🙅</span>
-                  <p className="text-red-600 font-bold">No admin rights for you!</p>
-                </div>
-              )}
-            </div>
-          </div>
+              </Link>
 
+              <div className="bg-white rounded-2xl shadow-lg p-6 w-full">
+                <h2 className="text-lg font-semibold text-gray-800 mb-2 text-center">
+                  Admin Status
+                </h2>
+                {isAdmin ? (
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <span className="text-3xl">🛡️</span>
+                    <p className="text-green-700 font-bold">
+                      You are now in <span className="underline">Admin Mode</span>!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <span className="text-3xl">🙅</span>
+                    <p className="text-red-600 font-bold">No admin rights for you!</p>
+                  </div>
+                )}
+              </div>
+            </aside>
+          </main>
         </div>
       </div>
     </div>
