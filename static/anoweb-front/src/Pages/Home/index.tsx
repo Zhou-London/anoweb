@@ -7,30 +7,31 @@ import { useHomeData } from "./useHomeData";
 import ProfileCard from "./ProfileCard";
 import EducationCard from "./EducationCard";
 import ExperienceCard from "./ExperienceCard";
+import LatestPostCard from "./LatestPostCard";
 
 export default function Home() {
   const { isAdmin } = useContext(AdminContext);
-  const { profile, education, experience, setExperience } = useHomeData();
+  const { profile, education, experience, setExperience, latestPost } = useHomeData();
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-r from-blue-100 to-purple-200">
       <div className="flex flex-col lg:flex-row gap-8 w-full items-start">
-        
-        {/* 左栏：ProfileCard (保持不变) */}
+
+        {/* Left Column: ProfileCard (no change) */}
         <div className="w-full lg:w-auto lg:max-w-sm shrink-0">
           <ProfileCard profile={profile} />
         </div>
 
-        {/* ✨ 右栏：现在包含两个子列 */}
+        {/* Right Column: Now with two sub-columns */}
         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6">
-          
-          {/* ✨ 右栏的左列：Education 和 Experience */}
+
+          {/* Right Column's Left Sub-column: Education and Experience */}
           <div className="flex flex-col gap-6">
             <EducationCard education={education} />
             <ExperienceCard experience={experience} setExperience={setExperience} />
           </div>
 
-          {/* ✨ 右栏的右列：Projects 和 Admin */}
+          {/* Right Column's Right Sub-column: Projects, Latest Post, and Admin */}
           <div className="flex flex-col gap-6">
             {/* Projects Card */}
             <Link
@@ -47,6 +48,9 @@ export default function Home() {
                 </div>
               </div>
             </Link>
+
+            {/* Latest Post Card */}
+            <LatestPostCard post={latestPost} />
 
             {/* Admin Status Card */}
             <div className="bg-white rounded-2xl shadow-lg p-6 w-full h-full flex flex-col">

@@ -27,3 +27,13 @@ export type Experience = {
   image_url: string;
   order_index: number;
 };
+
+export type Post = {
+  id: number;
+  parent_id: number;
+  parent_type: string;
+  name: string;
+  content_md: string;
+  created_at: string;
+  UpdatedAt: string;
+};
