@@ -272,3 +272,15 @@ func DeleteEducation(c *gin.Context, education_repo repositories.EducationReposi
 
 	c.JSON(http.StatusOK, gin.H{"message": "Education deleted successfully"})
 }
+
+// * Post
+
+func GetPostLatest(c *gin.Context, post_repo repositories.PostRepository) {
+	post, err := post_repo.GetLatest()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"GetPostLatest() error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, post)
+}

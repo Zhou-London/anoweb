@@ -93,6 +93,10 @@ func InitRoutes(r *gin.Engine,
 		home.PUT("/education", func(ctx *gin.Context) {
 			homehandler.PutEducation(ctx, educations_repo)
 		})
+
+		home.GET("/post/latest", func(ctx *gin.Context) {
+			homehandler.GetPostLatest(ctx, posts_repo)
+		})
 	}
 
 	// * Experience
@@ -143,9 +147,6 @@ func InitRoutes(r *gin.Engine,
 		})
 		proj.GET("/post/:id", func(ctx *gin.Context) {
 			projecthandler.GetPost(ctx, posts_repo)
-		})
-		proj.GET("/post/latest", func(ctx *gin.Context) {
-			projecthandler.GetPostLatest(ctx, posts_repo)
 		})
 		proj.POST("/post", func(ctx *gin.Context) {
 			projecthandler.PostPost(ctx, posts_repo)
