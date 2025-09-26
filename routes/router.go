@@ -144,6 +144,9 @@ func InitRoutes(r *gin.Engine,
 		proj.GET("/post/:id", func(ctx *gin.Context) {
 			projecthandler.GetPost(ctx, posts_repo)
 		})
+		proj.GET("/post/latest", func(ctx *gin.Context) {
+			projecthandler.GetPostLatest(ctx, posts_repo)
+		})
 		proj.POST("/post", func(ctx *gin.Context) {
 			projecthandler.PostPost(ctx, posts_repo)
 		})

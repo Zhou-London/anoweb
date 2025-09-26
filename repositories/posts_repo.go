@@ -11,6 +11,7 @@ type PostRepository interface {
 	GetShortByID(id int) (*models.PostShort, error)
 	GetByProject(project_id int) ([]*models.Post, error)
 	GetShortByProject(project_id int) ([]*models.PostShort, error)
+	GetLatest() (*models.Post, error)
 	GetAll() ([]*models.Post, error)
 	Create(post *models.Post) (int, error)
 	Update(id int, post *models.Post) (*models.Post, error)
@@ -94,6 +95,31 @@ func (r *postRepository) GetShortByProject(project_id int) ([]*models.PostShort,
 	}
 
 	return posts, nil
+
+}
+
+func (r *postRepository) GetLatest() (*models.Post, error) {
+	rows, err := r.db.Query("SELECT * FROM posts ORDER BY created_at DESC LIMIT 1;")
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var post models.Post
+	if !rows.Next() {
+		return nil, sql.ErrNoRows
+	}
+
+	if err := rows.Scan(&post.ID, &post.ParentID, &post.ParentType, &post.Name, &post.ContentMD, &post.CreatedAt, &post.UpdatedAt); err != nil {
+		return nil, err
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return &post, nil
 
 }
 

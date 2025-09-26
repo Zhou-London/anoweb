@@ -143,6 +143,17 @@ func GetPost(c *gin.Context, post_repo repositories.PostRepository) {
 	c.JSON(http.StatusOK, post)
 }
 
+func GetPostLatest(c *gin.Context, post_repo repositories.PostRepository) {
+
+	post, err := post_repo.GetLatest()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, post)
+}
+
 func PostPost(c *gin.Context, post_repo repositories.PostRepository) {
 
 	type PostPostReq struct {
