@@ -34,7 +34,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white bg-opacity-70 backdrop-blur-md shadow-md px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
       <h1 className="text-lg md:text-xl font-bold text-gray-800">
-        AnonChihaya.co.uk
+        zhouzhouzhang.co.uk
       </h1>
       <div className="space-x-3 md:space-x-6 flex items-center">
         <Link
