@@ -7,6 +7,7 @@ import { ProjectDetails } from "./ProjectDetails";
 import { PostCardRail } from "./PostCardRail";
 import { PostDetailModal } from "./PostDetailModal";
 import CreateProjectModal from "./CreateProjectModal";
+import CreatePostModal from "./CreatePostModal";
 
 // CSS for scrollbar and markdown styling
 const styles = `
@@ -19,6 +20,7 @@ const styles = `
   .prose h1, .prose h2, .prose h3 { color: #334155; }
   .prose a { color: #2563eb; } /* Blue-600 */
   .prose a:hover { color: #1d4ed8; } /* Blue-700 */
+  .focused-card { box-shadow: 0 0 20px rgba(59, 130, 246, 0.7); }
 `;
 
 // A simple hamburger menu icon component
@@ -47,6 +49,10 @@ export default function ProjectPage() {
     openCreateModal,
     closeCreateModal,
     refreshProjects,
+    isCreatePostModalOpen,
+    openCreatePostModal,
+    closeCreatePostModal,
+    refreshPosts,
   } = useProjectData();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -55,7 +61,7 @@ export default function ProjectPage() {
     <>
       <style>{styles}</style>
       <div className="min-h-screen h-screen w-full overflow-hidden flex relative">
-        
+
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsSidebarOpen(true)}
@@ -64,7 +70,7 @@ export default function ProjectPage() {
         >
           <MenuIcon />
         </button>
-        
+
         {/* Mobile Overlay */}
         {isSidebarOpen && (
           <div 
@@ -72,7 +78,7 @@ export default function ProjectPage() {
             onClick={() => setIsSidebarOpen(false)}
           />
         )}
-        
+
         {/* Left Sidebar */}
         <ProjectList 
           projects={projects}
@@ -85,7 +91,7 @@ export default function ProjectPage() {
           isOpen={isSidebarOpen}
           onOpenCreateModal={openCreateModal}
         />
-        
+
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col p-4 md:p-6 overflow-hidden">
           {selectedProject ? (
@@ -98,6 +104,7 @@ export default function ProjectPage() {
                 posts={posts}
                 isLoading={isLoadingPosts}
                 onViewPost={handleViewPost}
+                onOpenCreateModal={openCreatePostModal}
               />
             </>
           ) : (
@@ -124,6 +131,18 @@ export default function ProjectPage() {
               refreshProjects();
               closeCreateModal();
             }}
+          />
+        )}
+
+        {/* Create Post Modal (conditionally rendered) */}
+        {isCreatePostModalOpen && selectedProjectId && (
+          <CreatePostModal
+            onClose={closeCreatePostModal}
+            onSuccess={() => {
+              refreshPosts();
+              closeCreatePostModal();
+            }}
+            parentId={selectedProjectId}
           />
         )}
       </div>

@@ -15,8 +15,9 @@ export function useProjectData() {
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [isLoadingPostDetail, setIsLoadingPostDetail] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
 
-  const fetchProjects = useCallback(() => {
+  const refreshProjects = useCallback(() => {
     setIsLoadingProjects(true);
     fetch("/api/project")
       .then((res) => res.json())
@@ -31,10 +32,10 @@ export function useProjectData() {
   }, [selectedProjectId]);
 
   useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
+    refreshProjects();
+  }, [refreshProjects]);
 
-  useEffect(() => {
+  const refreshPosts = useCallback(() => {
     if (selectedProjectId === null) return;
 
     setIsLoadingPosts(true);
@@ -55,6 +56,10 @@ export function useProjectData() {
       })
       .finally(() => setIsLoadingPosts(false));
   }, [selectedProjectId]);
+
+  useEffect(() => {
+    refreshPosts();
+  }, [refreshPosts, selectedProjectId]);
 
   const handleViewPost = (postId: number) => {
     setIsLoadingPostDetail(true);
@@ -94,6 +99,10 @@ export function useProjectData() {
     isCreateModalOpen,
     openCreateModal: () => setIsCreateModalOpen(true),
     closeCreateModal: () => setIsCreateModalOpen(false),
-    refreshProjects: fetchProjects,
+    refreshProjects,
+    isCreatePostModalOpen,
+    openCreatePostModal: () => setIsCreatePostModalOpen(true),
+    closeCreatePostModal: () => setIsCreatePostModalOpen(false),
+    refreshPosts,
   };
 }
