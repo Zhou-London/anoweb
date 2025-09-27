@@ -1,7 +1,10 @@
 // src/components/ProjectPage/CreatePostModal.tsx
-
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import rehypeHighlight from "rehype-highlight";
 
 type CreatePostModalProps = {
   onClose: () => void;
@@ -19,166 +22,190 @@ export default function CreatePostModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<"write" | "preview">("write");
+
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  const insertAround = (left: string, right = left) => {
+    const ta = textAreaRef.current;
+    if (!ta) return;
+    const { selectionStart: s, selectionEnd: e } = ta;
+    const selected = contentMD.slice(s, e);
+    const out = contentMD.slice(0, s) + left + selected + right + contentMD.slice(e);
+    setContentMD(out);
+    requestAnimationFrame(() => {
+      const caret = s + left.length + selected.length + right.length;
+      ta.focus();
+      ta.setSelectionRange(caret, caret);
+    });
+  };
+  const insertAtLineStart = (prefix: string) => {
+    const ta = textAreaRef.current;
+    if (!ta) return;
+    const { selectionStart: s } = ta;
+    const startOfLine = contentMD.lastIndexOf("\n", s - 1) + 1;
+    const out = contentMD.slice(0, startOfLine) + prefix + contentMD.slice(startOfLine);
+    setContentMD(out);
+    requestAnimationFrame(() => {
+      const pos = s + prefix.length;
+      ta.focus();
+      ta.setSelectionRange(pos, pos);
+    });
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setIsUploading(true);
     setError(null);
     const formData = new FormData();
     formData.append("file", file);
-
     try {
-      const response = await fetch("/api/static/upload-image", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Image upload failed");
-      }
-
-      const imageUrl = await response.text();
-      const markdownImage = `![alt text](${imageUrl})`;
-
-      // Inject the markdown image link at the current cursor position
-      if (textAreaRef.current) {
-        const { selectionStart, selectionEnd } = textAreaRef.current;
-        const newContent =
-          contentMD.substring(0, selectionStart) +
-          markdownImage +
-          contentMD.substring(selectionEnd);
-        setContentMD(newContent);
-      } else {
-        setContentMD((prev) => `${prev}\n${markdownImage}`);
-      }
+      const res = await fetch("/api/static/upload-image", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Image upload failed");
+      const url = await res.text();
+      const md = `![alt text](${url})`;
+      const ta = textAreaRef.current;
+      if (ta) {
+        const { selectionStart, selectionEnd } = ta;
+        const out = contentMD.slice(0, selectionStart) + md + contentMD.slice(selectionEnd);
+        setContentMD(out);
+      } else setContentMD((p) => `${p}\n${md}`);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred."
-      );
+      setError(err instanceof Error ? err.message : "Upload error");
     } finally {
       setIsUploading(false);
+      e.currentTarget.value = "";
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (ev: React.FormEvent) => {
+    ev.preventDefault();
     if (!name || !contentMD) {
       setError("Post Name and Content are required.");
       return;
     }
-
     setIsSubmitting(true);
     setError(null);
-
     try {
-      const response = await fetch("/api/project/post", {
+      const res = await fetch("/api/project/post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          parent_id: parentId,
-          name,
-          content_md: contentMD,
-        }),
+        body: JSON.stringify({ parent_id: parentId, name, content_md: contentMD }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to create post");
-      }
-
+      if (!res.ok) throw new Error("Failed to create post");
       onSuccess();
       onClose();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred."
-      );
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm p-4 flex items-center justify-center" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl p-8 max-w-4xl w-full flex gap-4"
+        className="w-full max-w-5xl bg-white rounded-2xl shadow-xl ring-1 ring-black/5 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <form onSubmit={handleSubmit} className="space-y-4 flex-1">
+        {/* Header */}
+        <div className="px-4 sm:px-6 py-3 border-b border-slate-200 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-slate-800">Create Post</h2>
+          <button
+            onClick={onClose}
+            className="h-8 w-8 rounded-full bg-black/5 hover:bg-black/10 text-black/60"
+            aria-label="Close"
+            title="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+          {/* Name */}
           <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-slate-700"
-            >
-              Post Name
-            </label>
+            <label htmlFor="name" className="block text-sm font-medium text-slate-700">Post Name</label>
             <input
-              type="text"
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <div className="flex justify-between items-center">
-              <label
-                htmlFor="content_md"
-                className="block text-sm font-medium text-slate-700"
-              >
-                Content (Markdown)
-              </label>
-              <label className="text-sm text-slate-500 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
-                Upload Image
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={isUploading}
-                  className="hidden"
-                />
-              </label>
-            </div>
-            <textarea
-              id="content_md"
-              ref={textAreaRef}
-              value={contentMD}
-              onChange={(e) => setContentMD(e.target.value)}
-              rows={15}
-              className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 caret-blue-500 p-2"
+              className="mt-1 w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          {isUploading && (
-            <p className="text-sm text-slate-500">Uploading image...</p>
-          )}
+          {/* Toolbar */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" className="btn-sm" onClick={() => insertAround("**")}>Bold</button>
+            <button type="button" className="btn-sm" onClick={() => insertAtLineStart("## ")}>H2</button>
+            <button type="button" className="btn-sm" onClick={() => insertAround("`")}>Code</button>
+            <label className="btn-sm cursor-pointer ml-auto">
+              📷 Image
+              <input type="file" accept="image/*" onChange={handleImageUpload} disabled={isUploading} className="hidden" />
+            </label>
+          </div>
 
-          <div className="flex justify-end gap-4 pt-4">
+          {/* Mobile tabs */}
+          <div className="md:hidden flex rounded-lg bg-slate-100 p-1">
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-md text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200"
+              onClick={() => setTab("write")}
+              className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium ${tab === "write" ? "bg-white shadow text-slate-900" : "text-slate-600"}`}
             >
-              Cancel
+              ✍️ Write
             </button>
             <button
-              type="submit"
-              disabled={isSubmitting || isUploading}
-              className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300"
+              type="button"
+              onClick={() => setTab("preview")}
+              className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium ${tab === "preview" ? "bg-white shadow text-slate-900" : "text-slate-600"}`}
             >
-              {isSubmitting ? "Creating..." : "Create Post"}
+              👀 Preview
+            </button>
+          </div>
+
+          {/* Editor / Preview */}
+          <div className="md:grid md:grid-cols-2 md:gap-4">
+            {/* Write */}
+            <div className={`${tab === "write" ? "block" : "hidden"} md:block`}>
+              <textarea
+                ref={textAreaRef}
+                id="content_md"
+                value={contentMD}
+                onChange={(e) => setContentMD(e.target.value)}
+                placeholder="Write Markdown… (GFM, math $x^2$, code blocks)"
+                className="h-[55vh] w-full rounded-xl border border-slate-200 p-3 sm:p-4 resize-none outline-none caret-blue-600 scrollbar-clear"
+              />
+            </div>
+
+            {/* Preview */}
+            <div className={`${tab === "preview" ? "block" : "hidden"} md:block`}>
+              <div className="h-[55vh] overflow-auto rounded-xl border border-slate-200 p-3 sm:p-4 scrollbar-clear">
+                <article className="prose max-w-none prose-a:text-blue-700 prose-img:rounded-xl">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]]}
+                  >
+                    {contentMD}
+                  </ReactMarkdown>
+                </article>
+              </div>
+            </div>
+          </div>
+
+          {/* Status + Actions */}
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          {isUploading && <p className="text-sm text-slate-500">Uploading image…</p>}
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-md text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200">
+              Cancel
+            </button>
+            <button type="submit" disabled={isSubmitting || isUploading} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300">
+              {isSubmitting ? "Creating…" : "Create Post"}
             </button>
           </div>
         </form>
-        <div className="flex-1 overflow-auto prose">
-          <ReactMarkdown>{contentMD}</ReactMarkdown>
-        </div>
       </div>
     </div>
   );
