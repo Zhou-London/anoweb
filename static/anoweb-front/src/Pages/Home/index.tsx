@@ -70,10 +70,10 @@ export default function Home() {
           </div>
 
           {/* ===== Column 3 (equal height) ===== */}
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full gap-4">
             <Link
               to="/projects"
-              className="bg-white rounded-2xl shadow-lg p-6 w-full h-full transition-transform duration-150 hover:scale-[1.01] hover:shadow-xl no-underline flex"
+              className="bg-white rounded-2xl shadow-lg p-6 w-full transition-transform duration-150 hover:scale-[1.01] hover:shadow-xl no-underline flex flex-1"
             >
               <div className="m-auto text-center flex flex-col items-center">
                 <h2 className="text-lg font-semibold text-gray-800 mb-3">
@@ -85,6 +85,23 @@ export default function Home() {
                 </p>
               </div>
             </Link>
+
+            <a
+              href="https://drive.google.com/file/d/1lJQSIysTrcrDtCgAK0koo-gIb0rhaJAK/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white rounded-2xl shadow-lg p-6 w-full transition-transform duration-150 hover:scale-[1.01] hover:shadow-xl no-underline flex"
+            >
+              <div className="m-auto text-center flex flex-col items-center">
+                <h2 className="text-lg font-semibold text-gray-800 mb-3">
+                  View My CV
+                </h2>
+                <span className="text-4xl mb-2">📄</span>
+                <p className="text-gray-600 max-w-[24ch]">
+                  Download my resume to explore my experience and skills in depth.
+                </p>
+              </div>
+            </a>
           </div>
         </div>
       </div>
