@@ -9,10 +9,12 @@ export function useHomeData() {
   const [latestPost, setLatestPost] = useState<Post | null>(null);
 
   useEffect(() => {
-    apiJson<Profile>("/home/profile-info").then(setProfile).catch(() => setProfile(null));
-    apiJson<Education[]>("/home/education").then(setEducation).catch(() => setEducation([]));
-    apiJson<Experience[]>("/home/experience").then(setExperience).catch(() => setExperience([]));
-    apiJson<Post>("/home/post/latest").then(setLatestPost).catch(() => setLatestPost(null));
+    apiJson<Profile>("/profile").then(setProfile).catch(() => setProfile(null));
+    apiJson<Education[]>("/education").then(setEducation).catch(() => setEducation([]));
+    apiJson<Experience[]>("/experience/short")
+      .then(setExperience)
+      .catch(() => setExperience([]));
+    apiJson<Post>("/post/latest").then(setLatestPost).catch(() => setLatestPost(null));
   }, []);
 
   return { profile, education, experience, setExperience, latestPost };
