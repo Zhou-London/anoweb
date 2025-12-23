@@ -1,6 +1,7 @@
 // src/components/ProjectPage/CreateProjectModal.tsx
 
 import { useState } from "react";
+import { apiFetch } from "../../lib/api";
 
 type CreateProjectModalProps = {
   onClose: () => void;
@@ -27,7 +28,7 @@ export default function CreateProjectModal({ onClose, onSuccess }: CreateProject
     formData.append("file", file);
 
     try {
-      const response = await fetch("/api/static/upload-image", {
+      const response = await apiFetch("/static/upload-image", {
         method: "POST",
         body: formData,
       });
@@ -56,7 +57,7 @@ export default function CreateProjectModal({ onClose, onSuccess }: CreateProject
     setError(null);
 
     try {
-      const response = await fetch("/api/project", {
+      const response = await apiFetch("/project", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, description, link, image_url: imageUrl }),
