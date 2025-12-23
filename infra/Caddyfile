@@ -1,0 +1,21 @@
+anonchihaya.co.uk, www.anonchihaya.co.uk, zhouzhouzhang.co.uk, www.zhouzhouzhang.co.uk {
+    encode gzip zstd
+
+    @api path /api*
+    handle @api {
+           reverse_proxy localhost:8080
+    }
+
+    @images path /image/*
+    handle @images {
+        root * /mnt/disks/nvme2/www
+        file_server
+    }
+
+    @spa not path /api*
+    handle @spa {
+        root * /var/www/anoweb
+        try_files {path} /index.html
+        file_server
+    }
+}
