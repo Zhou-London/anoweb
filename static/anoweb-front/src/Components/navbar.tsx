@@ -59,52 +59,51 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-      <div className="mx-auto max-w-6xl px-4 md:px-6">
+    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-slate-200/80 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+      <div className="mx-auto max-w-6xl px-4 md:px-6" ref={menuWrapRef}>
         <div className="h-14 md:h-16 flex items-center justify-between gap-3">
           <a
             href="https://zhouzhouzhang.co.uk/"
-            className="flex items-center gap-2 rounded-full px-3 py-1 text-base md:text-lg font-semibold text-slate-900 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
+            className="flex items-center gap-3 rounded-full px-3 py-1 text-base md:text-lg font-semibold text-slate-900 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
             rel="noopener noreferrer"
           >
-            <span className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-white font-bold grid place-items-center shadow-sm">
+            <span className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white font-bold grid place-items-center shadow-sm">
               Z
             </span>
-            <span>zhouzhouzhang.co.uk</span>
+            <div className="flex flex-col leading-tight">
+              <span className="text-[13px] uppercase tracking-[0.18em] text-slate-500">Portfolio</span>
+              <span className="-mt-0.5">zhouzhouzhang.co.uk</span>
+            </div>
           </a>
 
-          <div className="flex items-center gap-2" ref={menuWrapRef}>
-            <div className="hidden md:flex items-center gap-4">
-              <Link to="/" className="rounded-full px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
-                Home
-              </Link>
-              <Link to="/about" className="rounded-full px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
-                About
-              </Link>
-              <Link to="/projects" className="rounded-full px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
-                Projects
-              </Link>
-              <button
-                onClick={handleAdminLogin}
-                className="rounded-full px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
-              >
-                Admin
-              </button>
-              {isAdmin && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-100">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" /> Admin Mode
-                </span>
-              )}
-            </div>
-
+          <div className="hidden md:flex items-center gap-2 rounded-full bg-slate-50/80 px-2 py-1 border border-slate-200">
+            <Link to="/" className="nav-chip">
+              Home
+            </Link>
+            <Link to="/about" className="nav-chip">
+              About
+            </Link>
+            <Link to="/projects" className="nav-chip">
+              Projects
+            </Link>
+            <button onClick={handleAdminLogin} className="nav-chip text-blue-700">
+              Admin
+            </button>
             {isAdmin && (
-              <span className="md:hidden inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700">
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-100">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" /> Admin
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 md:hidden">
+            {isAdmin && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Admin
               </span>
             )}
-
             <button
-              className="md:hidden inline-flex items-center justify-center rounded-full p-2 text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
+              className="inline-flex items-center justify-center rounded-full p-2 text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
               aria-label="Toggle navigation menu"
               aria-expanded={open}
               aria-controls="mobile-nav"
@@ -131,7 +130,7 @@ export default function Navbar() {
         <div className="mx-auto max-w-6xl px-4 pb-3">
           <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div className="flex items-center justify-between px-3 py-2">
-              <span className="text-sm font-semibold text-slate-700">Menu</span>
+              <span className="text-sm font-semibold text-slate-700">Quick links</span>
               <button
                 className="inline-flex items-center justify-center rounded-full p-2 text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
                 aria-label="Close menu"

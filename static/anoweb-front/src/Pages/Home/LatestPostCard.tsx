@@ -20,10 +20,10 @@ function stripMarkdown(md: string): string {
 export default function LatestPostCard({ post, size = "compact" }: LatestPostCardProps) {
   if (!post) return null;
 
-  const titleLines   = size === "compact" ? 2 : 4;
+  const titleLines = size === "compact" ? 2 : 4;
   const previewLines = size === "compact" ? 3 : 5;
-  const pad          = size === "compact" ? "p-3.5 sm:p-4" : "p-4 sm:p-5";
-  const previewText  = stripMarkdown(post.content_md || "");
+  const pad = size === "compact" ? "p-4" : "p-5";
+  const previewText = stripMarkdown(post.content_md || "");
 
   const updatedStr = new Date(post.updated_at).toLocaleString(undefined, {
     year: "numeric",
@@ -34,31 +34,21 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
   });
 
   return (
-    <div
-      className="relative w-full overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5 bg-white
-                 transition-transform duration-200 hover:scale-[1.01] hover:shadow-xl"
-      style={{ aspectRatio: "1 / 1" }}   // keeps it square
-    >
-      {/* top accent stripe */}
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-400 via-indigo-400 to-fuchsia-400 opacity-70" />
-
-      {/* Make the INNER container the grid so rows are guaranteed */}
+    <div className="relative w-full overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5 bg-white/90">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-fuchsia-500/10" aria-hidden />
       <Link
         to="/projects"
-        className={`block w-full h-full ${pad} grid min-h-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-2xl`}
-        style={{ gridTemplateRows: "auto auto 1fr auto" }}
+        className={`relative block w-full h-full ${pad} space-y-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-2xl`}
         aria-label={`Open latest post: ${post.name}`}
       >
-        {/* Row 1: badge */}
-        <div className="mb-1">
-          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold
-                           bg-gradient-to-r from-blue-50 to-indigo-50 text-indigo-700 ring-1 ring-indigo-100">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/80 text-indigo-700 ring-1 ring-indigo-100 shadow-sm">
             <span aria-hidden>🆕</span>
-            Latest&nbsp;Post
+            Latest Post
           </span>
+          <span className="text-[11px] text-slate-600">Updated {updatedStr}</span>
         </div>
 
-        {/* Row 2: title (never covered) */}
         <div className="relative z-10">
           <h3
             className="text-[15px] sm:text-base font-semibold text-gray-900 leading-5 sm:leading-6 tracking-tight"
@@ -76,10 +66,9 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
           </h3>
         </div>
 
-        {/* Row 3: snippet (takes only leftover space) */}
-        <div className="relative min-h-0 overflow-hidden mt-1">
+        <div className="relative min-h-0 overflow-hidden">
           <p
-            className="text-[12.5px] sm:text-sm text-gray-700 leading-5"
+            className="text-[13px] sm:text-sm text-gray-700 leading-6"
             style={{
               display: "-webkit-box",
               WebkitLineClamp: previewLines,
@@ -91,15 +80,13 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
           >
             {previewText}
           </p>
-          {/* fade lives inside snippet, low z-index */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-5 sm:h-6 bg-gradient-to-t from-white to-transparent z-0" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-white/90 to-transparent z-0" />
         </div>
 
-        {/* Row 4: footer — ALWAYS visible */}
         <div className="pt-1.5">
-          <p className="text-[11px] sm:text-xs text-gray-600 inline-flex items-center gap-1">
-            <span aria-hidden>🕒</span>
-            <span>Updated: {updatedStr}</span>
+          <p className="text-[11px] sm:text-xs text-slate-600 inline-flex items-center gap-1">
+            <span className="inline-block h-2 w-2 rounded-full bg-blue-500" aria-hidden />
+            Read inside Projects
           </p>
         </div>
       </Link>
