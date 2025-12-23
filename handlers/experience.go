@@ -1,4 +1,4 @@
-package experiencehandler
+package handlers
 
 import (
 	"net/http"
@@ -126,4 +126,38 @@ func DeleteExperience(c *gin.Context, experience_repo repositories.ExperienceRep
 
 	c.JSON(http.StatusOK, gin.H{"message": "Experience deleted successfully"})
 
+}
+
+func GetExperiencesShort(c *gin.Context, experience_repo repositories.ExperienceRepository) {
+	experiences, err := experience_repo.GetAllShort()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"GetExperiencesShort() error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, experiences)
+}
+
+func PutExperienceOrder(c *gin.Context, experience_repo repositories.ExperienceRepository) {
+
+	type PutExperienceOrderRequest struct {
+		ID         int `json:"id"`
+		OrderIndex int `json:"order_index"`
+	}
+
+	var req []PutExperienceOrderRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	for _, r := range req {
+		_, err := experience_repo.UpdateOrderIndex(r.ID, r.OrderIndex)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"PutExperienceOrder() error": err.Error()})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Experience order updated successfully"})
 }
