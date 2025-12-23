@@ -87,22 +87,27 @@ export function PostCardRail({
   };
 
   return (
-    <section className="h-60 shrink-0" style={{ perspective: "1500px" }}>
-      <div
-        ref={railRef}
-        className="h-full flex items-center gap-6 overflow-x-auto snap-x snap-mandatory custom-scrollbar py-2"
-      >
-        <div className="shrink-0 basis-[calc(50%-8rem)]" />
+    <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-4">
+      <div className="flex items-center justify-between mb-3 px-1">
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Posts</p>
+          <h3 className="text-lg font-semibold text-slate-900">Project updates</h3>
+        </div>
         {isAdmin && (
           <button
             onClick={onOpenCreateModal}
-            className="shrink-0 w-64 h-52 snap-center rounded-2xl p-6 cursor-pointer bg-blue-500/80 hover:bg-blue-500/95 text-white flex items-center justify-center text-2xl font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-blue-200/60"
+            className="rounded-full bg-blue-600 text-white px-3 py-1.5 text-xs font-semibold shadow-sm hover:bg-blue-700"
           >
-            + New Post
+            + New post
           </button>
         )}
+      </div>
+      <div
+        ref={railRef}
+        className="h-60 flex items-center gap-4 overflow-x-auto snap-x snap-mandatory custom-scrollbar pb-2"
+      >
         {isLoading ? (
-          <p className="text-slate-500">Loading Posts...</p>
+          <p className="text-slate-500 px-4">Loading Posts...</p>
         ) : posts.length > 0 ? (
           sortedPosts.map((post) => (
             <div
@@ -111,41 +116,42 @@ export function PostCardRail({
                 cardRefs.current[post.id] = el;
               }}
               onClick={() => handleCardClick(post)}
-              className={`
-                  shrink-0 w-64 h-52 snap-center rounded-2xl p-6 cursor-pointer
-                  bg-white/80 hover:bg-white/95 backdrop-blur-md border border-blue-200/50
-                  shadow-md flex flex-col justify-between
-                  transition-shadow duration-300 hover:shadow-lg hover:shadow-blue-200/60
-                  relative
-                  ${focusedPostId === post.id ? "focused-card" : ""}
-                `}
+              className={`shrink-0 w-64 h-full snap-start rounded-2xl border p-4 cursor-pointer bg-white/80 shadow-sm hover:shadow-md transition-all duration-200 relative ${
+                focusedPostId === post.id ? "focused-card" : "border-slate-200"
+              }`}
             >
-              <h3 className="font-semibold text-slate-800 line-clamp-4 text-base">
-                {post.name}
-              </h3>
-              <p className="text-xs text-slate-500 mt-2">
-                Updated: {new Date(post.updated_at).toLocaleDateString()}
-              </p>
-              {isAdmin && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeletePost(post.id);
-                  }}
-                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
-                  aria-label="Delete post"
-                >
-                  X
-                </button>
-              )}
+              <div className="flex items-start gap-2">
+                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white grid place-items-center text-sm font-semibold">
+                  MD
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-900 line-clamp-3">{post.name}</p>
+                  <p className="text-[11px] text-slate-600">Updated {new Date(post.updated_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-[11px] text-slate-600">
+                <span className="inline-flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-blue-500" />
+                  Tap to open
+                </span>
+                {isAdmin && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeletePost(post.id);
+                    }}
+                    className="text-rose-600 hover:text-rose-700 font-semibold"
+                    aria-label="Delete post"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
             </div>
           ))
         ) : (
-          <div className="text-center w-full text-slate-500">
-            No posts found for this project.
-          </div>
+          <div className="text-center w-full text-slate-500 px-4">No posts found for this project.</div>
         )}
-        <div className="shrink-0 basis-[calc(50%-8rem)]" />
       </div>
     </section>
   );
