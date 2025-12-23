@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { AdminContext } from "../../Contexts/admin_context";
+import { apiFetch } from "../../lib/api";
 import type { Experience } from "./types";
 
 type ExperienceCardProps = {
@@ -20,7 +21,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
     current.splice(toIndex, 0, moved);
     const reindexed = current.map((item, idx) => ({ ...item, order_index: idx }));
     setExperience(reindexed);
-    fetch("/api/home/experience/order", {
+    apiFetch("/home/experience/order", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(reindexed.map((it, idx) => ({ id: it.id, order_index: idx }))),

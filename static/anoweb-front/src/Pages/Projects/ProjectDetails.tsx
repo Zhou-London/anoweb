@@ -2,6 +2,7 @@
 
 import { useState, useContext, useEffect } from "react";
 import { AdminContext } from "../../Contexts/admin_context";
+import { apiFetch } from "../../lib/api";
 import { type Project } from "./types";
 
 type ProjectDetailsProps = {
@@ -35,7 +36,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
     data.append("file", file);
 
     try {
-      const response = await fetch("/api/static/upload-image", { method: "POST", body: data });
+      const response = await apiFetch("/static/upload-image", { method: "POST", body: data });
       if (!response.ok) throw new Error("Image upload failed");
       const url = await response.text();
       setFormData((prev) => ({ ...prev, image_url: url }));
@@ -52,7 +53,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
     setError(null);
 
     try {
-      const response = await fetch("/api/project", {
+      const response = await apiFetch("/project", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData }),

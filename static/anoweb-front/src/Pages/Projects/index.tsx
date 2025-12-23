@@ -5,7 +5,6 @@ import { useProjectData } from "./useProjectData";
 import ProjectList from "./ProjectList";
 import { ProjectDetails } from "./ProjectDetails";
 import { PostCardRail } from "./PostCardRail";
-import { PostDetailModal } from "./PostDetailModal";
 import CreateProjectModal from "./CreateProjectModal";
 import CreatePostModal from "./CreatePostModal";
 
@@ -36,14 +35,11 @@ export default function ProjectPage() {
   const {
     projects,
     posts,
-    viewingPost,
     selectedProjectId,
     selectedProject,
     isLoadingProjects,
     isLoadingPosts,
-    isLoadingPostDetail,
     setSelectedProjectId,
-    setViewingPost,
     handleViewPost,
     isCreateModalOpen,
     openCreateModal,
@@ -115,15 +111,6 @@ export default function ProjectPage() {
             </div>
           )}
         </main>
-
-        {/* Post Detail Modal (conditionally rendered) */}
-        {viewingPost && (
-          <PostDetailModal
-            post={viewingPost}
-            isLoading={isLoadingPostDetail}
-            onClose={() => setViewingPost(null)}
-          />
-        )}
 
         {/* Create Project Modal (conditionally rendered) */}
         {isCreateModalOpen && (

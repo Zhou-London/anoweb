@@ -2,6 +2,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AdminContext } from "../Contexts/admin_context";
+import { apiFetch } from "../lib/api";
 
 export default function Navbar() {
   const { isAdmin, setIsAdmin } = useContext(AdminContext);
@@ -41,77 +42,69 @@ export default function Navbar() {
     const pass = prompt("Enter admin password:");
     if (!pass) return;
 
-    try {
-      const res = await fetch("/api/admin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pass }),
-        credentials: "include",
-      });
-
-      if (res.ok) {
+    apiFetch("/admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pass }),
+      credentials: "include",
+    })
+      .then(() => {
         alert("Admin validated!");
         setIsAdmin(true);
-      } else {
-        alert("Invalid password");
+      })
+      .catch(() => {
+        alert("Invalid password or server unreachable");
         setIsAdmin(false);
-      }
-    } catch (err) {
-      alert("Error contacting server");
-      console.error(err);
-      setIsAdmin(false);
-    }
+      });
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-md">
+    <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="h-14 md:h-16 flex items-center justify-between gap-3">
-          {/* Brand (external) */}
           <a
             href="https://zhouzhouzhang.co.uk/"
-            className="shrink-0 text-base md:text-lg font-extrabold tracking-tight text-gray-900 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+            className="flex items-center gap-2 rounded-full px-3 py-1 text-base md:text-lg font-semibold text-slate-900 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
             rel="noopener noreferrer"
           >
-            zhouzhouzhang.co.uk
+            <span className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-white font-bold grid place-items-center shadow-sm">
+              Z
+            </span>
+            <span>zhouzhouzhang.co.uk</span>
           </a>
 
-          {/* Right side (wrap toggle + menu in one ref for reliable outside-click) */}
           <div className="flex items-center gap-2" ref={menuWrapRef}>
-            {/* Inline nav (md+) */}
-            <div className="hidden md:flex items-center gap-6">
-              <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium">
+            <div className="hidden md:flex items-center gap-4">
+              <Link to="/" className="rounded-full px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
                 Home
               </Link>
-              <Link to="/about" className="text-gray-700 hover:text-blue-600 font-medium">
+              <Link to="/about" className="rounded-full px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
                 About
               </Link>
-              <Link to="/projects" className="text-gray-700 hover:text-blue-600 font-medium">
+              <Link to="/projects" className="rounded-full px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
                 Projects
               </Link>
               <button
                 onClick={handleAdminLogin}
-                className="text-gray-700 hover:text-blue-600 font-medium"
+                className="rounded-full px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
               >
                 Admin
               </button>
               {isAdmin && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">
-                  <span className="h-2 w-2 rounded-full bg-green-500" /> Admin Mode
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-100">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" /> Admin Mode
                 </span>
               )}
             </div>
 
-            {/* Compact admin badge on mobile */}
             {isAdmin && (
-              <span className="md:hidden inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-[10px] font-semibold text-green-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-green-500" /> Admin
+              <span className="md:hidden inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Admin
               </span>
             )}
 
-            {/* Hamburger (sm only) */}
             <button
-              className="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="md:hidden inline-flex items-center justify-center rounded-full p-2 text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
               aria-label="Toggle navigation menu"
               aria-expanded={open}
               aria-controls="mobile-nav"
@@ -125,8 +118,6 @@ export default function Navbar() {
                 )}
               </svg>
             </button>
-
-            {/* Mobile dropdown (inside the same wrapper) */}
           </div>
         </div>
       </div>
@@ -136,15 +127,13 @@ export default function Navbar() {
         className={`md:hidden transition-[max-height,opacity] duration-200 ease-out overflow-hidden ${
           open ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
         }`}
-        // Put the dropdown inside the same wrapper visually (CSS-wise it follows nav)
       >
         <div className="mx-auto max-w-6xl px-4 pb-3">
-          <div className="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur p-2 shadow-sm">
-            <div className="flex items-center justify-between px-1 pb-1">
-              <span className="text-sm font-semibold text-gray-700">Menu</span>
-              {/* Explicit close button for clarity */}
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between px-3 py-2">
+              <span className="text-sm font-semibold text-slate-700">Menu</span>
               <button
-                className="inline-flex items-center justify-center rounded-lg p-2 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="inline-flex items-center justify-center rounded-full p-2 text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
                 aria-label="Close menu"
                 onClick={() => setOpen(false)}
               >
@@ -156,24 +145,31 @@ export default function Navbar() {
 
             <Link
               to="/"
-              className="block rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100"
+              className="block rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-50"
               onClick={() => setOpen(false)}
             >
               Home
             </Link>
             <Link
               to="/about"
-              className="block rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100"
+              className="block rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-50"
               onClick={() => setOpen(false)}
             >
               About
+            </Link>
+            <Link
+              to="/projects"
+              className="block rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-50"
+              onClick={() => setOpen(false)}
+            >
+              Projects
             </Link>
             <button
               onClick={() => {
                 setOpen(false);
                 handleAdminLogin();
               }}
-              className="block w-full text-left rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100"
+              className="block w-full text-left rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-50"
             >
               Admin
             </button>
