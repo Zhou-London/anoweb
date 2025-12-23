@@ -2,8 +2,9 @@ package models
 
 import "time"
 
+// Learning represents study notes or topics currently being learned.
 type Learning struct {
-	ID          int       `json:"id"`
+	ID          int       `gorm:"primaryKey" json:"id"`
 	Topic       string    `json:"topic"`
 	Description string    `json:"description"`
 	ImageURL    string    `json:"image_url"`

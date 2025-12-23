@@ -31,7 +31,12 @@ func main() {
 		log.Fatal("Error configuring database from .env file")
 	}
 	repositories.InitDatabase(DBUSER, DBPASS, DBHOST, DBPORT, DBNAME)
-	defer repositories.DB.Close()
+
+	sqlDB, err := repositories.DB.DB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer sqlDB.Close()
 
 	profile_repo := repositories.NewProfileRepository()
 	experiences_repo := repositories.NewExperienceRepository()

@@ -1,31 +1,34 @@
 package repositories
 
 import (
-	"database/sql"
+	"fmt"
 	"log"
 
-	"github.com/go-sql-driver/mysql"
+	"anonchihaya.co.uk/models"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
-var DB *sql.DB
+var DB *gorm.DB
 
+// InitDatabase sets up the database connection and auto-migrates models.
 func InitDatabase(usr string, pass string, host string, port string, name string) {
-
-	cfg := mysql.NewConfig()
-	cfg.User = usr
-	cfg.Passwd = pass
-	cfg.Net = "tcp"
-	cfg.Addr = host + ":" + port
-	cfg.DBName = name
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", usr, pass, host, port, name)
 
 	var err error
-	DB, err = sql.Open("mysql", cfg.FormatDSN())
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	pingErr := DB.Ping()
-	if pingErr != nil {
-		log.Fatal(pingErr)
+	if err := DB.AutoMigrate(
+		&models.Profile{},
+		&models.Experience{},
+		&models.Education{},
+		&models.Project{},
+		&models.Learning{},
+		&models.Post{},
+	); err != nil {
+		log.Fatal(err)
 	}
 }

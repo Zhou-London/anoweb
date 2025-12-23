@@ -1,9 +1,8 @@
 package repositories
 
 import (
-	"database/sql"
-
 	"anonchihaya.co.uk/models"
+	"gorm.io/gorm"
 )
 
 type ProjectRepository interface {
@@ -17,7 +16,7 @@ type ProjectRepository interface {
 }
 
 type projectRepository struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
 func NewProjectRepository() ProjectRepository {
@@ -25,85 +24,58 @@ func NewProjectRepository() ProjectRepository {
 }
 
 func (r *projectRepository) GetByID(id int) (*models.Project, error) {
-	row := r.db.QueryRow("SELECT id, name, description, link, image_url, created_at, updated_at FROM projects WHERE id = ?", id)
-
 	var project models.Project
-	err := row.Scan(&project.ID, &project.Name, &project.Description, &project.Link, &project.ImageURL, &project.CreatedAt, &project.UpdatedAt)
-	if err != nil {
+	if err := r.db.First(&project, id).Error; err != nil {
 		return nil, err
 	}
-
 	return &project, nil
 }
 
 func (r *projectRepository) GetAll() ([]*models.Project, error) {
-	rows, err := r.db.Query("SELECT id, name, description, link, image_url, created_at, updated_at FROM projects")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
 	var projects []*models.Project
-	for rows.Next() {
-		var project models.Project
-		if err := rows.Scan(&project.ID, &project.Name, &project.Description, &project.Link, &project.ImageURL, &project.CreatedAt, &project.UpdatedAt); err != nil {
-			return nil, err
-		}
-		projects = append(projects, &project)
-	}
-
-	if err = rows.Err(); err != nil {
+	if err := r.db.Order("created_at DESC").Find(&projects).Error; err != nil {
 		return nil, err
 	}
-
 	return projects, nil
 }
 
 func (r *projectRepository) Create(project *models.Project) (int, error) {
-	result, err := r.db.Exec("INSERT INTO projects (name, description, link, image_url) VALUES (?, ?, ?, ?)", project.Name, project.Description, project.Link, project.ImageURL)
-	if err != nil {
+	if err := r.db.Create(project).Error; err != nil {
 		return 0, err
 	}
-
-	id, _ := result.LastInsertId()
-	project.ID = int(id)
-
-	return int(id), nil
+	return project.ID, nil
 }
 
 func (r *projectRepository) Update(id int, project *models.Project) (*models.Project, error) {
-	_, err := r.db.Exec("UPDATE projects SET name = ?, description = ?, link = ?, image_url = ? WHERE id = ?", project.Name, project.Description, project.Link, project.ImageURL, id)
-	if err != nil {
+	project.ID = id
+	if err := r.db.Save(project).Error; err != nil {
 		return nil, err
 	}
-
-	project.ID = id
 	return project, nil
 }
 
 func (r *projectRepository) UpdateImageUrl(id int, image_url string) (*models.Project, error) {
-	_, err := r.db.Exec("UPDATE projects SET image_url = ? WHERE id = ?", image_url, id)
-	if err != nil {
+	if err := r.db.Model(&models.Project{}).Where("id = ?", id).Update("image_url", image_url).Error; err != nil {
 		return nil, err
 	}
-
-	return nil, nil
+	var project models.Project
+	if err := r.db.First(&project, id).Error; err != nil {
+		return nil, err
+	}
+	return &project, nil
 }
 
 func (r *projectRepository) Delete(id int) error {
-	_, err := r.db.Exec("DELETE FROM projects WHERE id = ?", id)
-	if err != nil {
+	if err := r.db.Delete(&models.Project{}, id).Error; err != nil {
 		return err
 	}
-
 	return nil
 }
 
 func (r *projectRepository) Counts() (int, error) {
-	var count int
-	err := r.db.QueryRow("SELECT COUNT(*) FROM projects").Scan(&count)
-	if err != nil {
+	var count int64
+	if err := r.db.Model(&models.Project{}).Count(&count).Error; err != nil {
 		return 0, err
 	}
-	return count, nil
+	return int(count), nil
 }

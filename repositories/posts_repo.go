@@ -1,9 +1,8 @@
 package repositories
 
 import (
-	"database/sql"
-
 	"anonchihaya.co.uk/models"
+	"gorm.io/gorm"
 )
 
 type PostRepository interface {
@@ -20,7 +19,7 @@ type PostRepository interface {
 }
 
 type postRepository struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
 func NewPostRepository() PostRepository {
@@ -28,160 +27,82 @@ func NewPostRepository() PostRepository {
 }
 
 func (r *postRepository) GetByID(id int) (*models.Post, error) {
-	row := r.db.QueryRow("SELECT id, parent_id, parent_type, name, content_md, created_at, updated_at FROM posts WHERE id = ?", id)
-
 	var post models.Post
-	err := row.Scan(&post.ID, &post.ParentID, &post.ParentType, &post.Name, &post.ContentMD, &post.CreatedAt, &post.UpdatedAt)
-	if err != nil {
+	if err := r.db.First(&post, id).Error; err != nil {
 		return nil, err
 	}
-
 	return &post, nil
 }
 
 func (r *postRepository) GetShortByID(id int) (*models.PostShort, error) {
-	row := r.db.QueryRow("SELECT id, parent_id, parent_type, name, updated_at FROM posts WHERE id = ?", id)
-
 	var post models.PostShort
-	err := row.Scan(&post.ID, &post.ParentID, &post.ParentType, &post.Name, &post.UpdatedAt)
-	if err != nil {
+	if err := r.db.Model(&models.Post{}).Select("id", "parent_id", "parent_type", "name", "updated_at").First(&post, id).Error; err != nil {
 		return nil, err
 	}
-
 	return &post, nil
 }
 
 func (r *postRepository) GetByProject(project_id int) ([]*models.Post, error) {
-	rows, err := r.db.Query("SELECT id, parent_id, parent_type, name, content_md, created_at, updated_at FROM posts WHERE parent_id = ? AND parent_type = 'project'", project_id)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
 	var posts []*models.Post
-	for rows.Next() {
-		var post models.Post
-		if err := rows.Scan(&post.ID, &post.ParentID, &post.ParentType, &post.Name, &post.ContentMD, &post.CreatedAt, &post.UpdatedAt); err != nil {
-			return nil, err
-		}
-		posts = append(posts, &post)
-	}
-
-	if err = rows.Err(); err != nil {
+	if err := r.db.Where("parent_id = ? AND parent_type = ?", project_id, "project").Find(&posts).Error; err != nil {
 		return nil, err
 	}
-
 	return posts, nil
 }
 
 func (r *postRepository) GetShortByProject(project_id int) ([]*models.PostShort, error) {
-	rows, err := r.db.Query("SELECT id, parent_id, parent_type, name, updated_at FROM posts WHERE parent_id = ? AND parent_type = 'project'", project_id)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
 	var posts []*models.PostShort
-	for rows.Next() {
-		var post models.PostShort
-		if err := rows.Scan(&post.ID, &post.ParentID, &post.ParentType, &post.Name, &post.UpdatedAt); err != nil {
-			return nil, err
-		}
-		posts = append(posts, &post)
-	}
-
-	if err = rows.Err(); err != nil {
+	if err := r.db.Model(&models.Post{}).
+		Select("id", "parent_id", "parent_type", "name", "updated_at").
+		Where("parent_id = ? AND parent_type = ?", project_id, "project").
+		Find(&posts).Error; err != nil {
 		return nil, err
 	}
-
 	return posts, nil
-
 }
 
 func (r *postRepository) GetLatest() (*models.Post, error) {
-	rows, err := r.db.Query("SELECT * FROM posts ORDER BY created_at DESC LIMIT 1;")
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
 	var post models.Post
-	if !rows.Next() {
-		return nil, sql.ErrNoRows
-	}
-
-	if err := rows.Scan(&post.ID, &post.ParentID, &post.ParentType, &post.Name, &post.ContentMD, &post.CreatedAt, &post.UpdatedAt); err != nil {
+	if err := r.db.Order("created_at DESC").First(&post).Error; err != nil {
 		return nil, err
 	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
 	return &post, nil
-
 }
 
 func (r *postRepository) GetAll() ([]*models.Post, error) {
-	rows, err := r.db.Query("SELECT id, parent_id, parent_type, name, content_md, created_at, updated_at FROM posts")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
 	var posts []*models.Post
-	for rows.Next() {
-		var post models.Post
-		if err := rows.Scan(&post.ID, &post.ParentID, &post.ParentType, &post.Name, &post.ContentMD, &post.CreatedAt, &post.UpdatedAt); err != nil {
-			return nil, err
-		}
-		posts = append(posts, &post)
-	}
-
-	if err = rows.Err(); err != nil {
+	if err := r.db.Find(&posts).Error; err != nil {
 		return nil, err
 	}
-
 	return posts, nil
 }
 
 func (r *postRepository) Create(post *models.Post) (int, error) {
-	result, err := r.db.Exec("INSERT INTO posts (parent_id, parent_type, name, content_md) VALUES (?, ?, ?, ?)", post.ParentID, post.ParentType, post.Name, post.ContentMD)
-	if err != nil {
+	if err := r.db.Create(post).Error; err != nil {
 		return 0, err
 	}
-
-	id, _ := result.LastInsertId()
-	post.ID = int(id)
-
-	return int(id), nil
+	return post.ID, nil
 }
 
 func (r *postRepository) Update(id int, post *models.Post) (*models.Post, error) {
-	_, err := r.db.Exec("UPDATE posts SET parent_id = ?, parent_type = ?, name = ?, content_md = ? WHERE id = ?", post.ParentID, post.ParentType, post.Name, post.ContentMD, id)
-	if err != nil {
+	post.ID = id
+	if err := r.db.Save(post).Error; err != nil {
 		return nil, err
 	}
-
-	post.ID = id
 	return post, nil
 }
 
 func (r *postRepository) Delete(id int) error {
-	_, err := r.db.Exec("DELETE FROM posts WHERE id = ?", id)
-	if err != nil {
+	if err := r.db.Delete(&models.Post{}, id).Error; err != nil {
 		return err
 	}
-
 	return nil
 }
 
 func (r *postRepository) Counts() (int, error) {
-	var count int
-	err := r.db.QueryRow("SELECT COUNT(*) FROM posts").Scan(&count)
-	if err != nil {
+	var count int64
+	if err := r.db.Model(&models.Post{}).Count(&count).Error; err != nil {
 		return 0, err
 	}
-	return count, nil
+	return int(count), nil
 }
