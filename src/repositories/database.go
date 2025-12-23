@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"anonchihaya.co.uk/models"
+	"anonchihaya.co.uk/src/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
