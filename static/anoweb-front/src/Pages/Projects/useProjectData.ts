@@ -40,7 +40,7 @@ export function useProjectData() {
 
     setIsLoadingPosts(true);
     setPosts([]);
-    apiJson<PostShort[]>(`/project/${selectedProjectId}/posts`)
+    apiJson<PostShort[]>(`/post/project/${selectedProjectId}`)
       .then((data) => {
         if (Array.isArray(data)) {
           setPosts(data);
@@ -71,7 +71,7 @@ export function useProjectData() {
       }
 
       try {
-        await apiFetch(`/project/post/${postId}`, {
+        await apiFetch(`/post/${postId}`, {
           method: "DELETE",
         });
 

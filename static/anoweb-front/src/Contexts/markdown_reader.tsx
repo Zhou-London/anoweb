@@ -34,7 +34,7 @@ export function MarkdownReaderProvider({ children }: { children: ReactNode }) {
 
     if (payload.sourceId) {
       setIsLoading(true);
-      apiJson<Post>(`/project/post/${payload.sourceId}`)
+      apiJson<Post>(`/post/${payload.sourceId}`)
         .then((post) =>
           setCurrent({
             title: post.name,
