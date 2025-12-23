@@ -1,3 +1,23 @@
+# handlers
+
+## GetHomeMsg
+
+### url
+- /api/home
+
+### method
+- GET
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+
+
 # routes
 
 ## func1
@@ -169,26 +189,6 @@ No documentation found for this API
 
 ### method
 - DELETE
-
-### doc
-```doc
-No documentation found for this API
-```
-
-
-
-
-
-
-# handlers
-
-## GetHomeMsg
-
-### url
-- /api/home
-
-### method
-- GET
 
 ### doc
 ```doc
