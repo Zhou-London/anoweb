@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"anonchihaya.co.uk/models"
-	"anonchihaya.co.uk/repositories"
-	"anonchihaya.co.uk/util"
+	"anonchihaya.co.uk/src/models"
+	"anonchihaya.co.uk/src/repositories"
+	"anonchihaya.co.uk/src/util"
 	"github.com/gin-gonic/gin"
 )
 

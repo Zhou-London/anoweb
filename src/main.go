@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"anonchihaya.co.uk/repositories"
-	"anonchihaya.co.uk/routes"
+	"anonchihaya.co.uk/src/repositories"
+	"anonchihaya.co.uk/src/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )

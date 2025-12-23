@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"anonchihaya.co.uk/util"
+	"anonchihaya.co.uk/src/util"
 	"github.com/gin-gonic/gin"
 )
 

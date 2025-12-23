@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"anonchihaya.co.uk/models"
+	"anonchihaya.co.uk/src/models"
 	"gorm.io/gorm"
 )
 
