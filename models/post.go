@@ -1,19 +1,21 @@
 package models
 
+import "time"
+
 type Post struct {
-	ID         int    `json:"id"`
-	ParentID   int    `json:"parent_id"`
-	ParentType string `json:"parent_type"`
-	Name       string `json:"name"`
-	ContentMD  string `json:"content_md"`
-	CreatedAt  string `json:"created_at"`
-	UpdatedAt  string `json:"updated_at"`
+	ID         int       `gorm:"primaryKey" json:"id"`
+	ParentID   int       `json:"parent_id"`
+	ParentType string    `json:"parent_type"`
+	Name       string    `json:"name"`
+	ContentMD  string    `json:"content_md"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type PostShort struct {
-	ID         int    `json:"id"`
-	ParentID   int    `json:"parent_id"`
-	ParentType string `json:"parent_type"`
-	Name       string `json:"name"`
-	UpdatedAt  string `json:"updated_at"`
+	ID         int       `json:"id"`
+	ParentID   int       `json:"parent_id"`
+	ParentType string    `json:"parent_type"`
+	Name       string    `json:"name"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }

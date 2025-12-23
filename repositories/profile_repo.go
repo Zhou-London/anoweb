@@ -1,9 +1,8 @@
 package repositories
 
 import (
-	"database/sql"
-
 	"anonchihaya.co.uk/models"
+	"gorm.io/gorm"
 )
 
 type ProfileRepository interface {
@@ -14,9 +13,9 @@ type ProfileRepository interface {
 	Counts() (int, error)
 }
 
-// * Profile Repository Implementation (MySql)
+// * Profile Repository Implementation (GORM/MySql)
 type profileRepository struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
 func NewProfileRepository() ProfileRepository {
@@ -24,54 +23,38 @@ func NewProfileRepository() ProfileRepository {
 }
 
 func (r *profileRepository) GetByID(id int) (*models.Profile, error) {
-
-	row := r.db.QueryRow("SELECT * FROM profile_info WHERE id = ?", id)
-
 	var profile models.Profile
-	err := row.Scan(&profile.ID, &profile.Name, &profile.Email, &profile.Github, &profile.Linkedin, &profile.Bio)
-	if err != nil {
+	if err := r.db.First(&profile, id).Error; err != nil {
 		return nil, err
 	}
-
 	return &profile, nil
 }
 
 func (r *profileRepository) Create(profile *models.Profile) error {
-	result, err := r.db.Exec("INSERT INTO profile_info (name, email, github, linkedin, bio) VALUES (?, ?, ?, ?, ?)", profile.Name, profile.Email, profile.Github, profile.Linkedin, profile.Bio)
-	if err != nil {
-		return nil
+	if err := r.db.Create(profile).Error; err != nil {
+		return err
 	}
-
-	id, _ := result.LastInsertId()
-	profile.ID = int(id)
-
 	return nil
 }
 
 func (r *profileRepository) Update(profile *models.Profile) (*models.Profile, error) {
-	_, err := r.db.Exec("UPDATE profile_info SET name = ?, email = ?, github = ?, linkedin = ?, bio = ? WHERE id = ?", profile.Name, profile.Email, profile.Github, profile.Linkedin, profile.Bio, profile.ID)
-	if err != nil {
+	if err := r.db.Save(profile).Error; err != nil {
 		return nil, err
 	}
-
 	return profile, nil
 }
 
 func (r *profileRepository) Delete(id int) error {
-
-	_, err := r.db.Exec("DELETE FROM profile_info WHERE id = ?", id)
-	if err != nil {
+	if err := r.db.Delete(&models.Profile{}, id).Error; err != nil {
 		return err
 	}
-
 	return nil
 }
 
 func (r *profileRepository) Counts() (int, error) {
-	var count int
-	err := r.db.QueryRow("SELECT COUNT(*) FROM profile_info").Scan(&count)
-	if err != nil {
+	var count int64
+	if err := r.db.Model(&models.Profile{}).Count(&count).Error; err != nil {
 		return 0, err
 	}
-	return count, nil
+	return int(count), nil
 }
