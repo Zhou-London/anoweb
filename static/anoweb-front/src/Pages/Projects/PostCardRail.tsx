@@ -3,6 +3,7 @@
 import { useRef, useEffect, useMemo, useState, useContext } from "react";
 import { type PostShort } from "./types";
 import { UserContext } from "../../Contexts/user_context";
+import { useEditMode } from "../../Contexts/edit_mode_context";
 
 type PostCardRailProps = {
   posts: PostShort[];
@@ -23,6 +24,8 @@ export function PostCardRail({
   const cardRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const [focusedPostId, setFocusedPostId] = useState<number | null>(null);
   const { isAdmin } = useContext(UserContext);
+  const { editMode } = useEditMode();
+  const showAdminFeatures = isAdmin && editMode;
 
   const sortedPosts = useMemo(() => {
     return [...posts].sort(
@@ -93,7 +96,7 @@ export function PostCardRail({
           <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Posts</p>
           <h3 className="text-lg font-semibold text-slate-900">Project updates</h3>
         </div>
-        {isAdmin && (
+        {showAdminFeatures && (
           <button
             onClick={onOpenCreateModal}
             className="rounded-full bg-blue-600 text-white px-3 py-1.5 text-xs font-semibold shadow-sm hover:bg-blue-700"
@@ -134,7 +137,7 @@ export function PostCardRail({
                   <span className="h-2 w-2 rounded-full bg-blue-500" />
                   Opens in new tab
                 </span>
-                {isAdmin && (
+                {showAdminFeatures && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

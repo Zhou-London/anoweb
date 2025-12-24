@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { UserContext } from "../../Contexts/user_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
+import { useEditMode } from "../../Contexts/edit_mode_context";
 import { useHomeData } from "./useHomeData";
 import { apiJson } from "../../lib/api";
 import ProfileCard from "./ProfileCard";
@@ -12,6 +13,8 @@ import LatestPostCard from "./LatestPostCard";
 
 export default function Home() {
   const { user, isAdmin } = useContext(UserContext);
+  const { editMode } = useEditMode();
+  const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
   const { profile, education, experience, setExperience, latestPost } = useHomeData();
   const [totalHours, setTotalHours] = useState(0);
@@ -140,7 +143,7 @@ export default function Home() {
               >
                 Open posts
               </Link>
-              {isAdmin && (
+              {showAdminFeatures && (
                 <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 border border-emerald-200">
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /> Admin
                 </span>
@@ -168,7 +171,7 @@ export default function Home() {
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Experience</p>
             <h2 className="text-2xl font-semibold text-slate-900">Career path</h2>
           </div>
-          {isAdmin && (
+          {showAdminFeatures && (
             <span className="rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-xs font-semibold border border-blue-100">Drag to reprioritise (admin)</span>
           )}
         </div>
