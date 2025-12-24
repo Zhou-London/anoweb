@@ -148,6 +148,57 @@ export default function AccountPage() {
             </button>
           </form>
 
+          {/* Mystery Code Section */}
+          {!user.is_admin && (
+            <div className="mt-6 p-6 bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 rounded-lg">
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Unlock Admin Access</h3>
+              <p className="text-sm text-slate-600 mb-4">
+                Have a mystery code? Enter it below to gain administrator privileges.
+              </p>
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  const code = formData.get("mystery_code") as string;
+                  if (!code) return;
+
+                  setLoading(true);
+                  try {
+                    await apiFetch("/mystery-code/verify", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ code }),
+                      credentials: "include",
+                    });
+                    await refreshUser();
+                    alert("Admin privileges granted! Please refresh the page.");
+                    e.currentTarget.reset();
+                  } catch (err) {
+                    notifyError(err instanceof Error ? err.message : "Invalid mystery code");
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                className="flex gap-2"
+              >
+                <input
+                  type="text"
+                  name="mystery_code"
+                  placeholder="Enter mystery code"
+                  className="flex-1 px-3 py-2 border border-violet-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-6 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg font-medium hover:from-violet-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {loading ? "Verifying..." : "Verify"}
+                </button>
+              </form>
+            </div>
+          )}
+
           {/* Admin Badge */}
           {user.is_admin && (
             <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">

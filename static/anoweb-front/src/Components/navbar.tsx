@@ -102,8 +102,8 @@ export default function Navbar() {
                 <Link to="/" className="nav-chip">
                   Home
                 </Link>
-                <Link to="/about" className="nav-chip">
-                  About
+                <Link to="/activity" className="nav-chip">
+                  Activity
                 </Link>
                 <Link to="/projects" className="nav-chip">
                   Projects
@@ -230,11 +230,11 @@ export default function Navbar() {
                 Home
               </Link>
               <Link
-                to="/about"
+                to="/activity"
                 className="block rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-50"
                 onClick={() => setOpen(false)}
               >
-                About
+                Activity
               </Link>
               <Link
                 to="/projects"

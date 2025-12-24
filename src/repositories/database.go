@@ -30,6 +30,9 @@ func InitDatabase(usr string, pass string, host string, port string, name string
 		&models.Project{},
 		&models.Learning{},
 		&models.Post{},
+		&models.UserTracking{},
+		&models.MysteryCode{},
+		&models.GuestPopupConfig{},
 	); err != nil {
 		log.Fatal(err)
 	}

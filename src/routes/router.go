@@ -21,6 +21,9 @@ func InitRoutes(
 	postsRepo repositories.PostRepository,
 	userRepo *repositories.UserRepository,
 	sessionRepo *repositories.SessionRepository,
+	trackingRepo *repositories.UserTrackingRepository,
+	mysteryCodeRepo *repositories.MysteryCodeRepository,
+	popupRepo *repositories.GuestPopupConfigRepository,
 ) {
 	registerUserRoutes(r, domain, imgPath, imgURLPrefix, userRepo, sessionRepo)
 	registerAdminRoutes(r, domain, adminPass, key)
@@ -31,4 +34,7 @@ func InitRoutes(
 	registerProjectRoutes(r, key, projectsRepo, sessionRepo)
 	registerEducationRoutes(r, key, imgPath, imgURLPrefix, educationsRepo, sessionRepo)
 	registerPostRoutes(r, key, postsRepo, sessionRepo)
+	registerTrackingRoutes(r, key, trackingRepo, sessionRepo)
+	registerMysteryCodeRoutes(r, key, mysteryCodeRepo, userRepo, sessionRepo)
+	registerGuestPopupRoutes(r, key, popupRepo, sessionRepo)
 }

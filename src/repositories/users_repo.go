@@ -51,3 +51,7 @@ func (r *UserRepository) Update(user *models.User) error {
 func (r *UserRepository) Delete(id uint) error {
 	return r.db.Delete(&models.User{}, id).Error
 }
+
+func (r *UserRepository) SetAdmin(userID uint, isAdmin bool) error {
+	return r.db.Model(&models.User{}).Where("id = ?", userID).Update("is_admin", isAdmin).Error
+}
