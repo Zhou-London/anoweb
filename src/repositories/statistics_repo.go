@@ -159,16 +159,34 @@ func (r *StatisticsRepository) GetUsersOverTime(hours int) ([]UsersOverTimePoint
 	
 	since := time.Now().Add(-time.Duration(hours) * time.Hour)
 	
-	err := r.db.Raw(`
-		SELECT 
-			strftime('%Y-%m-%d %H:00:00', start_time) as hour,
-			COUNT(DISTINCT session_id) as count
-		FROM user_trackings
-		WHERE start_time >= ?
-		GROUP BY strftime('%Y-%m-%d %H:00:00', start_time)
-		ORDER BY hour ASC
-	`, since).Scan(&results).Error
+	// Detect database type
+	dbName := r.db.Dialector.Name()
+	var query string
 	
+	if dbName == "sqlite" {
+		query = `
+			SELECT 
+				strftime('%Y-%m-%d %H:00:00', start_time) as hour,
+				COUNT(DISTINCT session_id) as count
+			FROM user_trackings
+			WHERE start_time >= ?
+			GROUP BY strftime('%Y-%m-%d %H:00:00', start_time)
+			ORDER BY hour ASC
+		`
+	} else {
+		// MySQL/MariaDB
+		query = `
+			SELECT 
+				DATE_FORMAT(start_time, '%Y-%m-%d %H:00:00') as hour,
+				COUNT(DISTINCT session_id) as count
+			FROM user_trackings
+			WHERE start_time >= ?
+			GROUP BY DATE_FORMAT(start_time, '%Y-%m-%d %H:00:00')
+			ORDER BY hour ASC
+		`
+	}
+	
+	err := r.db.Raw(query, since).Scan(&results).Error
 	return results, err
 }
 
@@ -184,15 +202,33 @@ func (r *StatisticsRepository) GetDailyActiveUsers(days int) ([]DailyActiveUsers
 	
 	since := time.Now().Add(-time.Duration(days) * 24 * time.Hour)
 	
-	err := r.db.Raw(`
-		SELECT 
-			date(start_time) as date,
-			COUNT(DISTINCT session_id) as count
-		FROM user_trackings
-		WHERE start_time >= ?
-		GROUP BY date(start_time)
-		ORDER BY date ASC
-	`, since).Scan(&results).Error
+	// Detect database type
+	dbName := r.db.Dialector.Name()
+	var query string
 	
+	if dbName == "sqlite" {
+		query = `
+			SELECT 
+				date(start_time) as date,
+				COUNT(DISTINCT session_id) as count
+			FROM user_trackings
+			WHERE start_time >= ?
+			GROUP BY date(start_time)
+			ORDER BY date ASC
+		`
+	} else {
+		// MySQL/MariaDB - DATE() works the same
+		query = `
+			SELECT 
+				DATE(start_time) as date,
+				COUNT(DISTINCT session_id) as count
+			FROM user_trackings
+			WHERE start_time >= ?
+			GROUP BY DATE(start_time)
+			ORDER BY date ASC
+		`
+	}
+	
+	err := r.db.Raw(query, since).Scan(&results).Error
 	return results, err
 }
