@@ -18,6 +18,9 @@ export default function ExperienceCard({ experience, setExperience }: Experience
   const [newBulletText, setNewBulletText] = useState<Record<number, string>>({});
   const [savingBullets, setSavingBullets] = useState<Record<number, boolean>>({});
   const [bulletErrors, setBulletErrors] = useState<Record<number, string | null>>({});
+  const [descriptionDrafts, setDescriptionDrafts] = useState<Record<number, string>>({});
+  const [savingDescription, setSavingDescription] = useState<Record<number, boolean>>({});
+  const [descriptionErrors, setDescriptionErrors] = useState<Record<number, string | null>>({});
 
   const cleanDate = (value: string) => {
     if (!value) return "";
@@ -75,6 +78,34 @@ export default function ExperienceCard({ experience, setExperience }: Experience
     updateDraftList(exp, list);
   };
 
+  const getDescriptionDraft = (exp: Experience) => descriptionDrafts[exp.id] ?? (exp.description ?? "");
+
+  const handleDescriptionChange = (exp: Experience, value: string) => {
+    setDescriptionDrafts((prev) => ({ ...prev, [exp.id]: value }));
+  };
+
+  const handleSaveDescription = async (exp: Experience) => {
+    const description = getDescriptionDraft(exp).trim();
+    setSavingDescription((prev) => ({ ...prev, [exp.id]: true }));
+    setDescriptionErrors((prev) => ({ ...prev, [exp.id]: null }));
+    try {
+      await apiFetch("/experience", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id: exp.id, description }),
+      });
+      setExperience((prev) => prev.map((item) => (item.id === exp.id ? { ...item, description } : item)));
+      setDescriptionDrafts((prev) => ({ ...prev, [exp.id]: description }));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Save failed";
+      setDescriptionErrors((prev) => ({ ...prev, [exp.id]: message }));
+      notifyError(message);
+    } finally {
+      setSavingDescription((prev) => ({ ...prev, [exp.id]: false }));
+    }
+  };
+
   const handleSaveBullets = async (exp: Experience) => {
     const bulletPoints = getDraftList(exp).map((line) => line.trim()).filter(Boolean);
 
@@ -130,23 +161,58 @@ export default function ExperienceCard({ experience, setExperience }: Experience
               isAdmin ? "cursor-grab" : "cursor-default"
             }`}
           >
-            <div className="absolute left-4 top-4 bottom-4 w-px bg-slate-200/80" aria-hidden />
-            <div className="grid grid-cols-[auto_1fr_auto] items-start gap-4">
-              <div className="flex flex-col items-center gap-2 text-[11px] text-slate-600">
-                <span className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 border border-blue-100 grid place-items-center font-semibold">
+            <div className="hidden sm:absolute sm:left-4 sm:top-4 sm:bottom-4 sm:w-px sm:bg-slate-200/80" aria-hidden />
+            <div className="flex flex-col gap-4 sm:grid sm:grid-cols-[auto_1fr_auto] sm:items-start sm:gap-4">
+              <div className="flex items-center gap-3 text-[11px] text-slate-600 sm:flex-col sm:items-center sm:gap-2">
+                <span className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 border border-blue-100 grid place-items-center font-semibold shadow-sm">
                   {index + 1}
                 </span>
                 {exp.present && <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-1">Current</span>}
               </div>
-              <div className="flex items-start gap-4">
-                <img src={exp.image_url} alt={exp.company} className="w-12 h-12 rounded-xl object-cover shadow-sm border border-slate-200" />
-                <div className="min-w-0 flex-1 space-y-1">
+              <div className="flex items-start gap-4 sm:col-auto">
+                <img
+                  src={exp.image_url}
+                  alt={exp.company}
+                  className="w-14 h-14 rounded-xl object-cover shadow-sm border border-slate-200"
+                />
+                <div className="min-w-0 flex-1 space-y-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-sm font-semibold text-slate-900 truncate">{exp.company}</p>
+                    <p className="text-base font-semibold text-slate-900 truncate">{exp.company}</p>
                     {isAdmin && <span className="text-[10px] uppercase tracking-[0.12em] text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">Drag</span>}
                   </div>
                   <p className="text-xs text-slate-600 truncate">{exp.position}</p>
-                  {exp.description && <p className="text-sm text-slate-700 leading-snug">{exp.description}</p>}
+                  {!isAdmin && exp.description && <p className="text-sm text-slate-700 leading-snug">{exp.description}</p>}
+                  {isAdmin && (
+                    <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50/70 p-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="text-xs font-medium text-slate-700" htmlFor={`description-${exp.id}`}>
+                          Description
+                        </label>
+                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700 border border-amber-100">
+                          Admin edit
+                        </span>
+                      </div>
+                      <textarea
+                        id={`description-${exp.id}`}
+                        className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                        rows={3}
+                        value={getDescriptionDraft(exp)}
+                        onChange={(e) => handleDescriptionChange(exp, e.target.value)}
+                        placeholder="Add a short description"
+                      />
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleSaveDescription(exp)}
+                          disabled={savingDescription[exp.id]}
+                          className="rounded-full bg-blue-600 text-white px-3 py-1.5 text-xs font-semibold shadow-sm hover:bg-blue-700 disabled:bg-blue-300"
+                        >
+                          {savingDescription[exp.id] ? "Saving…" : "Save description"}
+                        </button>
+                        {descriptionErrors[exp.id] && <span className="text-xs text-rose-600">{descriptionErrors[exp.id]}</span>}
+                      </div>
+                    </div>
+                  )}
                   {Array.isArray(exp.bullet_points) && exp.bullet_points.length > 0 && (
                     <ul className="mt-2 space-y-1 text-sm text-slate-800 list-disc list-inside">
                       {exp.bullet_points.map((point, idx) => (
@@ -214,8 +280,8 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                   )}
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-2 text-right min-w-[120px]">
-                <div className="flex items-center gap-2 text-[11px] text-slate-600">
+              <div className="flex flex-col items-start gap-2 text-left sm:items-end sm:text-right sm:min-w-[140px]">
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-600">
                   <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
                   <span className="rounded-full bg-slate-50 border border-slate-200 px-2 py-1">{range}</span>
                 </div>
