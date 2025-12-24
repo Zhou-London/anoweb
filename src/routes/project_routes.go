@@ -7,9 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func registerProjectRoutes(r *gin.Engine, key string, projectsRepo repositories.ProjectRepository) {
+func registerProjectRoutes(r *gin.Engine, key string, projectsRepo repositories.ProjectRepository, sessionRepo *repositories.SessionRepository) {
 	proj := r.Group(prefix + "/project")
-	proj.Use(middlewares.KeyChecker(key))
+	proj.Use(middlewares.OptionalAuthMiddleware(sessionRepo))
+	proj.Use(func(c *gin.Context) {
+		_, hasUser := c.Get("user")
+		if !hasUser {
+			middlewares.KeyChecker(key)(c)
+		}
+	})
 	{
 		proj.GET("", func(ctx *gin.Context) {
 			handlers.GetProjects(ctx, projectsRepo)

@@ -7,7 +7,7 @@ import { ProjectDetails } from "./ProjectDetails";
 import { PostCardRail } from "./PostCardRail";
 import CreateProjectModal from "./CreateProjectModal";
 import CreatePostModal from "./CreatePostModal";
-import { AdminContext } from "../../Contexts/admin_context";
+import { UserContext } from "../../Contexts/user_context";
 
 const styles = `
   .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -42,7 +42,7 @@ export default function ProjectPage() {
     refreshPosts,
     handleDeletePost,
   } = useProjectData();
-  const { isAdmin } = useContext(AdminContext);
+  const { isAdmin } = useContext(UserContext);
 
   return (
     <>

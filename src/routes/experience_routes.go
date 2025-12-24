@@ -7,9 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func registerExperienceRoutes(r *gin.Engine, key, imgPath, imgURLPrefix string, experiencesRepo repositories.ExperienceRepository) {
+func registerExperienceRoutes(r *gin.Engine, key, imgPath, imgURLPrefix string, experiencesRepo repositories.ExperienceRepository, sessionRepo *repositories.SessionRepository) {
 	exp := r.Group(prefix + "/experience")
-	exp.Use(middlewares.KeyChecker(key))
+	exp.Use(middlewares.OptionalAuthMiddleware(sessionRepo))
+	exp.Use(func(c *gin.Context) {
+		_, hasUser := c.Get("user")
+		if !hasUser {
+			middlewares.KeyChecker(key)(c)
+		}
+	})
 	{
 		exp.POST("/upload-experience-img", func(ctx *gin.Context) {
 			handlers.UploadExperienceImg(ctx, imgPath, imgURLPrefix)

@@ -7,9 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func registerProfileRoutes(r *gin.Engine, key, imgPath, imgURLPrefix string, profileRepo repositories.ProfileRepository) {
+func registerProfileRoutes(r *gin.Engine, key, imgPath, imgURLPrefix string, profileRepo repositories.ProfileRepository, sessionRepo *repositories.SessionRepository) {
 	profile := r.Group(prefix + "/profile")
-	profile.Use(middlewares.KeyChecker(key))
+	profile.Use(middlewares.OptionalAuthMiddleware(sessionRepo))
+	profile.Use(func(c *gin.Context) {
+		// Check if user is authenticated via new system or old key system
+		_, hasUser := c.Get("user")
+		if !hasUser {
+			// Fall back to key checker for backward compatibility
+			middlewares.KeyChecker(key)(c)
+		}
+	})
 	{
 		profile.POST("/upload-image", func(ctx *gin.Context) {
 			handlers.UploadProfileImg(ctx, imgPath, imgURLPrefix)

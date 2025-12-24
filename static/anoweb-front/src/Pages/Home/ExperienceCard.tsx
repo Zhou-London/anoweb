@@ -1,5 +1,5 @@
 import { useContext, useMemo, useState } from "react";
-import { AdminContext } from "../../Contexts/admin_context";
+import { UserContext } from "../../Contexts/user_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { apiFetch } from "../../lib/api";
 import type { Experience } from "./types";
@@ -10,7 +10,7 @@ type ExperienceCardProps = {
 };
 
 export default function ExperienceCard({ experience, setExperience }: ExperienceCardProps) {
-  const { isAdmin } = useContext(AdminContext);
+  const { isAdmin } = useContext(UserContext);
   const notifyError = useErrorNotifier();
 
   const ordered = useMemo(() => experience.slice().sort((a, b) => a.order_index - b.order_index), [experience]);

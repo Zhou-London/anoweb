@@ -1,7 +1,7 @@
 // src/components/Home/index.tsx
 import { useContext } from "react";
 import { Link } from "react-router-dom";
-import { AdminContext } from "../../Contexts/admin_context";
+import { UserContext } from "../../Contexts/user_context";
 import { useHomeData } from "./useHomeData";
 import ProfileCard from "./ProfileCard";
 import EducationCard from "./EducationCard";
@@ -9,7 +9,7 @@ import ExperienceCard from "./ExperienceCard";
 import LatestPostCard from "./LatestPostCard";
 
 export default function Home() {
-  const { isAdmin } = useContext(AdminContext);
+  const { isAdmin } = useContext(UserContext);
   const { profile, education, experience, setExperience, latestPost } =
     useHomeData();
 
