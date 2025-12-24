@@ -1,0 +1,198 @@
+package repositories
+
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
+
+type StatisticsRepository struct {
+	db *gorm.DB
+}
+
+func NewStatisticsRepository(db *gorm.DB) *StatisticsRepository {
+	return &StatisticsRepository{db: db}
+}
+
+// GetTotalUsers returns the total number of registered users
+func (r *StatisticsRepository) GetTotalUsers() (int64, error) {
+	var count int64
+	err := r.db.Table("users").Count(&count).Error
+	return count, err
+}
+
+// GetUniqueVisitors returns the count of unique users (registered + guests)
+func (r *StatisticsRepository) GetUniqueVisitors() (int64, error) {
+	var count int64
+	// Count distinct session_ids from user_trackings
+	err := r.db.Table("user_trackings").
+		Distinct("session_id").
+		Count(&count).Error
+	return count, err
+}
+
+// GetUniqueVisitorsLast24Hours returns unique visitors in the last 24 hours
+func (r *StatisticsRepository) GetUniqueVisitorsLast24Hours() (int64, error) {
+	var count int64
+	since := time.Now().Add(-24 * time.Hour)
+	err := r.db.Table("user_trackings").
+		Where("start_time >= ?", since).
+		Distinct("session_id").
+		Count(&count).Error
+	return count, err
+}
+
+// GetRegisteredVisitorsEver returns count of registered users who have visited
+func (r *StatisticsRepository) GetRegisteredVisitorsEver() (int64, error) {
+	var count int64
+	err := r.db.Table("user_trackings").
+		Where("user_id IS NOT NULL").
+		Distinct("user_id").
+		Count(&count).Error
+	return count, err
+}
+
+// GetGuestVisitorsEver returns count of guest sessions
+func (r *StatisticsRepository) GetGuestVisitorsEver() (int64, error) {
+	var count int64
+	err := r.db.Table("user_trackings").
+		Where("user_id IS NULL").
+		Distinct("session_id").
+		Count(&count).Error
+	return count, err
+}
+
+// GetRegisteredVisitorsLast24Hours returns registered users who visited in last 24h
+func (r *StatisticsRepository) GetRegisteredVisitorsLast24Hours() (int64, error) {
+	var count int64
+	since := time.Now().Add(-24 * time.Hour)
+	err := r.db.Table("user_trackings").
+		Where("user_id IS NOT NULL").
+		Where("start_time >= ?", since).
+		Distinct("user_id").
+		Count(&count).Error
+	return count, err
+}
+
+// GetGuestVisitorsLast24Hours returns guest sessions in last 24h
+func (r *StatisticsRepository) GetGuestVisitorsLast24Hours() (int64, error) {
+	var count int64
+	since := time.Now().Add(-24 * time.Hour)
+	err := r.db.Table("user_trackings").
+		Where("user_id IS NULL").
+		Where("start_time >= ?", since).
+		Distinct("session_id").
+		Count(&count).Error
+	return count, err
+}
+
+// GetActiveUsersToday returns users who have visited today
+func (r *StatisticsRepository) GetActiveUsersToday() (int64, error) {
+	var count int64
+	today := time.Now().Truncate(24 * time.Hour)
+	err := r.db.Table("user_trackings").
+		Where("start_time >= ?", today).
+		Distinct("session_id").
+		Count(&count).Error
+	return count, err
+}
+
+// GetUserStreak returns the current streak (consecutive days) for a user
+func (r *StatisticsRepository) GetUserStreak(userID uint) (int, error) {
+	var dates []time.Time
+	
+	// Get all distinct dates the user has visited, ordered by date descending
+	err := r.db.Table("user_trackings").
+		Select("DATE(start_time) as date").
+		Where("user_id = ?", userID).
+		Group("DATE(start_time)").
+		Order("date DESC").
+		Scan(&dates).Error
+	
+	if err != nil {
+		return 0, err
+	}
+	
+	if len(dates) == 0 {
+		return 0, nil
+	}
+	
+	// Calculate streak
+	streak := 0
+	today := time.Now().Truncate(24 * time.Hour)
+	expectedDate := today
+	
+	// Check if user visited today or yesterday (streak can continue)
+	firstDate := dates[0].Truncate(24 * time.Hour)
+	if firstDate.Equal(today) {
+		expectedDate = today
+	} else if firstDate.Equal(today.Add(-24 * time.Hour)) {
+		expectedDate = today.Add(-24 * time.Hour)
+	} else {
+		// Streak is broken
+		return 0, nil
+	}
+	
+	// Count consecutive days
+	for _, date := range dates {
+		dateOnly := date.Truncate(24 * time.Hour)
+		if dateOnly.Equal(expectedDate) {
+			streak++
+			expectedDate = expectedDate.Add(-24 * time.Hour)
+		} else {
+			break
+		}
+	}
+	
+	return streak, nil
+}
+
+// UsersOverTimePoint represents a data point for users over time
+type UsersOverTimePoint struct {
+	Hour  time.Time `json:"hour"`
+	Count int64     `json:"count"`
+}
+
+// GetUsersOverTime returns hourly user counts for the last N hours
+func (r *StatisticsRepository) GetUsersOverTime(hours int) ([]UsersOverTimePoint, error) {
+	var results []UsersOverTimePoint
+	
+	since := time.Now().Add(-time.Duration(hours) * time.Hour)
+	
+	err := r.db.Raw(`
+		SELECT 
+			strftime('%Y-%m-%d %H:00:00', start_time) as hour,
+			COUNT(DISTINCT session_id) as count
+		FROM user_trackings
+		WHERE start_time >= ?
+		GROUP BY strftime('%Y-%m-%d %H:00:00', start_time)
+		ORDER BY hour ASC
+	`, since).Scan(&results).Error
+	
+	return results, err
+}
+
+// DailyActiveUsersPoint represents daily active users
+type DailyActiveUsersPoint struct {
+	Date  time.Time `json:"date"`
+	Count int64     `json:"count"`
+}
+
+// GetDailyActiveUsers returns daily active user counts for the last N days
+func (r *StatisticsRepository) GetDailyActiveUsers(days int) ([]DailyActiveUsersPoint, error) {
+	var results []DailyActiveUsersPoint
+	
+	since := time.Now().Add(-time.Duration(days) * 24 * time.Hour)
+	
+	err := r.db.Raw(`
+		SELECT 
+			date(start_time) as date,
+			COUNT(DISTINCT session_id) as count
+		FROM user_trackings
+		WHERE start_time >= ?
+		GROUP BY date(start_time)
+		ORDER BY date ASC
+	`, since).Scan(&results).Error
+	
+	return results, err
+}

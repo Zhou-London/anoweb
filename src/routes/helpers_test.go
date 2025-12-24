@@ -63,11 +63,12 @@ func setupRouter(t *testing.T) *gin.Engine {
 	trackingRepo := repositories.NewUserTrackingRepository(repositories.DB)
 	mysteryCodeRepo := repositories.NewMysteryCodeRepository(repositories.DB)
 	popupRepo := repositories.NewGuestPopupConfigRepository(repositories.DB)
+	statsRepo := repositories.NewStatisticsRepository(repositories.DB)
 
 	r := gin.Default()
 	InitRoutes(r, testDomain, testAdmin, testKey, testImgDir, testImgURL,
 		profileRepo, experiencesRepo, educationsRepo, projectsRepo, postsRepo, userRepo, sessionRepo,
-		trackingRepo, mysteryCodeRepo, popupRepo)
+		trackingRepo, mysteryCodeRepo, popupRepo, statsRepo)
 
 	return r
 }
