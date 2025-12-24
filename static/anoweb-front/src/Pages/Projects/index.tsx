@@ -8,6 +8,7 @@ import { PostCardRail } from "./PostCardRail";
 import CreateProjectModal from "./CreateProjectModal";
 import CreatePostModal from "./CreatePostModal";
 import { UserContext } from "../../Contexts/user_context";
+import { useEditMode } from "../../Contexts/edit_mode_context";
 
 const styles = `
   .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -43,6 +44,8 @@ export default function ProjectPage() {
     handleDeletePost,
   } = useProjectData();
   const { isAdmin } = useContext(UserContext);
+  const { editMode } = useEditMode();
+  const showAdminFeatures = isAdmin && editMode;
 
   return (
     <>
@@ -65,7 +68,7 @@ export default function ProjectPage() {
               <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 text-xs font-semibold">
                 {posts.length} posts
               </span>
-              {isAdmin && (
+              {showAdminFeatures && (
                 <button
                   onClick={openCreateModal}
                   className="inline-flex items-center gap-2 rounded-full bg-blue-600 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-blue-700"

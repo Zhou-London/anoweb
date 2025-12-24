@@ -2,6 +2,7 @@
 
 import { useState, useContext, useEffect } from "react";
 import { UserContext } from "../../Contexts/user_context";
+import { useEditMode } from "../../Contexts/edit_mode_context";
 import { apiFetch } from "../../lib/api";
 import { type Project } from "./types";
 
@@ -12,6 +13,8 @@ type ProjectDetailsProps = {
 
 export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps) {
   const { isAdmin } = useContext(UserContext);
+  const { editMode } = useEditMode();
+  const showAdminFeatures = isAdmin && editMode;
   const [isEditing, setIsEditing] = useState(false);
 
   // State to hold form data during editing
@@ -136,7 +139,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
   return (
     <section className="flex-1 rounded-3xl bg-white/70 backdrop-blur-lg overflow-hidden border border-blue-200/50 flex flex-col md:flex-row gap-8 p-8 mb-6 min-h-0 shadow-lg relative">
       {/* Edit button for admins */}
-      {isAdmin && (
+      {showAdminFeatures && (
         <button
           onClick={() => setIsEditing(true)}
           className="absolute top-4 right-4 bg-white/80 hover:bg-white text-slate-600 font-semibold py-2 px-4 rounded-lg shadow text-sm transition-colors"

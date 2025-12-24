@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../Contexts/user_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
+import { useEditMode } from "../../Contexts/edit_mode_context";
 import { apiJson } from "../../lib/api";
 
 interface TrackingRecord {
@@ -15,6 +16,8 @@ interface TrackingRecord {
 
 export default function Activity() {
   const { user, isAdmin } = useContext(UserContext);
+  const { editMode } = useEditMode();
+  const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
   const [records, setRecords] = useState<TrackingRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -112,7 +115,7 @@ export default function Activity() {
         <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-6 md:p-8">
           <div className="mb-6">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
-              {isAdmin ? "All Activity" : "Your Activity"}
+              {showAdminFeatures ? "All Activity" : "Your Activity"}
             </p>
             <h2 className="text-2xl font-semibold text-slate-900">Session History</h2>
           </div>
@@ -130,7 +133,7 @@ export default function Activity() {
                   <th className="pb-3 text-xs uppercase tracking-wider text-slate-600 font-semibold">
                     Duration
                   </th>
-                  {isAdmin && (
+                  {showAdminFeatures && (
                     <th className="pb-3 text-xs uppercase tracking-wider text-slate-600 font-semibold">
                       User ID
                     </th>
@@ -147,7 +150,7 @@ export default function Activity() {
                     <td className="py-3 text-sm font-medium text-slate-900">
                       {formatDuration(record.duration)}
                     </td>
-                    {isAdmin && (
+                    {showAdminFeatures && (
                       <td className="py-3 text-sm text-slate-600">
                         {record.user_id ? `#${record.user_id}` : "Guest"}
                       </td>

@@ -1,6 +1,7 @@
 import { useContext, useMemo, useState } from "react";
 import { UserContext } from "../../Contexts/user_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
+import { useEditMode } from "../../Contexts/edit_mode_context";
 import { apiFetch } from "../../lib/api";
 import type { Experience } from "./types";
 
@@ -11,6 +12,8 @@ type ExperienceCardProps = {
 
 export default function ExperienceCard({ experience, setExperience }: ExperienceCardProps) {
   const { isAdmin } = useContext(UserContext);
+  const { editMode } = useEditMode();
+  const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
 
   const ordered = useMemo(() => experience.slice().sort((a, b) => a.order_index - b.order_index), [experience]);
@@ -33,7 +36,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
   };
 
   const handleDrop = (fromIndex: number, toIndex: number) => {
-    if (!isAdmin || fromIndex === toIndex || Number.isNaN(fromIndex) || Number.isNaN(toIndex)) return;
+    if (!showAdminFeatures || fromIndex === toIndex || Number.isNaN(fromIndex) || Number.isNaN(toIndex)) return;
     const previous = ordered.map((item) => ({ ...item }));
     const current = ordered.slice();
     const [moved] = current.splice(fromIndex, 1);
@@ -149,16 +152,16 @@ export default function ExperienceCard({ experience, setExperience }: Experience
         return (
           <li
             key={exp.id}
-            draggable={isAdmin}
-            onDragStart={(e) => isAdmin && e.dataTransfer.setData("text/plain", String(index))}
-            onDragOver={(e) => isAdmin && e.preventDefault()}
+            draggable={showAdminFeatures}
+            onDragStart={(e) => showAdminFeatures && e.dataTransfer.setData("text/plain", String(index))}
+            onDragOver={(e) => showAdminFeatures && e.preventDefault()}
             onDrop={(e) => {
-              if (!isAdmin) return;
+              if (!showAdminFeatures) return;
               const fromIndex = Number(e.dataTransfer.getData("text/plain"));
               handleDrop(fromIndex, index);
             }}
             className={`group relative overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-4 transition-all duration-200 shadow-sm hover:shadow-md ${
-              isAdmin ? "cursor-grab" : "cursor-default"
+              showAdminFeatures ? "cursor-grab" : "cursor-default"
             }`}
           >
             <div className="hidden sm:absolute sm:left-4 sm:top-4 sm:bottom-4 sm:w-px sm:bg-slate-200/80" aria-hidden />
@@ -178,11 +181,11 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                 <div className="min-w-0 flex-1 space-y-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-base font-semibold text-slate-900 truncate">{exp.company}</p>
-                    {isAdmin && <span className="text-[10px] uppercase tracking-[0.12em] text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">Drag</span>}
+                    {showAdminFeatures && <span className="text-[10px] uppercase tracking-[0.12em] text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">Drag</span>}
                   </div>
                   <p className="text-xs text-slate-600 truncate">{exp.position}</p>
-                  {!isAdmin && exp.description && <p className="text-sm text-slate-700 leading-snug">{exp.description}</p>}
-                  {isAdmin && (
+                  {!showAdminFeatures && exp.description && <p className="text-sm text-slate-700 leading-snug">{exp.description}</p>}
+                  {showAdminFeatures && (
                     <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50/70 p-3">
                       <div className="flex items-center justify-between gap-2">
                         <label className="text-xs font-medium text-slate-700" htmlFor={`description-${exp.id}`}>
@@ -220,7 +223,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                       ))}
                     </ul>
                   )}
-                  {isAdmin && (
+                  {showAdminFeatures && (
                     <div className="mt-3 space-y-3 rounded-lg border border-slate-200 bg-slate-50/70 p-3">
                       <div className="flex items-center justify-between gap-2">
                         <label className="text-xs font-medium text-slate-700" htmlFor={`bullets-${exp.id}`}>
