@@ -16,15 +16,20 @@ func registerMysteryCodeRoutes(
 ) {
 	handler := handlers.NewMysteryCodeHandler(mysteryCodeRepo, userRepo)
 
-	mysteryCode := r.Group(prefix + "/mystery-code")
-	mysteryCode.Use(middlewares.KeyChecker(key))
-	mysteryCode.Use(middlewares.AuthMiddleware(sessionRepo))
+	// User endpoint - verify code (no KeyChecker needed, just auth)
+	mysteryCodeUser := r.Group(prefix + "/mystery-code")
+	mysteryCodeUser.Use(middlewares.AuthMiddleware(sessionRepo))
 	{
-		// User endpoint - verify code
-		mysteryCode.POST("/verify", handler.VerifyCode)
+		mysteryCodeUser.POST("/verify", handler.VerifyCode)
+	}
 
-		// Admin endpoints
-		mysteryCode.POST("/create", middlewares.AdminMiddleware(), handler.CreateCode)
-		mysteryCode.GET("/list", middlewares.AdminMiddleware(), handler.GetAllCodes)
+	// Admin endpoints (require KeyChecker and AdminMiddleware)
+	mysteryCodeAdmin := r.Group(prefix + "/mystery-code")
+	mysteryCodeAdmin.Use(middlewares.KeyChecker(key))
+	mysteryCodeAdmin.Use(middlewares.AuthMiddleware(sessionRepo))
+	mysteryCodeAdmin.Use(middlewares.AdminMiddleware())
+	{
+		mysteryCodeAdmin.POST("/create", handler.CreateCode)
+		mysteryCodeAdmin.GET("/list", handler.GetAllCodes)
 	}
 }
