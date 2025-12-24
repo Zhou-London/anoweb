@@ -20,10 +20,12 @@ export default function EducationCard({ education }: EducationCardProps) {
       </div>
       <ul className="space-y-3 flex-1 overflow-auto scrollbar-clear">
         {education.map((edu) => (
-          <li
+          <a
             key={edu.id}
-            className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-r from-white to-slate-50 hover:from-indigo-50/50 hover:to-white p-4 transition-all duration-200 shadow-sm"
-            onClick={() => window.open(edu.link, "_blank")}
+            className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-r from-white to-slate-50 hover:from-indigo-50/50 hover:to-white p-4 transition-all duration-200 shadow-sm cursor-pointer"
+            href={edu.link}
+            target="_blank"
+            rel="noreferrer"
           >
             <div className="flex items-center gap-4">
               <img src={edu.image_url} alt={edu.school} className="w-12 h-12 rounded-lg object-cover shadow-sm border border-slate-200" />
@@ -32,9 +34,9 @@ export default function EducationCard({ education }: EducationCardProps) {
                 <p className="text-xs text-slate-600 truncate">{edu.degree}</p>
                 <p className="text-xs text-slate-500">{edu.start_date} – {edu.end_date}</p>
               </div>
-              <div className="hidden sm:block text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full px-3 py-1">View</div>
+              <div className="hidden sm:block text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full px-3 py-1">Open</div>
             </div>
-          </li>
+          </a>
         ))}
       </ul>
     </article>

@@ -6,7 +6,6 @@ import (
 
 	"anonchihaya.co.uk/src/models"
 	"anonchihaya.co.uk/src/repositories"
-	"anonchihaya.co.uk/src/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -57,10 +56,34 @@ func GetExperienceByID(c *gin.Context, experience_repo repositories.ExperienceRe
 }
 
 func PostExperience(c *gin.Context, experience_repo repositories.ExperienceRepository) {
-	var exp models.Experience
-	if err := c.ShouldBind(&exp); err != nil {
+	type ExperienceRequest struct {
+		Company      string   `json:"company"`
+		Position     string   `json:"position"`
+		StartDate    string   `json:"start_date"`
+		EndDate      string   `json:"end_date"`
+		Present      bool     `json:"present"`
+		Description  string   `json:"description"`
+		ImageURL     string   `json:"image_url"`
+		OrderIndex   int      `json:"order_index"`
+		BulletPoints []string `json:"bullet_points"`
+	}
+
+	var req ExperienceRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
+	}
+
+	exp := models.Experience{
+		Company:      req.Company,
+		Position:     req.Position,
+		StartDate:    req.StartDate,
+		EndDate:      req.EndDate,
+		Present:      req.Present,
+		Description:  req.Description,
+		ImageURL:     req.ImageURL,
+		OrderIndex:   req.OrderIndex,
+		BulletPoints: req.BulletPoints,
 	}
 
 	id, err := experience_repo.Create(&exp)
@@ -74,14 +97,26 @@ func PostExperience(c *gin.Context, experience_repo repositories.ExperienceRepos
 }
 
 func PutExperience(c *gin.Context, experience_repo repositories.ExperienceRepository) {
+	type ExperienceUpdate struct {
+		ID           int       `json:"id"`
+		Company      *string   `json:"company"`
+		Position     *string   `json:"position"`
+		StartDate    *string   `json:"start_date"`
+		EndDate      *string   `json:"end_date"`
+		Present      *bool     `json:"present"`
+		Description  *string   `json:"description"`
+		ImageURL     *string   `json:"image_url"`
+		OrderIndex   *int      `json:"order_index"`
+		BulletPoints *[]string `json:"bullet_points"`
+	}
 
-	var exp models.Experience
-	if err := c.ShouldBind(&exp); err != nil {
+	var req ExperienceUpdate
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	oldExp, err := experience_repo.GetByID(exp.ID)
+	oldExp, err := experience_repo.GetByID(req.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -92,14 +127,34 @@ func PutExperience(c *gin.Context, experience_repo repositories.ExperienceReposi
 		return
 	}
 
-	exp.Company = util.PickOrDefault(exp.Company, oldExp.Company)
-	exp.Position = util.PickOrDefault(exp.Position, oldExp.Position)
-	exp.StartDate = util.PickOrDefault(exp.StartDate, oldExp.StartDate)
-	exp.EndDate = util.PickOrDefault(exp.EndDate, oldExp.EndDate)
-	exp.Present = util.PickOrDefault(exp.Present, oldExp.Present)
-	exp.Description = util.PickOrDefault(exp.Description, oldExp.Description)
-	exp.ImageURL = util.PickOrDefault(exp.ImageURL, oldExp.ImageURL)
-	exp.OrderIndex = util.PickOrDefault(exp.OrderIndex, oldExp.OrderIndex)
+	exp := *oldExp
+	if req.Company != nil {
+		exp.Company = *req.Company
+	}
+	if req.Position != nil {
+		exp.Position = *req.Position
+	}
+	if req.StartDate != nil {
+		exp.StartDate = *req.StartDate
+	}
+	if req.EndDate != nil {
+		exp.EndDate = *req.EndDate
+	}
+	if req.Present != nil {
+		exp.Present = *req.Present
+	}
+	if req.Description != nil {
+		exp.Description = *req.Description
+	}
+	if req.ImageURL != nil {
+		exp.ImageURL = *req.ImageURL
+	}
+	if req.OrderIndex != nil {
+		exp.OrderIndex = *req.OrderIndex
+	}
+	if req.BulletPoints != nil {
+		exp.BulletPoints = *req.BulletPoints
+	}
 
 	_, err = experience_repo.Update(exp.ID, &exp)
 	if err != nil {

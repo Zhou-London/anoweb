@@ -132,7 +132,7 @@ export function PostCardRail({
               <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-[11px] text-slate-600">
                 <span className="inline-flex items-center gap-1">
                   <span className="h-2 w-2 rounded-full bg-blue-500" />
-                  Tap to open
+                  Opens in new tab
                 </span>
                 {isAdmin && (
                   <button
