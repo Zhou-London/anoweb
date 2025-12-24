@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, type ReactNode } from "react";
+import { apiJson } from "../lib/api";
 
 interface AdminContextType {
   isAdmin: boolean;
@@ -14,8 +15,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin/status", { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : { isAdmin: false }))
+    apiJson<{ isAdmin: boolean }>("/admin/status", { credentials: "include" })
       .then((data) => setIsAdmin(!!data.isAdmin))
       .catch(() => setIsAdmin(false));
   }, []);

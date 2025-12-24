@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { apiJson } from "../../lib/api";
 import type { Profile, Education, Experience, Post } from "./types";
 
 export function useHomeData() {
@@ -8,25 +9,12 @@ export function useHomeData() {
   const [latestPost, setLatestPost] = useState<Post | null>(null);
 
   useEffect(() => {
-    fetch("/api/home/profile-info")
-      .then((r) => r.json())
-      .then((d: Profile) => setProfile(d))
-      .catch(() => setProfile(null));
-
-    fetch("/api/home/education")
-      .then((r) => r.json())
-      .then((d: Education[]) => setEducation(d))
-      .catch(() => setEducation([]));
-
-    fetch("/api/home/experience")
-      .then((r) => r.json())
-      .then((d: Experience[]) => setExperience(d))
+    apiJson<Profile>("/profile").then(setProfile).catch(() => setProfile(null));
+    apiJson<Education[]>("/education").then(setEducation).catch(() => setEducation([]));
+    apiJson<Experience[]>("/experience/short")
+      .then(setExperience)
       .catch(() => setExperience([]));
-
-    fetch("/api/home/post/latest")
-      .then((r) => r.json())
-      .then((d: Post) => setLatestPost(d))
-      .catch(() => setLatestPost(null));
+    apiJson<Post>("/post/latest").then(setLatestPost).catch(() => setLatestPost(null));
   }, []);
 
   return { profile, education, experience, setExperience, latestPost };

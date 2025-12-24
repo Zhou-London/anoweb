@@ -1,27 +1,27 @@
 // src/components/ProjectPage/useProjectData.ts
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { type Project, type PostShort, type Post } from "./types";
+import { apiFetch, apiJson } from "../../lib/api";
+import { useMarkdownReader } from "../../Contexts/markdown_reader";
+import { type Project, type PostShort } from "./types";
 
 export function useProjectData() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [posts, setPosts] = useState<PostShort[]>([]);
 
-  const [viewingPost, setViewingPost] = useState<Post | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
     null
   );
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
-  const [isLoadingPostDetail, setIsLoadingPostDetail] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+  const { openReader } = useMarkdownReader();
 
   const refreshProjects = useCallback(() => {
     setIsLoadingProjects(true);
-    fetch("/api/project")
-      .then((res) => res.json())
-      .then((data: Project[]) => {
+    apiJson<Project[]>("/project")
+      .then((data) => {
         setProjects(data);
         if (data.length > 0 && selectedProjectId === null) {
           setSelectedProjectId(data[0].id);
@@ -40,8 +40,7 @@ export function useProjectData() {
 
     setIsLoadingPosts(true);
     setPosts([]);
-    fetch(`/api/project/${selectedProjectId}/posts`)
-      .then((res) => res.json())
+    apiJson<PostShort[]>(`/post/project/${selectedProjectId}`)
       .then((data) => {
         if (Array.isArray(data)) {
           setPosts(data);
@@ -62,21 +61,7 @@ export function useProjectData() {
   }, [refreshPosts, selectedProjectId]);
 
   const handleViewPost = (postId: number) => {
-    setIsLoadingPostDetail(true);
-    setViewingPost({
-      id: postId,
-      name: "Loading...",
-      content_md: "Please wait...",
-      updated_at: "",
-    });
-
-    fetch(`/api/project/post/${postId}`)
-      .then((res) => res.json())
-      .then((data: Post) => {
-        setViewingPost(data);
-      })
-      .catch(console.error)
-      .finally(() => setIsLoadingPostDetail(false));
+    openReader({ title: "Loading post", content: "", sourceId: postId });
   };
 
   const handleDeletePost = useCallback(
@@ -86,13 +71,9 @@ export function useProjectData() {
       }
 
       try {
-        const response = await fetch(`/api/project/post/${postId}`, {
+        await apiFetch(`/post/${postId}`, {
           method: "DELETE",
         });
-
-        if (!response.ok) {
-          throw new Error("Failed to delete post");
-        }
 
         refreshPosts();
       } catch (err) {
@@ -110,14 +91,11 @@ export function useProjectData() {
   return {
     projects,
     posts,
-    viewingPost,
     selectedProjectId,
     selectedProject,
     isLoadingProjects,
     isLoadingPosts,
-    isLoadingPostDetail,
     setSelectedProjectId,
-    setViewingPost,
     handleViewPost,
     isCreateModalOpen,
     openCreateModal: () => setIsCreateModalOpen(true),

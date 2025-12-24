@@ -1,0 +1,19 @@
+[Unit]
+Description=Personal Wesite Backend Service
+After=network.target
+
+[Service]
+ExecStart=/home/Zhou/apps/anoweb
+WorkingDirectory=/home/Zhou/projects/anoweb
+
+User=Zhou
+Group=Zhou
+
+Restart=always
+RestartSec=3
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

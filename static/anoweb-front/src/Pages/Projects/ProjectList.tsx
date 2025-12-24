@@ -1,6 +1,6 @@
 // src/components/ProjectPage/ProjectList.tsx
 
-import { useRef, useContext } from "react";
+import { useContext } from "react";
 import { type Project } from "./types";
 import { AdminContext } from "../../Contexts/admin_context";
 
@@ -9,8 +9,6 @@ type ProjectListProps = {
   selectedProjectId: number | null;
   isLoading: boolean;
   onSelectProject: (id: number) => void;
-  isOpen: boolean;
-  onOpenCreateModal: () => void;
 };
 
 export default function ProjectList({
@@ -18,59 +16,54 @@ export default function ProjectList({
   selectedProjectId,
   isLoading,
   onSelectProject,
-  isOpen,
-  onOpenCreateModal,
 }: ProjectListProps) {
-  const leftRef = useRef<HTMLDivElement | null>(null);
-  const itemRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const { isAdmin } = useContext(AdminContext);
 
   return (
-    <aside
-      ref={leftRef}
-      className={`
-        w-72 h-full flex flex-col items-stretch pt-10 px-4 custom-scrollbar
-        transition-transform duration-300 ease-in-out 
-        md:flex md:static md:translate-x-0 md:bg-transparent md:border-none md:shadow-none md:w-72
-        fixed top-0 left-0 z-40 bg-white/80 backdrop-blur-lg border-r border-gray-200 shadow-xl
-        ${isOpen ? "translate-x-0" : "-translate-x-full"}
-      `}
-    >
-      {isAdmin && (
-        <div className="px-4 pb-6 border-b border-slate-200/80">
-          <button
-            onClick={onOpenCreateModal}
-            className="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 transition-colors"
-          >
-            + New Project
-          </button>
+    <aside className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Projects</p>
+          <h2 className="text-lg font-semibold text-slate-900">Navigation rail</h2>
         </div>
-      )}
+        {isAdmin && (
+          <span className="rounded-full bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 text-[11px] font-semibold">
+            Admin tools
+          </span>
+        )}
+      </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <div className="h-1/2" />
+      <div className="space-y-2 max-h-[520px] overflow-auto custom-scrollbar pr-1">
         {isLoading ? (
-          <p className="text-center text-slate-500">Loading Projects...</p>
+          <p className="text-center text-slate-500">Loading projects...</p>
+        ) : projects.length === 0 ? (
+          <p className="text-center text-slate-500">No projects yet.</p>
         ) : (
           projects.map((p) => (
-            <div
+            <button
               key={p.id}
-              ref={(el) => {
-                itemRefs.current[p.id] = el;
-              }}
               onClick={() => onSelectProject(p.id)}
-              className={[
-                "snap-center my-3 py-3 cursor-pointer text-center transition-all duration-300 mx-auto w-full text-lg",
+              className={`w-full text-left rounded-2xl border px-4 py-3 transition-all duration-200 shadow-sm hover:shadow-md ${
                 p.id === selectedProjectId
-                  ? "font-bold scale-110 text-blue-400"
-                  : "font-normal text-slate-600 hover:text-blue-300",
-              ].join(" ")}
+                  ? "border-blue-200 bg-blue-50 text-blue-900"
+                  : "border-slate-200 bg-white/80 text-slate-800 hover:bg-slate-50"
+              }`}
             >
-              {p.name}
-            </div>
+              <p className="text-sm font-semibold leading-tight">{p.name}</p>
+              <p
+                className="text-[12px] text-slate-600"
+                style={{
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
+                {p.description || "No description"}
+              </p>
+            </button>
           ))
         )}
-        <div className="h-1/2" />
       </div>
     </aside>
   );

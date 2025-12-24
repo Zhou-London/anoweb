@@ -1,10 +1,7 @@
 // src/components/ProjectPage/CreatePostModal.tsx
 import { useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
-import rehypeHighlight from "rehype-highlight";
+import MarkdownViewer from "../../Components/Markdown/MarkdownViewer";
+import { apiFetch } from "../../lib/api";
 
 type CreatePostModalProps = {
   onClose: () => void;
@@ -61,7 +58,7 @@ export default function CreatePostModal({
     const formData = new FormData();
     formData.append("file", file);
     try {
-      const res = await fetch("/api/static/upload-image", { method: "POST", body: formData });
+      const res = await apiFetch("/static/upload-image", { method: "POST", body: formData });
       if (!res.ok) throw new Error("Image upload failed");
       const url = await res.text();
       const md = `![alt text](${url})`;
@@ -88,7 +85,7 @@ export default function CreatePostModal({
     setIsSubmitting(true);
     setError(null);
     try {
-      const res = await fetch("/api/project/post", {
+      const res = await apiFetch("/post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ parent_id: parentId, name, content_md: contentMD }),
@@ -131,7 +128,7 @@ export default function CreatePostModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="mt-1 w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 w-full rounded-md border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
 
@@ -180,15 +177,8 @@ export default function CreatePostModal({
 
             {/* Preview */}
             <div className={`${tab === "preview" ? "block" : "hidden"} md:block`}>
-              <div className="h-[55vh] overflow-auto rounded-xl border border-slate-200 p-3 sm:p-4 scrollbar-clear">
-                <article className="prose max-w-none prose-a:text-blue-700 prose-img:rounded-xl">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm, remarkMath]}
-                    rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]]}
-                  >
-                    {contentMD}
-                  </ReactMarkdown>
-                </article>
+              <div className="h-[55vh] overflow-auto rounded-xl border border-slate-200 bg-white p-3 sm:p-4 scrollbar-clear">
+                <MarkdownViewer source={contentMD} />
               </div>
             </div>
           </div>
