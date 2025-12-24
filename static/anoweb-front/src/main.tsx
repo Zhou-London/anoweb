@@ -6,6 +6,11 @@ import { AdminProvider } from "./Contexts/admin_context";
 import { ErrorProvider } from "./Contexts/error_context";
 import Navbar from "./Components/navbar";
 
+document.documentElement.setAttribute("data-color-mode", "light");
+if (document.body) {
+  document.body.setAttribute("data-color-mode", "light");
+}
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>

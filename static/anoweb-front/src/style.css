@@ -5,6 +5,30 @@
 @import "@uiw/react-md-editor/markdown-editor.css";
 @import "@uiw/react-markdown-preview/markdown.css";
 
+:root {
+  color-scheme: light;
+}
+
+[data-color-mode="light"] .w-md-editor,
+.w-md-editor[data-color-mode="light"],
+[data-color-mode="light"] .wmde-markdown,
+.wmde-markdown[data-color-mode="light"] {
+  --color-canvas-default: #ffffff;
+  --color-canvas-subtle: #f6f8fa;
+  --color-border-default: #e2e8f0;
+  --color-fg-default: #1f2937;
+  --md-editor-background-color: #ffffff;
+  --md-editor-box-shadow-color: #e2e8f0;
+  color: #1f2937;
+  background: #ffffff;
+}
+
+.w-md-editor,
+.w-md-editor-preview,
+.w-md-editor-content {
+  background: var(--color-canvas-default, #ffffff);
+}
+
 .nav-chip {
   @apply inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-white transition-colors;
 }
