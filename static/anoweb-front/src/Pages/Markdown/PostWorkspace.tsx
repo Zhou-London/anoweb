@@ -317,7 +317,6 @@ export default function PostWorkspace() {
           <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Markdown</p>
           <h1 className="text-2xl font-semibold text-slate-900">{name}</h1>
           {updatedAt && <p className="text-xs text-slate-600">Updated {updatedAt}</p>}
-          <p className="text-xs text-slate-500">GitHub-flavored markdown with math, code, and table preview.</p>
         </div>
         <div className="flex items-center gap-2">
           <Link to="/projects" className="chip-soft">Back</Link>
@@ -405,10 +404,7 @@ export default function PostWorkspace() {
           {mode !== "write" && (
             <div className="bg-slate-50/60">
               <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-slate-200">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Preview</p>
-                  <p className="text-sm text-slate-700">Matches GitHub markdown rendering, including tables and math.</p>
-                </div>
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Preview</p>
               </div>
               <div className="h-full max-h-[76vh] overflow-auto p-4 scrollbar-clear" ref={previewRef}>
                 <MDEditor.Markdown
