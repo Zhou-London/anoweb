@@ -161,10 +161,9 @@ func (r *StatisticsRepository) GetUsersOverTime(hours int) ([]UsersOverTimePoint
 	
 	// Detect database type
 	dbName := r.db.Dialector.Name()
-	var query string
 	
 	if dbName == "sqlite" {
-		query = `
+		query := `
 			SELECT 
 				strftime('%Y-%m-%d %H:00:00', start_time) as hour,
 				COUNT(DISTINCT session_id) as count
@@ -173,9 +172,17 @@ func (r *StatisticsRepository) GetUsersOverTime(hours int) ([]UsersOverTimePoint
 			GROUP BY strftime('%Y-%m-%d %H:00:00', start_time)
 			ORDER BY hour ASC
 		`
+		err := r.db.Raw(query, since).Scan(&results).Error
+		return results, err
 	} else {
-		// MySQL/MariaDB
-		query = `
+		// MySQL/MariaDB - use intermediate struct to handle string parsing
+		type mysqlResult struct {
+			Hour  string `gorm:"column:hour"`
+			Count int64  `gorm:"column:count"`
+		}
+		var mysqlResults []mysqlResult
+		
+		query := `
 			SELECT 
 				DATE_FORMAT(start_time, '%Y-%m-%d %H:00:00') as hour,
 				COUNT(DISTINCT session_id) as count
@@ -184,10 +191,26 @@ func (r *StatisticsRepository) GetUsersOverTime(hours int) ([]UsersOverTimePoint
 			GROUP BY DATE_FORMAT(start_time, '%Y-%m-%d %H:00:00')
 			ORDER BY hour ASC
 		`
+		
+		err := r.db.Raw(query, since).Scan(&mysqlResults).Error
+		if err != nil {
+			return nil, err
+		}
+		
+		// Parse string results into time.Time
+		for _, r := range mysqlResults {
+			parsedTime, err := time.Parse("2006-01-02 15:04:05", r.Hour)
+			if err != nil {
+				continue // Skip invalid timestamps
+			}
+			results = append(results, UsersOverTimePoint{
+				Hour:  parsedTime,
+				Count: r.Count,
+			})
+		}
+		
+		return results, nil
 	}
-	
-	err := r.db.Raw(query, since).Scan(&results).Error
-	return results, err
 }
 
 // DailyActiveUsersPoint represents daily active users
@@ -204,10 +227,9 @@ func (r *StatisticsRepository) GetDailyActiveUsers(days int) ([]DailyActiveUsers
 	
 	// Detect database type
 	dbName := r.db.Dialector.Name()
-	var query string
 	
 	if dbName == "sqlite" {
-		query = `
+		query := `
 			SELECT 
 				date(start_time) as date,
 				COUNT(DISTINCT session_id) as count
@@ -216,9 +238,17 @@ func (r *StatisticsRepository) GetDailyActiveUsers(days int) ([]DailyActiveUsers
 			GROUP BY date(start_time)
 			ORDER BY date ASC
 		`
+		err := r.db.Raw(query, since).Scan(&results).Error
+		return results, err
 	} else {
-		// MySQL/MariaDB - DATE() works the same
-		query = `
+		// MySQL/MariaDB - use intermediate struct to handle string parsing
+		type mysqlResult struct {
+			Date  string `gorm:"column:date"`
+			Count int64  `gorm:"column:count"`
+		}
+		var mysqlResults []mysqlResult
+		
+		query := `
 			SELECT 
 				DATE(start_time) as date,
 				COUNT(DISTINCT session_id) as count
@@ -227,8 +257,24 @@ func (r *StatisticsRepository) GetDailyActiveUsers(days int) ([]DailyActiveUsers
 			GROUP BY DATE(start_time)
 			ORDER BY date ASC
 		`
+		
+		err := r.db.Raw(query, since).Scan(&mysqlResults).Error
+		if err != nil {
+			return nil, err
+		}
+		
+		// Parse string results into time.Time
+		for _, r := range mysqlResults {
+			parsedTime, err := time.Parse("2006-01-02", r.Date)
+			if err != nil {
+				continue // Skip invalid dates
+			}
+			results = append(results, DailyActiveUsersPoint{
+				Date:  parsedTime,
+				Count: r.Count,
+			})
+		}
+		
+		return results, nil
 	}
-	
-	err := r.db.Raw(query, since).Scan(&results).Error
-	return results, err
 }
