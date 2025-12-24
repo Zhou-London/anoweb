@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { apiFetch, apiJson } from "../../lib/api";
-import { useMarkdownReader } from "../../Contexts/markdown_reader";
 import { type Project, type PostShort } from "./types";
 
 export function useProjectData() {
@@ -16,7 +15,6 @@ export function useProjectData() {
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
-  const { openReader } = useMarkdownReader();
 
   const refreshProjects = useCallback(() => {
     setIsLoadingProjects(true);
@@ -61,7 +59,7 @@ export function useProjectData() {
   }, [refreshPosts, selectedProjectId]);
 
   const handleViewPost = (postId: number) => {
-    openReader({ title: "Loading post", content: "", sourceId: postId });
+    window.open(`/markdown/${postId}`, "_blank", "noopener,noreferrer");
   };
 
   const handleDeletePost = useCallback(

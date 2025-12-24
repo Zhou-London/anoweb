@@ -93,7 +93,7 @@ func PutPost(c *gin.Context, post_repo repositories.PostRepository) {
 	}
 
 	var putPostReq PutPostReq
-	if err := c.ShouldBind(&putPostReq); err != nil {
+	if err := c.ShouldBindJSON(&putPostReq); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

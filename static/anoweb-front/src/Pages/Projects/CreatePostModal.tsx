@@ -1,6 +1,10 @@
 // src/components/ProjectPage/CreatePostModal.tsx
 import { useRef, useState } from "react";
-import MarkdownViewer from "../../Components/Markdown/MarkdownViewer";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeHighlight from "rehype-highlight";
+import rehypeKatex from "rehype-katex";
 import { apiFetch } from "../../lib/api";
 
 type CreatePostModalProps = {
@@ -178,7 +182,14 @@ export default function CreatePostModal({
             {/* Preview */}
             <div className={`${tab === "preview" ? "block" : "hidden"} md:block`}>
               <div className="h-[55vh] overflow-auto rounded-xl border border-slate-200 bg-white p-3 sm:p-4 scrollbar-clear">
-                <MarkdownViewer source={contentMD} />
+                <article className="markdown-body">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]]}
+                  >
+                    {contentMD}
+                  </ReactMarkdown>
+                </article>
               </div>
             </div>
           </div>
