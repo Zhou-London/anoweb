@@ -29,19 +29,27 @@ func (r *UserTrackingRepository) StartTracking(userID *uint, sessionID string) (
 }
 
 // EndTracking updates the tracking session with end time and duration
-func (r *UserTrackingRepository) EndTracking(sessionID string) error {
+// Also updates user_id if the user is now authenticated
+func (r *UserTrackingRepository) EndTracking(sessionID string, userID *uint) error {
 	now := time.Now()
 	var tracking models.UserTracking
-	
+
 	if err := r.db.Where("session_id = ? AND end_time IS NULL", sessionID).First(&tracking).Error; err != nil {
 		return err
 	}
-	
+
 	duration := int64(now.Sub(tracking.StartTime).Seconds())
-	return r.db.Model(&tracking).Updates(map[string]interface{}{
+	updates := map[string]interface{}{
 		"end_time": now,
 		"duration": duration,
-	}).Error
+	}
+
+	// Update user_id if provided and not already set
+	if userID != nil && tracking.UserID == nil {
+		updates["user_id"] = userID
+	}
+
+	return r.db.Model(&tracking).Updates(updates).Error
 }
 
 // GetTotalHours returns total hours spent by all users
@@ -100,11 +108,11 @@ func (r *UserTrackingRepository) GetUserTotalHours(userID uint) (float64, error)
 func (r *UserTrackingRepository) GetAllTrackingRecords(userID *uint) ([]models.UserTracking, error) {
 	var records []models.UserTracking
 	query := r.db.Order("start_time DESC")
-	
+
 	if userID != nil {
 		query = query.Where("user_id = ?", *userID)
 	}
-	
+
 	if err := query.Find(&records).Error; err != nil {
 		return nil, err
 	}
@@ -121,12 +129,22 @@ func (r *UserTrackingRepository) GetActiveSession(sessionID string) (*models.Use
 }
 
 // UpdateActiveSession updates the duration of an active session
-func (r *UserTrackingRepository) UpdateActiveSession(sessionID string) error {
+// Also updates user_id if the user is now authenticated
+func (r *UserTrackingRepository) UpdateActiveSession(sessionID string, userID *uint) error {
 	var tracking models.UserTracking
 	if err := r.db.Where("session_id = ? AND end_time IS NULL", sessionID).First(&tracking).Error; err != nil {
 		return err
 	}
-	
+
 	duration := int64(time.Now().Sub(tracking.StartTime).Seconds())
-	return r.db.Model(&tracking).Update("duration", duration).Error
+	updates := map[string]interface{}{
+		"duration": duration,
+	}
+
+	// Update user_id if provided and not already set
+	if userID != nil && tracking.UserID == nil {
+		updates["user_id"] = userID
+	}
+
+	return r.db.Model(&tracking).Updates(updates).Error
 }

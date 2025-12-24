@@ -255,6 +255,7 @@ export default function Activity() {
             </div>
           </>
         )}
+        <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} initialMode={authModalMode} />
       </div>
     );
   }

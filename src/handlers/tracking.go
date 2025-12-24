@@ -55,7 +55,15 @@ func (h *TrackingHandler) EndTracking(c *gin.Context) {
 		return
 	}
 
-	if err := h.trackingRepo.EndTracking(req.SessionID); err != nil {
+	// Get user ID from context if authenticated
+	var userID *uint
+	if user, exists := c.Get("user"); exists {
+		if u, ok := user.(*models.User); ok {
+			userID = &u.ID
+		}
+	}
+
+	if err := h.trackingRepo.EndTracking(req.SessionID, userID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to end tracking"})
 		return
 	}
@@ -74,7 +82,15 @@ func (h *TrackingHandler) UpdateTracking(c *gin.Context) {
 		return
 	}
 
-	if err := h.trackingRepo.UpdateActiveSession(req.SessionID); err != nil {
+	// Get user ID from context if authenticated
+	var userID *uint
+	if user, exists := c.Get("user"); exists {
+		if u, ok := user.(*models.User); ok {
+			userID = &u.ID
+		}
+	}
+
+	if err := h.trackingRepo.UpdateActiveSession(req.SessionID, userID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update tracking"})
 		return
 	}
