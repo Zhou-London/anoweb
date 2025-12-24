@@ -10,6 +10,22 @@ const fields = [
   { label: "LinkedIn", key: "linkedin" as const, icon: "💼", buildHref: (value: string) => value },
 ];
 
+function readableLinkText(key: "email" | "github" | "linkedin", raw: string) {
+  if (!raw) return "";
+  if (key === "email") return "Email";
+  try {
+    const normalized = raw.startsWith("http") ? raw : `https://${raw}`;
+    const url = new URL(normalized);
+    const pathname = url.pathname.replace(/\/$/, "").split("/").filter(Boolean);
+    const condensedPath = pathname.length ? `/${pathname[0]}` : "";
+    return `${url.hostname}${condensedPath}`;
+  } catch {
+    if (key === "github") return "GitHub profile";
+    if (key === "linkedin") return "LinkedIn profile";
+    return "View link";
+  }
+}
+
 export default function ProfileCard({ profile }: ProfileCardProps) {
   if (!profile) {
     return (
@@ -38,6 +54,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             {fields.map((field) => {
               const value = profile[field.key];
               const href = value ? field.buildHref(value) : undefined;
+              const displayText = value ? readableLinkText(field.key, value) : "";
               return (
                 <div key={field.key} className="rounded-2xl border border-slate-200 bg-slate-50/60 p-3 space-y-1 shadow-sm">
                   <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 flex items-center gap-1">
@@ -46,8 +63,14 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
                   </dt>
                   <dd className="text-sm text-slate-800 break-all">
                     {href ? (
-                      <a className="text-blue-700 hover:text-blue-800 font-semibold" href={href} target="_blank" rel="noreferrer">
-                        {value}
+                      <a
+                        className="text-blue-700 hover:text-blue-800 font-semibold"
+                        href={href}
+                        target="_blank"
+                        rel="noreferrer"
+                        title={value}
+                      >
+                        {displayText}
                       </a>
                     ) : (
                       <span className="text-slate-500">Not provided</span>
