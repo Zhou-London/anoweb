@@ -7,15 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func registerEducationRoutes(r *gin.Engine, key, imgPath, imgURLPrefix string, educationsRepo repositories.EducationRepository, sessionRepo *repositories.SessionRepository) {
+func registerEducationRoutes(r *gin.Engine, key, imgPath, imgURLPrefix string, educationsRepo repositories.EducationRepository) {
 	education := r.Group(prefix + "/education")
-	education.Use(middlewares.OptionalAuthMiddleware(sessionRepo))
-	education.Use(func(c *gin.Context) {
-		_, hasUser := c.Get("user")
-		if !hasUser {
-			middlewares.KeyChecker(key)(c)
-		}
-	})
+	education.Use(middlewares.KeyChecker(key))
 	{
 		education.POST("/upload-image", func(ctx *gin.Context) {
 			handlers.UploadEducationImg(ctx, imgPath, imgURLPrefix)

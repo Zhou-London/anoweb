@@ -2,7 +2,7 @@
 
 import { useContext } from "react";
 import { type Project } from "./types";
-import { UserContext } from "../../Contexts/user_context";
+import { AdminContext } from "../../Contexts/admin_context";
 
 type ProjectListProps = {
   projects: Project[];
@@ -17,7 +17,7 @@ export default function ProjectList({
   isLoading,
   onSelectProject,
 }: ProjectListProps) {
-  const { isAdmin } = useContext(UserContext);
+  const { isAdmin } = useContext(AdminContext);
 
   return (
     <aside className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-4 space-y-4">

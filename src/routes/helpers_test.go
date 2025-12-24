@@ -30,8 +30,6 @@ func setupTestDatabase(t *testing.T) {
 	}
 
 	if err := db.AutoMigrate(
-		&models.User{},
-		&models.Session{},
 		&models.Profile{},
 		&models.Experience{},
 		&models.Education{},
@@ -55,12 +53,10 @@ func setupRouter(t *testing.T) *gin.Engine {
 	educationsRepo := repositories.NewEducationRepository()
 	projectsRepo := repositories.NewProjectRepository()
 	postsRepo := repositories.NewPostRepository()
-	userRepo := repositories.NewUserRepository()
-	sessionRepo := repositories.NewSessionRepository()
 
 	r := gin.Default()
 	InitRoutes(r, testDomain, testAdmin, testKey, testImgDir, testImgURL,
-		profileRepo, experiencesRepo, educationsRepo, projectsRepo, postsRepo, userRepo, sessionRepo)
+		profileRepo, experiencesRepo, educationsRepo, projectsRepo, postsRepo)
 
 	return r
 }
