@@ -15,8 +15,9 @@ func registerTrackingRoutes(
 ) {
 	handler := handlers.NewTrackingHandler(trackingRepo)
 
-	// Public tracking endpoints (no auth or key required)
+	// Public tracking endpoints with optional auth (to capture user ID when logged in)
 	trackingPublic := r.Group(prefix + "/tracking")
+	trackingPublic.Use(middlewares.OptionalAuthMiddleware(sessionRepo))
 	{
 		trackingPublic.POST("/start", handler.StartTracking)
 		trackingPublic.POST("/end", handler.EndTracking)
