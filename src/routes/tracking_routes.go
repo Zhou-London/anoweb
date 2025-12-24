@@ -15,21 +15,20 @@ func registerTrackingRoutes(
 ) {
 	handler := handlers.NewTrackingHandler(trackingRepo)
 
-	tracking := r.Group(prefix + "/tracking")
-	tracking.Use(middlewares.KeyChecker(key))
+	// Public tracking endpoints (no auth or key required)
+	trackingPublic := r.Group(prefix + "/tracking")
 	{
-		// Public endpoints (no auth required, but key checked)
-		tracking.POST("/start", handler.StartTracking)
-		tracking.POST("/end", handler.EndTracking)
-		tracking.POST("/update", handler.UpdateTracking)
-		tracking.GET("/total-hours", handler.GetTotalHours)
+		trackingPublic.POST("/start", handler.StartTracking)
+		trackingPublic.POST("/end", handler.EndTracking)
+		trackingPublic.POST("/update", handler.UpdateTracking)
+		trackingPublic.GET("/total-hours", handler.GetTotalHours)
+	}
 
-		// Authenticated endpoints
-		authTracking := tracking.Group("")
-		authTracking.Use(middlewares.AuthMiddleware(sessionRepo))
-		{
-			authTracking.GET("/user-hours", handler.GetUserTotalHours)
-			authTracking.GET("/records", handler.GetAllTrackingRecords)
-		}
+	// Authenticated tracking endpoints
+	trackingAuth := r.Group(prefix + "/tracking")
+	trackingAuth.Use(middlewares.AuthMiddleware(sessionRepo))
+	{
+		trackingAuth.GET("/user-hours", handler.GetUserTotalHours)
+		trackingAuth.GET("/records", handler.GetAllTrackingRecords)
 	}
 }
