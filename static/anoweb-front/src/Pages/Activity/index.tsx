@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { UserContext } from "../../Contexts/user_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
 import { apiJson } from "../../lib/api";
+import AuthModal from "../../Components/auth_modal";
 
 interface TrackingRecord {
   id: number;
@@ -46,6 +46,13 @@ export default function Activity() {
   const [overallStats, setOverallStats] = useState<OverallStats | null>(null);
   const [usersOverTime, setUsersOverTime] = useState<TimePoint[]>([]);
   const [dailyActive, setDailyActive] = useState<TimePoint[]>([]);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<"login" | "register">("login");
+
+  const openAuthModal = (mode: "login" | "register") => {
+    setAuthModalMode(mode);
+    setAuthModalOpen(true);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -127,24 +134,24 @@ export default function Activity() {
 
         {/* Authentication Buttons */}
         <div className="flex items-center justify-center gap-4 mb-12">
-          <Link
-            to="/account?tab=login"
-            className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-blue-700 transition-all hover:scale-105"
+          <button
+            onClick={() => openAuthModal("login")}
+            className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-blue-700 transition-all hover:scale-105 cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
             </svg>
             Sign In
-          </Link>
-          <Link
-            to="/account?tab=register"
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:from-purple-700 hover:to-pink-700 transition-all hover:scale-105"
+          </button>
+          <button
+            onClick={() => openAuthModal("register")}
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:from-purple-700 hover:to-pink-700 transition-all hover:scale-105 cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
             </svg>
             Create Account
-          </Link>
+          </button>
         </div>
 
         {/* Public Statistics */}
@@ -236,15 +243,15 @@ export default function Activity() {
               <p className="text-slate-700 mb-6 max-w-2xl mx-auto">
                 Create an account to unlock personalized tracking, view your streak, and see detailed statistics about your journey with us!
               </p>
-              <Link
-                to="/account?tab=register"
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all hover:scale-105"
+              <button
+                onClick={() => openAuthModal("register")}
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all hover:scale-105 cursor-pointer"
               >
                 Get Started Free
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
-              </Link>
+              </button>
             </div>
           </>
         )}
@@ -390,6 +397,7 @@ export default function Activity() {
           </div>
         </>
       )}
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} initialMode={authModalMode} />
     </div>
   );
 }
