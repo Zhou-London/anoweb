@@ -1,6 +1,11 @@
 // src/components/ProjectPage/CreatePostModal.tsx
-import { useRef, useState } from "react";
-import MarkdownViewer from "../../Components/Markdown/MarkdownViewer";
+import { useEffect, useRef, useState } from "react";
+import MDEditor from "@uiw/react-md-editor";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeHighlight from "rehype-highlight";
+import rehypeKatex from "rehype-katex";
+import { useErrorNotifier } from "../../Contexts/error_context";
 import { apiFetch } from "../../lib/api";
 
 type CreatePostModalProps = {
@@ -22,6 +27,11 @@ export default function CreatePostModal({
   const [tab, setTab] = useState<"write" | "preview">("write");
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const notifyError = useErrorNotifier();
+
+  useEffect(() => {
+    textAreaRef.current = document.getElementById("create-post-md") as HTMLTextAreaElement | null;
+  }, []);
 
   const insertAround = (left: string, right = left) => {
     const ta = textAreaRef.current;
@@ -69,7 +79,9 @@ export default function CreatePostModal({
         setContentMD(out);
       } else setContentMD((p) => `${p}\n${md}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload error");
+      const message = err instanceof Error ? err.message : "Upload error";
+      setError(message);
+      notifyError(message);
     } finally {
       setIsUploading(false);
       e.currentTarget.value = "";
@@ -79,7 +91,9 @@ export default function CreatePostModal({
   const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     if (!name || !contentMD) {
-      setError("Post Name and Content are required.");
+      const message = "Post Name and Content are required.";
+      setError(message);
+      notifyError(message);
       return;
     }
     setIsSubmitting(true);
@@ -94,7 +108,9 @@ export default function CreatePostModal({
       onSuccess();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      const message = err instanceof Error ? err.message : "Unknown error";
+      setError(message);
+      notifyError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -165,20 +181,35 @@ export default function CreatePostModal({
           <div className="md:grid md:grid-cols-2 md:gap-4">
             {/* Write */}
             <div className={`${tab === "write" ? "block" : "hidden"} md:block`}>
-              <textarea
-                ref={textAreaRef}
-                id="content_md"
+              <MDEditor
                 value={contentMD}
-                onChange={(e) => setContentMD(e.target.value)}
-                placeholder="Write Markdown… (GFM, math $x^2$, code blocks)"
-                className="h-[55vh] w-full rounded-xl border border-slate-200 p-3 sm:p-4 resize-none outline-none caret-blue-600 scrollbar-clear"
+                onChange={(value) => setContentMD(value || "")}
+                textareaProps={{
+                  id: "create-post-md",
+                  placeholder: "Write Markdown… (GFM, math $x^2$, code blocks)",
+                }}
+                height={520}
+                preview="edit"
+                previewOptions={{
+                  remarkPlugins: [remarkGfm, remarkMath],
+                  rehypePlugins: [rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]],
+                }}
+                data-color-mode="light"
+                className="rounded-xl border border-slate-200 shadow-inner"
               />
             </div>
 
             {/* Preview */}
             <div className={`${tab === "preview" ? "block" : "hidden"} md:block`}>
               <div className="h-[55vh] overflow-auto rounded-xl border border-slate-200 bg-white p-3 sm:p-4 scrollbar-clear">
-                <MarkdownViewer source={contentMD} />
+                <article className="markdown-body">
+                  <MDEditor.Markdown
+                    source={contentMD || "_Nothing to preview yet._"}
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]]}
+                    data-color-mode="light"
+                  />
+                </article>
               </div>
             </div>
           </div>

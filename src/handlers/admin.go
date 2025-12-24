@@ -34,3 +34,8 @@ func GetStatusCheck(c *gin.Context, expectedKey string) {
 	}
 	c.JSON(http.StatusOK, gin.H{"isAdmin": true})
 }
+
+func PostAdminLogout(c *gin.Context, domain string) {
+	c.SetCookie("key", "", -1, "/", domain, false, true)
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out"})
+}

@@ -2,6 +2,32 @@
 @import "tailwindcss";
 @import "katex/dist/katex.min.css";
 @import "highlight.js/styles/github.css";
+@import "@uiw/react-md-editor/markdown-editor.css";
+@import "@uiw/react-markdown-preview/markdown.css";
+
+:root {
+  color-scheme: light;
+}
+
+[data-color-mode="light"] .w-md-editor,
+.w-md-editor[data-color-mode="light"],
+[data-color-mode="light"] .wmde-markdown,
+.wmde-markdown[data-color-mode="light"] {
+  --color-canvas-default: #ffffff;
+  --color-canvas-subtle: #f6f8fa;
+  --color-border-default: #e2e8f0;
+  --color-fg-default: #1f2937;
+  --md-editor-background-color: #ffffff;
+  --md-editor-box-shadow-color: #e2e8f0;
+  color: #1f2937;
+  background: #ffffff;
+}
+
+.w-md-editor,
+.w-md-editor-preview,
+.w-md-editor-content {
+  background: var(--color-canvas-default, #ffffff);
+}
 
 .nav-chip {
   @apply inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-white transition-colors;
@@ -53,6 +79,10 @@
   color: #24292f;
   line-height: 1.7;
   font-size: 16px;
+  background: #fff;
+  padding: 1.25rem;
+  border-radius: 16px;
+  border: 1px solid #d0d7de;
 }
 .markdown-body h1,
 .markdown-body h2,
@@ -60,6 +90,31 @@
   color: #1f2937;
   padding-bottom: 0.3em;
   border-bottom: 1px solid #d0d7de;
+  margin-top: 1.4em;
+  margin-bottom: 0.75em;
+}
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  color: #111827;
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+}
+.markdown-body p { margin: 0.75em 0; }
+.markdown-body ul,
+.markdown-body ol { 
+  margin: 0.75em 0 0.75em 1.4em;
+  padding-left: 1.5em;
+}
+.markdown-body ul { list-style-type: disc; }
+.markdown-body ol { list-style-type: decimal; }
+.markdown-body li { margin: 0.35em 0; }
+.markdown-body blockquote {
+  border-left: 4px solid #d0d7de;
+  padding: 0.25em 1em;
+  color: #4b5563;
+  background: #f6f8fa;
+  border-radius: 0 12px 12px 0;
 }
 .markdown-body code {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
@@ -71,6 +126,35 @@
 .markdown-body pre code {
   padding: 0;
   background: transparent;
+}
+.markdown-body pre {
+  background: #f6f8fa;
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid #d0d7de;
+  overflow: auto;
+}
+.markdown-body hr {
+  border: 0;
+  border-top: 1px solid #d0d7de;
+  margin: 1.5em 0;
+}
+.markdown-body table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid #d0d7de;
+  padding: 8px 10px;
+}
+.markdown-body tr:nth-child(2n) {
+  background: #f6f8fa;
+}
+.markdown-body input[type="checkbox"] {
+  margin-right: 8px;
+  accent-color: #2563eb;
 }
 .markdown-pre {
   padding: 16px;

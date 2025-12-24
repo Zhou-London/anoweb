@@ -25,6 +25,7 @@ export type Experience = {
   end_date: string;
   present: boolean;
   description?: string;
+  bullet_points?: string[];
   image_url: string;
   order_index: number;
 };

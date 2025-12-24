@@ -57,6 +57,8 @@ No documentation found for this API
 ## func3
 
 ### url
+- /api/admin/logout [POST]
+
 - /api/education/:id [DELETE]
 
 - /api/experience/short [GET]

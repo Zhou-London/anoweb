@@ -9,8 +9,22 @@ export function apiUrl(path: string) {
 
 async function handleResponse(res: Response) {
   if (!res.ok) {
-    const message = await res.text().catch(() => res.statusText);
-    throw new Error(message || `Request failed with ${res.status}`);
+    let message = res.statusText || `Request failed with ${res.status}`;
+    const contentType = res.headers.get("content-type") || "";
+
+    try {
+      if (contentType.includes("application/json")) {
+        const data = (await res.json()) as Record<string, string>;
+        message = data.error || data.message || message;
+      } else {
+        const text = await res.text();
+        message = text || message;
+      }
+    } catch {
+      // ignore parse errors and fall back to defaults
+    }
+
+    throw new Error(message);
   }
   return res;
 }
