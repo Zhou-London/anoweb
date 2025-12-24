@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { AdminContext } from "../../Contexts/admin_context";
 import { apiFetch } from "../../lib/api";
 import type { Experience } from "./types";
@@ -10,9 +10,8 @@ type ExperienceCardProps = {
 
 export default function ExperienceCard({ experience, setExperience }: ExperienceCardProps) {
   const { isAdmin } = useContext(AdminContext);
-  if (!Array.isArray(experience) || experience.length === 0) return null;
 
-  const ordered = experience.slice().sort((a, b) => a.order_index - b.order_index);
+  const ordered = useMemo(() => experience.slice().sort((a, b) => a.order_index - b.order_index), [experience]);
   const [bulletDrafts, setBulletDrafts] = useState<Record<number, string>>({});
   const [savingBullets, setSavingBullets] = useState<Record<number, boolean>>({});
   const [bulletErrors, setBulletErrors] = useState<Record<number, string | null>>({});
@@ -71,10 +70,19 @@ export default function ExperienceCard({ experience, setExperience }: Experience
     }
   };
 
+  if (!Array.isArray(experience) || experience.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-6 text-sm text-slate-600">
+        No career entries yet.
+      </div>
+    );
+  }
+
   return (
-    <ul className="space-y-3">
+    <ul className="space-y-4">
       {ordered.map((exp, index) => {
         const endDisplay = exp.present ? "Present" : exp.end_date;
+        const range = `${cleanDate(exp.start_date)} – ${exp.present ? "Present" : cleanDate(endDisplay)}`;
         return (
           <li
             key={exp.id}
@@ -86,22 +94,28 @@ export default function ExperienceCard({ experience, setExperience }: Experience
               const fromIndex = Number(e.dataTransfer.getData("text/plain"));
               handleDrop(fromIndex, index);
             }}
-            className={`group relative overflow-hidden rounded-2xl border border-slate-200 bg-white/90 p-4 transition-all duration-200 shadow-sm hover:shadow-md ${
+            className={`group relative overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-4 transition-all duration-200 shadow-sm hover:shadow-md ${
               isAdmin ? "cursor-grab" : "cursor-default"
             }`}
           >
-            <div className="absolute right-4 top-3 bottom-3 w-px bg-slate-200/80" aria-hidden />
-            <div className="grid grid-cols-[1fr_auto] items-start gap-4">
+            <div className="absolute left-4 top-4 bottom-4 w-px bg-slate-200/80" aria-hidden />
+            <div className="grid grid-cols-[auto_1fr_auto] items-start gap-4">
+              <div className="flex flex-col items-center gap-2 text-[11px] text-slate-600">
+                <span className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 border border-blue-100 grid place-items-center font-semibold">
+                  {index + 1}
+                </span>
+                {exp.present && <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-1">Current</span>}
+              </div>
               <div className="flex items-start gap-4">
                 <img src={exp.image_url} alt={exp.company} className="w-12 h-12 rounded-xl object-cover shadow-sm border border-slate-200" />
                 <div className="min-w-0 flex-1 space-y-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-semibold text-slate-900 truncate">{exp.company}</p>
-                    {isAdmin && <span className="text-[10px] uppercase tracking-[0.12em] text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">drag</span>}
+                    {isAdmin && <span className="text-[10px] uppercase tracking-[0.12em] text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">Drag</span>}
                   </div>
                   <p className="text-xs text-slate-600 truncate">{exp.position}</p>
-                  <p className="text-xs text-slate-500">{cleanDate(exp.start_date)} – {exp.present ? "Present" : cleanDate(endDisplay)}</p>
-                  {exp.description && <p className="text-sm text-slate-700 line-clamp-2">{exp.description}</p>}
+                  <p className="text-xs text-slate-500">{range}</p>
+                  {exp.description && <p className="text-sm text-slate-700 leading-snug">{exp.description}</p>}
                   {Array.isArray(exp.bullet_points) && exp.bullet_points.length > 0 && (
                     <ul className="mt-2 space-y-1 text-sm text-slate-800 list-disc list-inside">
                       {exp.bullet_points.map((point, idx) => (
@@ -139,9 +153,9 @@ export default function ExperienceCard({ experience, setExperience }: Experience
               <div className="flex flex-col items-end gap-2 text-right min-w-[120px]">
                 <div className="flex items-center gap-2 text-[11px] text-slate-600">
                   <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
-                  <span className="rounded-full bg-slate-50 border border-slate-200 px-2 py-1">#{index + 1}</span>
+                  <span className="rounded-full bg-slate-50 border border-slate-200 px-2 py-1">{range}</span>
                 </div>
-                {exp.present && <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-1 text-[11px]">Current</span>}
+                {exp.present && <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-1 text-[11px]">Active</span>}
               </div>
             </div>
           </li>
