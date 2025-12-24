@@ -5,26 +5,10 @@ type ProfileCardProps = {
 };
 
 const fields = [
-  { label: "Email", key: "email" as const, icon: "✉", buildHref: (value: string) => `mailto:${value}` },
-  { label: "GitHub", key: "github" as const, icon: "🐙", buildHref: (value: string) => value },
-  { label: "LinkedIn", key: "linkedin" as const, icon: "💼", buildHref: (value: string) => value },
+  { label: "email", key: "email" as const, icon: "✉", buildHref: (value: string) => `mailto:${value}` },
+  { label: "github", key: "github" as const, icon: "🐙", buildHref: (value: string) => value },
+  { label: "linkedin", key: "linkedin" as const, icon: "💼", buildHref: (value: string) => value },
 ];
-
-function readableLinkText(key: "email" | "github" | "linkedin", raw: string) {
-  if (!raw) return "";
-  if (key === "email") return "Email";
-  try {
-    const normalized = raw.startsWith("http") ? raw : `https://${raw}`;
-    const url = new URL(normalized);
-    const pathname = url.pathname.replace(/\/$/, "").split("/").filter(Boolean);
-    const condensedPath = pathname.length ? `/${pathname[0]}` : "";
-    return `${url.hostname}${condensedPath}`;
-  } catch {
-    if (key === "github") return "GitHub profile";
-    if (key === "linkedin") return "LinkedIn profile";
-    return "View link";
-  }
-}
 
 export default function ProfileCard({ profile }: ProfileCardProps) {
   if (!profile) {
@@ -40,7 +24,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           <img
             src="/image/profile-img.png"
             alt="Profile"
-            className="w-28 h-28 md:w-32 md:h-32 rounded-2xl object-cover border border-slate-200 shadow-sm"
+            className="w-36 h-36 md:w-40 md:h-40 rounded-2xl object-cover border border-slate-200 shadow-sm"
           />
         </div>
         <div className="min-w-0 space-y-3 flex-1">
@@ -50,36 +34,35 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             <p className="text-slate-700 leading-relaxed whitespace-pre-line">{profile.bio}</p>
           </div>
 
-          <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-            {fields.map((field) => {
-              const value = profile[field.key];
-              const href = value ? field.buildHref(value) : undefined;
-              const displayText = value ? readableLinkText(field.key, value) : "";
-              return (
-                <div key={field.key} className="rounded-2xl border border-slate-200 bg-slate-50/60 p-3 space-y-1 shadow-sm">
-                  <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 flex items-center gap-1">
-                    <span aria-hidden>{field.icon}</span>
-                    {field.label}
-                  </dt>
-                  <dd className="text-sm text-slate-800 break-all">
-                    {href ? (
-                      <a
-                        className="text-blue-700 hover:text-blue-800 font-semibold"
-                        href={href}
-                        target="_blank"
-                        rel="noreferrer"
-                        title={value}
-                      >
-                        {displayText}
-                      </a>
-                    ) : (
-                      <span className="text-slate-500">Not provided</span>
-                    )}
-                  </dd>
-                </div>
-              );
-            })}
-          </dl>
+          <div className="space-y-2 pt-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Contact</p>
+            <div className="flex flex-col gap-2">
+              {fields.map((field) => {
+                const value = profile[field.key];
+                const href = value ? field.buildHref(value) : undefined;
+                const isDisabled = !href;
+
+                return (
+                  <button
+                    key={field.key}
+                    type="button"
+                    className={`inline-flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                      isDisabled
+                        ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
+                        : "bg-white text-blue-800 border border-blue-100 shadow-sm hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-blue-500"
+                    }`}
+                    onClick={() => href && window.open(href, "_blank", "noopener,noreferrer")}
+                    disabled={isDisabled}
+                    aria-disabled={isDisabled}
+                  >
+                    <span className="lowercase">{field.label}</span>
+                    <span aria-hidden className="text-lg leading-none">{field.icon}</span>
+                    {href && <span className="sr-only">{value}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </article>
