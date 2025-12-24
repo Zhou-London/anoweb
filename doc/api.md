@@ -1,5 +1,117 @@
 # handlers
 
+## CreateCode-fm
+
+### url
+- /api/mystery-code/create
+
+### method
+- POST
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## CreateConfig-fm
+
+### url
+- /api/guest-popup/create
+
+### method
+- POST
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## EndTracking-fm
+
+### url
+- /api/tracking/end
+
+### method
+- POST
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## GetActiveConfig-fm
+
+### url
+- /api/guest-popup/active
+
+### method
+- GET
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## GetAllCodes-fm
+
+### url
+- /api/mystery-code/list
+
+### method
+- GET
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## GetAllConfigs-fm
+
+### url
+- /api/guest-popup/list
+
+### method
+- GET
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## GetAllTrackingRecords-fm
+
+### url
+- /api/tracking/records
+
+### method
+- GET
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
 ## GetCurrentUser-fm
 
 ### url
@@ -20,6 +132,38 @@ No documentation found for this API
 
 ### url
 - /api/home
+
+### method
+- GET
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## GetTotalHours-fm
+
+### url
+- /api/tracking/total-hours
+
+### method
+- GET
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## GetUserTotalHours-fm
+
+### url
+- /api/tracking/user-hours
 
 ### method
 - GET
@@ -80,6 +224,38 @@ No documentation found for this API
 
 
 
+## StartTracking-fm
+
+### url
+- /api/tracking/start
+
+### method
+- POST
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## UpdateConfig-fm
+
+### url
+- /api/guest-popup/:id
+
+### method
+- PUT
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
 ## UpdateProfile-fm
 
 ### url
@@ -87,6 +263,38 @@ No documentation found for this API
 
 ### method
 - PUT
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## UpdateTracking-fm
+
+### url
+- /api/tracking/update
+
+### method
+- POST
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## VerifyCode-fm
+
+### url
+- /api/mystery-code/verify
+
+### method
+- POST
 
 ### doc
 ```doc

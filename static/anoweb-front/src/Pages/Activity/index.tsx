@@ -87,9 +87,8 @@ export default function Activity() {
               🌍
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Community</p>
               <h2 className="text-3xl font-bold text-slate-900">{totalHours.toFixed(2)}h</h2>
-              <p className="text-sm text-slate-700 mt-1">Total hours by all users</p>
+              <p className="text-sm text-slate-700 mt-1">Spent by all users on this web</p>
             </div>
           </div>
         </div>
@@ -101,9 +100,8 @@ export default function Activity() {
                 ⏱️
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Your Time</p>
                 <h2 className="text-3xl font-bold text-slate-900">{userHours.toFixed(2)}h</h2>
-                <p className="text-sm text-slate-700 mt-1">Your total hours on site</p>
+                <p className="text-sm text-slate-700 mt-1">Spent by you on this web</p>
               </div>
             </div>
           </div>
@@ -165,12 +163,9 @@ export default function Activity() {
 
       {/* Info Section */}
       <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-6 md:p-8">
-        <p className="text-xs uppercase tracking-[0.2em] text-slate-500">About Activity Tracking</p>
         <h2 className="text-2xl font-semibold text-slate-900 mt-2">How it works</h2>
         <p className="text-slate-700 leading-relaxed mt-4">
-          We track the time you spend on this website to understand engagement and improve your
-          experience. Your activity is recorded from the moment you arrive until you leave. All
-          data is stored securely and used only for analytics purposes.
+          We track the time you spend on this website!
         </p>
       </section>
     </div>

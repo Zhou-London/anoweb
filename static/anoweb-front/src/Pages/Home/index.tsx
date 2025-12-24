@@ -57,11 +57,10 @@ export default function Home() {
               🌍
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Community Impact</p>
               <h2 className="text-3xl font-bold text-slate-900">
                 {loadingStats ? "..." : `${totalHours.toFixed(1)}h`}
               </h2>
-              <p className="text-sm text-slate-700 mt-1">Total hours spent by all users exploring this space</p>
+              <p className="text-sm text-slate-700 mt-1">Spent by all users on this web</p>
             </div>
           </div>
         </div>
@@ -74,11 +73,10 @@ export default function Home() {
                 ⏱️
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Your Journey</p>
                 <h2 className="text-3xl font-bold text-slate-900">
                   {loadingStats ? "..." : `${userHours.toFixed(1)}h`}
                 </h2>
-                <p className="text-sm text-slate-700 mt-1">Your personal time invested here</p>
+                <p className="text-sm text-slate-700 mt-1">Spent by you on this web</p>
               </div>
             </div>
           </div>
