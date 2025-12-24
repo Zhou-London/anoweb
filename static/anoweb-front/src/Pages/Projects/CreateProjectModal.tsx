@@ -84,15 +84,34 @@ export default function CreateProjectModal({ onClose, onSuccess }: CreateProject
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-slate-700">Project Name</label>
-            <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} required className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
           </div>
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-slate-700">Description</label>
-            <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+              className="mt-1 block w-full rounded-md border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
           </div>
           <div>
             <label htmlFor="link" className="block text-sm font-medium text-slate-700">Project Link</label>
-            <input type="url" id="link" value={link} onChange={(e) => setLink(e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <input
+              type="url"
+              id="link"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              className="mt-1 block w-full rounded-md border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700">Cover Image</label>
