@@ -37,7 +37,9 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
     <div className="relative w-full overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5 bg-white/90">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-fuchsia-500/10" aria-hidden />
       <Link
-        to="/projects"
+        to={`/markdown/${post.id}`}
+        target="_blank"
+        rel="noreferrer"
         className={`relative block w-full h-full ${pad} space-y-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-2xl`}
         aria-label={`Open latest post: ${post.name}`}
       >
@@ -86,7 +88,7 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
         <div className="pt-1.5">
           <p className="text-[11px] sm:text-xs text-slate-600 inline-flex items-center gap-1">
             <span className="inline-block h-2 w-2 rounded-full bg-blue-500" aria-hidden />
-            Read inside Projects
+            Open in markdown tab
           </p>
         </div>
       </Link>
