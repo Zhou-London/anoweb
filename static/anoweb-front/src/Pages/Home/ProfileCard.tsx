@@ -4,6 +4,12 @@ type ProfileCardProps = {
   profile: Profile | null;
 };
 
+const fields = [
+  { label: "Email", key: "email" as const, icon: "✉", buildHref: (value: string) => `mailto:${value}` },
+  { label: "GitHub", key: "github" as const, icon: "🐙", buildHref: (value: string) => value },
+  { label: "LinkedIn", key: "linkedin" as const, icon: "💼", buildHref: (value: string) => value },
+];
+
 export default function ProfileCard({ profile }: ProfileCardProps) {
   if (!profile) {
     return (
@@ -21,21 +27,36 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             className="w-28 h-28 md:w-32 md:h-32 rounded-2xl object-cover border border-slate-200 shadow-sm"
           />
         </div>
-        <div className="min-w-0 space-y-2 flex-1">
-          <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Profile</p>
-          <h2 className="text-2xl font-semibold text-slate-900">{profile.name}</h2>
-          <p className="text-slate-700 leading-relaxed line-clamp-3 whitespace-pre-line">{profile.bio}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-            <a href={`mailto:${profile.email}`} className="chip-soft">
-              {profile.email}
-            </a>
-            <a href={profile.github} target="_blank" rel="noopener noreferrer" className="chip-soft">
-              GitHub
-            </a>
-            <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="chip-soft">
-              LinkedIn
-            </a>
+        <div className="min-w-0 space-y-3 flex-1">
+          <div className="space-y-1">
+            <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Profile</p>
+            <h2 className="text-2xl font-semibold text-slate-900">{profile.name}</h2>
+            <p className="text-slate-700 leading-relaxed whitespace-pre-line">{profile.bio}</p>
           </div>
+
+          <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+            {fields.map((field) => {
+              const value = profile[field.key];
+              const href = value ? field.buildHref(value) : undefined;
+              return (
+                <div key={field.key} className="rounded-2xl border border-slate-200 bg-slate-50/60 p-3 space-y-1 shadow-sm">
+                  <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 flex items-center gap-1">
+                    <span aria-hidden>{field.icon}</span>
+                    {field.label}
+                  </dt>
+                  <dd className="text-sm text-slate-800 break-all">
+                    {href ? (
+                      <a className="text-blue-700 hover:text-blue-800 font-semibold" href={href} target="_blank" rel="noreferrer">
+                        {value}
+                      </a>
+                    ) : (
+                      <span className="text-slate-500">Not provided</span>
+                    )}
+                  </dd>
+                </div>
+              );
+            })}
+          </dl>
         </div>
       </div>
     </article>
