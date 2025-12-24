@@ -7,6 +7,7 @@ import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { UserContext } from "../../Contexts/user_context";
+import { useEditMode } from "../../Contexts/edit_mode_context";
 import { apiFetch, apiJson } from "../../lib/api";
 import type { Post } from "../Projects/types";
 
@@ -55,6 +56,8 @@ function buildDemoPost(id?: string): Post {
 export default function PostWorkspace() {
   const { postId } = useParams<{ postId: string }>();
   const { isAdmin } = useContext(UserContext);
+  const { editMode } = useEditMode();
+  const showAdminFeatures = isAdmin && editMode;
   const allowMock = Boolean((import.meta as any)?.env?.DEV) && (import.meta as any)?.env?.VITE_ENABLE_DEV_MOCKS !== "false";
   const demoPost = useMemo(() => buildDemoPost(postId), [postId]);
 
@@ -72,14 +75,14 @@ export default function PostWorkspace() {
   const textRef = useRef<HTMLTextAreaElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
-  // Update mode when admin status changes
+  // Update mode when admin status and edit mode changes
   useEffect(() => {
-    if (isAdmin) {
+    if (showAdminFeatures) {
       setMode("split");
     } else {
       setMode("preview");
     }
-  }, [isAdmin]);
+  }, [showAdminFeatures]);
 
   useEffect(() => {
     textRef.current = document.getElementById("post-workspace-editor") as HTMLTextAreaElement | null;
@@ -320,7 +323,7 @@ export default function PostWorkspace() {
         </div>
         <div className="flex items-center gap-2">
           <Link to="/projects" className="chip-soft">Back</Link>
-          {isAdmin && (
+          {showAdminFeatures && (
             <button
               type="button"
               onClick={handleSave}
@@ -336,9 +339,9 @@ export default function PostWorkspace() {
       <div className="rounded-3xl border border-slate-200 bg-white/90 shadow-lg overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-2">
           <div className="flex items-center gap-2" role="tablist" aria-label="Editor view modes">
-            {isAdmin && tabButton("write", "Write")}
+            {showAdminFeatures && tabButton("write", "Write")}
             {tabButton("preview", "Preview")}
-            {isAdmin && tabButton("split", "Split")}
+            {showAdminFeatures && tabButton("split", "Split")}
           </div>
           <div className="flex items-center gap-3 text-[11px] text-slate-600">
             <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-1 border border-slate-200">{stats.words} words</span>
