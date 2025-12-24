@@ -7,9 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func registerPostRoutes(r *gin.Engine, key string, postsRepo repositories.PostRepository) {
+func registerPostRoutes(r *gin.Engine, key string, postsRepo repositories.PostRepository, sessionRepo *repositories.SessionRepository) {
 	post := r.Group(prefix + "/post")
-	post.Use(middlewares.KeyChecker(key))
+	post.Use(middlewares.OptionalAuthMiddleware(sessionRepo))
+	post.Use(func(c *gin.Context) {
+		_, hasUser := c.Get("user")
+		if !hasUser {
+			middlewares.KeyChecker(key)(c)
+		}
+	})
 	{
 		post.GET("/latest", func(ctx *gin.Context) {
 			handlers.GetPostLatest(ctx, postsRepo)

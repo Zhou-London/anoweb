@@ -19,13 +19,16 @@ func InitRoutes(
 	educationsRepo repositories.EducationRepository,
 	projectsRepo repositories.ProjectRepository,
 	postsRepo repositories.PostRepository,
+	userRepo *repositories.UserRepository,
+	sessionRepo *repositories.SessionRepository,
 ) {
+	registerUserRoutes(r, domain, imgPath, imgURLPrefix, userRepo, sessionRepo)
 	registerAdminRoutes(r, domain, adminPass, key)
-	registerStaticRoutes(r, key, imgPath, imgURLPrefix)
-	registerHomeRoutes(r, key)
-	registerProfileRoutes(r, key, imgPath, imgURLPrefix, profileRepo)
-	registerExperienceRoutes(r, key, imgPath, imgURLPrefix, experiencesRepo)
-	registerProjectRoutes(r, key, projectsRepo)
-	registerEducationRoutes(r, key, imgPath, imgURLPrefix, educationsRepo)
-	registerPostRoutes(r, key, postsRepo)
+	registerStaticRoutes(r, key, imgPath, imgURLPrefix, sessionRepo)
+	registerHomeRoutes(r, key, sessionRepo)
+	registerProfileRoutes(r, key, imgPath, imgURLPrefix, profileRepo, sessionRepo)
+	registerExperienceRoutes(r, key, imgPath, imgURLPrefix, experiencesRepo, sessionRepo)
+	registerProjectRoutes(r, key, projectsRepo, sessionRepo)
+	registerEducationRoutes(r, key, imgPath, imgURLPrefix, educationsRepo, sessionRepo)
+	registerPostRoutes(r, key, postsRepo, sessionRepo)
 }

@@ -6,7 +6,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 import { useErrorNotifier } from "../../Contexts/error_context";
-import { AdminContext } from "../../Contexts/admin_context";
+import { UserContext } from "../../Contexts/user_context";
 import { apiFetch, apiJson } from "../../lib/api";
 import type { Post } from "../Projects/types";
 
@@ -54,7 +54,7 @@ function buildDemoPost(id?: string): Post {
 
 export default function PostWorkspace() {
   const { postId } = useParams<{ postId: string }>();
-  const { isAdmin } = useContext(AdminContext);
+  const { isAdmin } = useContext(UserContext);
   const allowMock = Boolean((import.meta as any)?.env?.DEV) && (import.meta as any)?.env?.VITE_ENABLE_DEV_MOCKS !== "false";
   const demoPost = useMemo(() => buildDemoPost(postId), [postId]);
 
