@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useMemo, useState, useContext } from "react";
 import { type PostShort } from "./types";
-import { AdminContext } from "../../Contexts/admin_context";
+import { UserContext } from "../../Contexts/user_context";
 
 type PostCardRailProps = {
   posts: PostShort[];
@@ -22,7 +22,7 @@ export function PostCardRail({
   const railRef = useRef<HTMLDivElement | null>(null);
   const cardRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const [focusedPostId, setFocusedPostId] = useState<number | null>(null);
-  const { isAdmin } = useContext(AdminContext);
+  const { isAdmin } = useContext(UserContext);
 
   const sortedPosts = useMemo(() => {
     return [...posts].sort(

@@ -1,7 +1,7 @@
 // src/components/ProjectPage/ProjectDetails.tsx
 
 import { useState, useContext, useEffect } from "react";
-import { AdminContext } from "../../Contexts/admin_context";
+import { UserContext } from "../../Contexts/user_context";
 import { apiFetch } from "../../lib/api";
 import { type Project } from "./types";
 
@@ -11,7 +11,7 @@ type ProjectDetailsProps = {
 };
 
 export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps) {
-  const { isAdmin } = useContext(AdminContext);
+  const { isAdmin } = useContext(UserContext);
   const [isEditing, setIsEditing] = useState(false);
 
   // State to hold form data during editing

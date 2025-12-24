@@ -30,12 +30,17 @@ func setupTestDatabase(t *testing.T) {
 	}
 
 	if err := db.AutoMigrate(
+		&models.User{},
+		&models.Session{},
 		&models.Profile{},
 		&models.Experience{},
 		&models.Education{},
 		&models.Project{},
 		&models.Learning{},
 		&models.Post{},
+		&models.UserTracking{},
+		&models.MysteryCode{},
+		&models.GuestPopupConfig{},
 	); err != nil {
 		t.Fatalf("failed to migrate test database: %v", err)
 	}
@@ -53,10 +58,16 @@ func setupRouter(t *testing.T) *gin.Engine {
 	educationsRepo := repositories.NewEducationRepository()
 	projectsRepo := repositories.NewProjectRepository()
 	postsRepo := repositories.NewPostRepository()
+	userRepo := repositories.NewUserRepository()
+	sessionRepo := repositories.NewSessionRepository()
+	trackingRepo := repositories.NewUserTrackingRepository(repositories.DB)
+	mysteryCodeRepo := repositories.NewMysteryCodeRepository(repositories.DB)
+	popupRepo := repositories.NewGuestPopupConfigRepository(repositories.DB)
 
 	r := gin.Default()
 	InitRoutes(r, testDomain, testAdmin, testKey, testImgDir, testImgURL,
-		profileRepo, experiencesRepo, educationsRepo, projectsRepo, postsRepo)
+		profileRepo, experiencesRepo, educationsRepo, projectsRepo, postsRepo, userRepo, sessionRepo,
+		trackingRepo, mysteryCodeRepo, popupRepo)
 
 	return r
 }

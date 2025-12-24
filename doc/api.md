@@ -1,9 +1,127 @@
+# handlers
+
+## GetCurrentUser-fm
+
+### url
+- /api/auth/me
+
+### method
+- GET
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## GetHomeMsg
+
+### url
+- /api/home
+
+### method
+- GET
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## Login-fm
+
+### url
+- /api/auth/login
+
+### method
+- POST
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## Logout-fm
+
+### url
+- /api/auth/logout
+
+### method
+- POST
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## Register-fm
+
+### url
+- /api/auth/register
+
+### method
+- POST
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## UpdateProfile-fm
+
+### url
+- /api/user/profile
+
+### method
+- PUT
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+
+
 # routes
 
 ## func1
 
 ### url
 - /api/admin [POST]
+
+- /api/user/profile/photo [POST]
+
+### method
+- POST
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## func2
+
+### url
+- /api/admin/status [GET]
 
 - /api/education/upload-image [POST]
 
@@ -28,10 +146,10 @@ No documentation found for this API
 
 
 
-## func2
+## func3
 
 ### url
-- /api/admin/status [GET]
+- /api/admin/logout [POST]
 
 - /api/education [GET]
 
@@ -54,11 +172,9 @@ No documentation found for this API
 
 
 
-## func3
+## func4
 
 ### url
-- /api/admin/logout [POST]
-
 - /api/education/:id [DELETE]
 
 - /api/experience/short [GET]
@@ -80,7 +196,7 @@ No documentation found for this API
 
 
 
-## func4
+## func5
 
 ### url
 - /api/education [POST]
@@ -104,7 +220,7 @@ No documentation found for this API
 
 
 
-## func5
+## func6
 
 ### url
 - /api/education/image [POST]
@@ -128,7 +244,7 @@ No documentation found for this API
 
 
 
-## func6
+## func7
 
 ### url
 - /api/education [PUT]
@@ -148,7 +264,7 @@ No documentation found for this API
 
 
 
-## func7
+## func8
 
 ### url
 - /api/experience
@@ -164,33 +280,13 @@ No documentation found for this API
 
 
 
-## func8
+## func9
 
 ### url
 - /api/experience/:id
 
 ### method
 - DELETE
-
-### doc
-```doc
-No documentation found for this API
-```
-
-
-
-
-
-
-# handlers
-
-## GetHomeMsg
-
-### url
-- /api/home
-
-### method
-- GET
 
 ### doc
 ```doc

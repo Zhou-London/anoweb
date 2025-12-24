@@ -1,12 +1,12 @@
 import { createContext, useState, useEffect, type ReactNode } from "react";
 import { apiJson } from "../lib/api";
 
-interface AdminContextType {
+interface UserContextType {
   isAdmin: boolean;
   setIsAdmin: (value: boolean) => void;
 }
 
-export const AdminContext = createContext<AdminContextType>({
+export const UserContext = createContext<UserContextType>({
   isAdmin: false,
   setIsAdmin: () => {},
 });
@@ -21,8 +21,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AdminContext.Provider value={{ isAdmin, setIsAdmin }}>
+    <UserContext.Provider value={{ isAdmin, setIsAdmin }}>
       {children}
-    </AdminContext.Provider>
+    </UserContext.Provider>
   );
 }

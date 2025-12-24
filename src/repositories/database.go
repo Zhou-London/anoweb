@@ -22,12 +22,17 @@ func InitDatabase(usr string, pass string, host string, port string, name string
 	}
 
 	if err := DB.AutoMigrate(
+		&models.User{},
+		&models.Session{},
 		&models.Profile{},
 		&models.Experience{},
 		&models.Education{},
 		&models.Project{},
 		&models.Learning{},
 		&models.Post{},
+		&models.UserTracking{},
+		&models.MysteryCode{},
+		&models.GuestPopupConfig{},
 	); err != nil {
 		log.Fatal(err)
 	}
