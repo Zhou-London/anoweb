@@ -1,5 +1,6 @@
 import { useContext, useMemo, useState } from "react";
 import { AdminContext } from "../../Contexts/admin_context";
+import { useErrorNotifier } from "../../Contexts/error_context";
 import { apiFetch } from "../../lib/api";
 import type { Experience } from "./types";
 
@@ -10,9 +11,11 @@ type ExperienceCardProps = {
 
 export default function ExperienceCard({ experience, setExperience }: ExperienceCardProps) {
   const { isAdmin } = useContext(AdminContext);
+  const notifyError = useErrorNotifier();
 
   const ordered = useMemo(() => experience.slice().sort((a, b) => a.order_index - b.order_index), [experience]);
-  const [bulletDrafts, setBulletDrafts] = useState<Record<number, string>>({});
+  const [bulletDrafts, setBulletDrafts] = useState<Record<number, string[]>>({});
+  const [newBulletText, setNewBulletText] = useState<Record<number, string>>({});
   const [savingBullets, setSavingBullets] = useState<Record<number, boolean>>({});
   const [bulletErrors, setBulletErrors] = useState<Record<number, string | null>>({});
 
@@ -28,6 +31,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
 
   const handleDrop = (fromIndex: number, toIndex: number) => {
     if (!isAdmin || fromIndex === toIndex || Number.isNaN(fromIndex) || Number.isNaN(toIndex)) return;
+    const previous = ordered.map((item) => ({ ...item }));
     const current = ordered.slice();
     const [moved] = current.splice(fromIndex, 1);
     current.splice(toIndex, 0, moved);
@@ -38,16 +42,41 @@ export default function ExperienceCard({ experience, setExperience }: Experience
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(reindexed.map((it, idx) => ({ id: it.id, order_index: idx }))),
       credentials: "include",
-    }).catch(() => {});
+    }).catch((err) => {
+      notifyError(err instanceof Error ? err.message : "Failed to update order");
+      setExperience(previous);
+    });
   };
 
-  const getDraft = (exp: Experience) => bulletDrafts[exp.id] ?? (exp.bullet_points ?? []).join("\n");
+  const getDraftList = (exp: Experience) => bulletDrafts[exp.id] ?? [...(exp.bullet_points ?? [])];
+
+  const updateDraftList = (exp: Experience, nextList: string[]) => {
+    setBulletDrafts((prev) => ({ ...prev, [exp.id]: nextList }));
+  };
+
+  const handleBulletChange = (exp: Experience, index: number, value: string) => {
+    const list = getDraftList(exp).slice();
+    list[index] = value;
+    updateDraftList(exp, list);
+  };
+
+  const handleAddBullet = (exp: Experience) => {
+    const text = (newBulletText[exp.id] || "").trim();
+    if (!text) {
+      notifyError("Bullet text cannot be empty.");
+      return;
+    }
+    updateDraftList(exp, [...getDraftList(exp), text]);
+    setNewBulletText((prev) => ({ ...prev, [exp.id]: "" }));
+  };
+
+  const handleRemoveBullet = (exp: Experience, index: number) => {
+    const list = getDraftList(exp).filter((_, idx) => idx !== index);
+    updateDraftList(exp, list);
+  };
 
   const handleSaveBullets = async (exp: Experience) => {
-    const bulletPoints = getDraft(exp)
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
+    const bulletPoints = getDraftList(exp).map((line) => line.trim()).filter(Boolean);
 
     setSavingBullets((prev) => ({ ...prev, [exp.id]: true }));
     setBulletErrors((prev) => ({ ...prev, [exp.id]: null }));
@@ -59,12 +88,14 @@ export default function ExperienceCard({ experience, setExperience }: Experience
         body: JSON.stringify({ id: exp.id, bullet_points: bulletPoints }),
       });
       setExperience((prev) => prev.map((item) => (item.id === exp.id ? { ...item, bullet_points: bulletPoints } : item)));
-      setBulletDrafts((prev) => ({ ...prev, [exp.id]: bulletPoints.join("\n") }));
+      updateDraftList(exp, bulletPoints);
     } catch (err) {
+      const message = err instanceof Error ? err.message : "Save failed";
       setBulletErrors((prev) => ({
         ...prev,
-        [exp.id]: err instanceof Error ? err.message : "Save failed",
+        [exp.id]: message,
       }));
+      notifyError(message);
     } finally {
       setSavingBullets((prev) => ({ ...prev, [exp.id]: false }));
     }
@@ -83,6 +114,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
       {ordered.map((exp, index) => {
         const endDisplay = exp.present ? "Present" : exp.end_date;
         const range = `${cleanDate(exp.start_date)} – ${exp.present ? "Present" : cleanDate(endDisplay)}`;
+        const draftBullets = getDraftList(exp);
         return (
           <li
             key={exp.id}
@@ -114,7 +146,6 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                     {isAdmin && <span className="text-[10px] uppercase tracking-[0.12em] text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">Drag</span>}
                   </div>
                   <p className="text-xs text-slate-600 truncate">{exp.position}</p>
-                  <p className="text-xs text-slate-500">{range}</p>
                   {exp.description && <p className="text-sm text-slate-700 leading-snug">{exp.description}</p>}
                   {Array.isArray(exp.bullet_points) && exp.bullet_points.length > 0 && (
                     <ul className="mt-2 space-y-1 text-sm text-slate-800 list-disc list-inside">
@@ -124,17 +155,50 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                     </ul>
                   )}
                   {isAdmin && (
-                    <div className="mt-3 space-y-2 rounded-lg border border-slate-200 bg-slate-50/70 p-3">
-                      <label className="text-xs font-medium text-slate-700" htmlFor={`bullets-${exp.id}`}>
-                        Bullet points (one per line)
-                      </label>
-                      <textarea
-                        id={`bullets-${exp.id}`}
-                        className="w-full rounded-md border border-slate-200 p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
-                        rows={3}
-                        value={getDraft(exp)}
-                        onChange={(e) => setBulletDrafts((prev) => ({ ...prev, [exp.id]: e.target.value }))}
-                      />
+                    <div className="mt-3 space-y-3 rounded-lg border border-slate-200 bg-slate-50/70 p-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="text-xs font-medium text-slate-700" htmlFor={`bullets-${exp.id}`}>
+                          Bullet points
+                        </label>
+                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 border border-blue-100">
+                          Editable
+                        </span>
+                      </div>
+                      <div className="space-y-2">
+                        {draftBullets.length === 0 && <p className="text-xs text-slate-500">No bullet points yet.</p>}
+                        {draftBullets.map((point, idx) => (
+                          <div key={`${exp.id}-bullet-${idx}`} className="flex items-center gap-2">
+                            <input
+                              id={`bullets-${exp.id}-${idx}`}
+                              className="w-full rounded-md border border-slate-200 px-2 py-1.5 text-sm focus:border-blue-500 focus:ring-blue-500"
+                              value={point}
+                              onChange={(e) => handleBulletChange(exp, idx, e.target.value)}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveBullet(exp, idx)}
+                              className="rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-100"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        ))}
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <input
+                            className="w-full rounded-md border border-slate-200 px-2 py-1.5 text-sm focus:border-blue-500 focus:ring-blue-500"
+                            value={newBulletText[exp.id] ?? ""}
+                            placeholder="Add bullet point"
+                            onChange={(e) => setNewBulletText((prev) => ({ ...prev, [exp.id]: e.target.value }))}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleAddBullet(exp)}
+                            className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700"
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
                       <div className="flex items-center gap-2">
                         <button
                           type="button"

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
+import MDEditor from "@uiw/react-md-editor";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
+import { useErrorNotifier } from "../../Contexts/error_context";
 import { apiFetch, apiJson } from "../../lib/api";
 import type { Post } from "../Projects/types";
 
@@ -64,8 +65,13 @@ export default function PostWorkspace() {
   const [error, setError] = useState<string | null>(null);
   const [copiedBlock, setCopiedBlock] = useState<string | null>(null);
 
+  const notifyError = useErrorNotifier();
   const textRef = useRef<HTMLTextAreaElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    textRef.current = document.getElementById("post-workspace-editor") as HTMLTextAreaElement | null;
+  }, []);
 
   useEffect(() => {
     if (!postId) return;
@@ -80,17 +86,20 @@ export default function PostWorkspace() {
       })
       .catch((err) => {
         const message = err instanceof Error ? err.message : "Failed to load post";
+        const detail = allowMock ? `${message}. Showing demo content because the API is unavailable.` : message;
         if (allowMock) {
           setPost(demoPost);
           setContent(demoPost.content_md || "");
           setName(demoPost.name);
-          setError(`${message}. Showing demo content because the API is unavailable.`);
+          setError(detail);
+          notifyError(detail);
         } else {
-          setError(message);
+          setError(detail);
+          notifyError(detail);
         }
       })
       .finally(() => setIsLoading(false));
-  }, [postId, allowMock, demoPost]);
+  }, [postId, allowMock, demoPost, notifyError]);
 
   const updatedAt = useMemo(() => {
     if (!post?.updated_at) return "";
@@ -129,7 +138,9 @@ export default function PostWorkspace() {
       });
       if (!res.ok) throw new Error("Save failed");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed");
+      const message = err instanceof Error ? err.message : "Save failed";
+      setError(message);
+      notifyError(message);
     } finally {
       setIsSaving(false);
     }
@@ -352,14 +363,26 @@ export default function PostWorkspace() {
                     ))}
                     <span className="text-[11px] text-slate-500 ml-auto">Supports GitHub flavored markdown + math.</span>
                   </div>
-                  <textarea
-                    ref={textRef}
-                    value={content}
-                    onKeyDown={handleTabKey}
-                    onChange={(e) => setContent(e.target.value)}
-                    className="h-[60vh] w-full rounded-b-2xl border-0 bg-white/90 p-4 font-mono text-[15px] leading-6 resize-y outline-none caret-blue-600 scrollbar-clear"
-                    placeholder="Write Markdown with GitHub shortcuts. Use the toolbar or keyboard (Cmd/Ctrl + B/I)."
-                  />
+                  <div className="overflow-hidden rounded-b-2xl">
+                    <MDEditor
+                      value={content}
+                      onChange={(value) => setContent(value || "")}
+                      preview="edit"
+                      height={mode === "split" ? 520 : 560}
+                      textareaProps={{
+                        id: "post-workspace-editor",
+                        onKeyDown: handleTabKey,
+                        placeholder: "Write Markdown with GitHub shortcuts. Use the toolbar or keyboard (Cmd/Ctrl + B/I).",
+                      }}
+                      previewOptions={{
+                        remarkPlugins: [remarkGfm, remarkMath],
+                        rehypePlugins: [rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]],
+                        components: markdownComponents,
+                      }}
+                      data-color-mode="light"
+                      className="bg-white/90"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -376,13 +399,13 @@ export default function PostWorkspace() {
               </div>
               <div className="h-full max-h-[76vh] overflow-auto p-4 scrollbar-clear" ref={previewRef}>
                 <article className="markdown-body prose max-w-none">
-                  <ReactMarkdown
+                  <MDEditor.Markdown
+                    source={content || "_Nothing to preview yet. Start typing in the editor to see the GitHub-style preview here._"}
                     remarkPlugins={[remarkGfm, remarkMath]}
                     rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]]}
                     components={markdownComponents}
-                  >
-                    {content || "_Nothing to preview yet. Start typing in the editor to see the GitHub-style preview here._"}
-                  </ReactMarkdown>
+                    data-color-mode="light"
+                  />
                 </article>
               </div>
             </div>

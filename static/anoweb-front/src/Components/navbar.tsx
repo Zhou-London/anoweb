@@ -2,12 +2,14 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AdminContext } from "../Contexts/admin_context";
+import { useErrorNotifier } from "../Contexts/error_context";
 import { apiFetch } from "../lib/api";
 
 export default function Navbar() {
   const { isAdmin, setIsAdmin } = useContext(AdminContext);
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const notifyError = useErrorNotifier();
 
   // Wrap BOTH the toggle button and the dropdown in one ref
   const menuWrapRef = useRef<HTMLDivElement | null>(null);
@@ -49,13 +51,21 @@ export default function Navbar() {
       credentials: "include",
     })
       .then(() => {
-        alert("Admin validated!");
         setIsAdmin(true);
       })
       .catch(() => {
-        alert("Invalid password or server unreachable");
+        notifyError("Invalid password or server unreachable");
         setIsAdmin(false);
       });
+  };
+
+  const handleAdminLogout = async () => {
+    try {
+      await apiFetch("/admin/logout", { method: "POST", credentials: "include" });
+      setIsAdmin(false);
+    } catch (err) {
+      notifyError(err instanceof Error ? err.message : "Failed to log out");
+    }
   };
 
   return (
@@ -89,6 +99,11 @@ export default function Navbar() {
             <button onClick={handleAdminLogin} className="nav-chip text-blue-700">
               Admin
             </button>
+            {isAdmin && (
+              <button onClick={handleAdminLogout} className="nav-chip text-rose-700">
+                Log out
+              </button>
+            )}
             {isAdmin && (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-100">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" /> Admin
@@ -172,6 +187,17 @@ export default function Navbar() {
             >
               Admin
             </button>
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  handleAdminLogout();
+                }}
+                className="block w-full text-left rounded-lg px-3 py-2 text-rose-700 hover:bg-rose-50"
+              >
+                Log out
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -14,5 +14,8 @@ func registerAdminRoutes(r *gin.Engine, domain, adminPass, key string) {
 		admin.GET("/status", func(ctx *gin.Context) {
 			handlers.GetStatusCheck(ctx, key)
 		})
+		admin.POST("/logout", func(ctx *gin.Context) {
+			handlers.PostAdminLogout(ctx, domain)
+		})
 	}
 }
