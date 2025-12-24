@@ -9,7 +9,6 @@ type ProjectListProps = {
   selectedProjectId: number | null;
   isLoading: boolean;
   onSelectProject: (id: number) => void;
-  onOpenCreateModal: () => void;
 };
 
 export default function ProjectList({
@@ -17,7 +16,6 @@ export default function ProjectList({
   selectedProjectId,
   isLoading,
   onSelectProject,
-  onOpenCreateModal,
 }: ProjectListProps) {
   const { isAdmin } = useContext(AdminContext);
 
@@ -29,12 +27,9 @@ export default function ProjectList({
           <h2 className="text-lg font-semibold text-slate-900">Navigation rail</h2>
         </div>
         {isAdmin && (
-          <button
-            onClick={onOpenCreateModal}
-            className="rounded-full bg-blue-600 text-white px-3 py-1.5 text-xs font-semibold shadow-sm hover:bg-blue-700"
-          >
-            + New
-          </button>
+          <span className="rounded-full bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 text-[11px] font-semibold">
+            Admin tools
+          </span>
         )}
       </div>
 

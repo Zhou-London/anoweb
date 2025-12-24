@@ -1,11 +1,13 @@
 // src/components/ProjectPage/index.tsx
 
+import { useContext } from "react";
 import { useProjectData } from "./useProjectData";
 import ProjectList from "./ProjectList";
 import { ProjectDetails } from "./ProjectDetails";
 import { PostCardRail } from "./PostCardRail";
 import CreateProjectModal from "./CreateProjectModal";
 import CreatePostModal from "./CreatePostModal";
+import { AdminContext } from "../../Contexts/admin_context";
 
 const styles = `
   .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -40,6 +42,7 @@ export default function ProjectPage() {
     refreshPosts,
     handleDeletePost,
   } = useProjectData();
+  const { isAdmin } = useContext(AdminContext);
 
   return (
     <>
@@ -47,27 +50,30 @@ export default function ProjectPage() {
       <div className="space-y-6">
         <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-r from-[#e8f0fe] via-white to-[#e6f4ea]" aria-hidden />
-          <div className="relative p-6 md:p-8 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
+          <div className="relative p-6 md:p-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-2">
               <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Projects</p>
               <h1 className="text-3xl font-semibold text-slate-900">Workspace</h1>
               <p className="text-slate-700 mt-1 max-w-3xl">
-                Browse all portfolio projects, open detailed posts in the markdown reader, and manage content through the live API.
+                Skim projects and their posts in one place, with a focused reader for the details.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 text-xs font-semibold">
                 {projects.length} projects
               </span>
               <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 text-xs font-semibold">
                 {posts.length} posts
               </span>
-              <button
-                onClick={openCreateModal}
-                className="rounded-full bg-blue-600 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-blue-700"
-              >
-                New project
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={openCreateModal}
+                  className="inline-flex items-center gap-2 rounded-full bg-blue-600 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-blue-700"
+                >
+                  <span aria-hidden>＋</span>
+                  New project
+                </button>
+              )}
             </div>
           </div>
         </section>
@@ -78,7 +84,6 @@ export default function ProjectPage() {
             selectedProjectId={selectedProjectId}
             isLoading={isLoadingProjects}
             onSelectProject={setSelectedProjectId}
-            onOpenCreateModal={openCreateModal}
           />
 
           <div className="space-y-5">

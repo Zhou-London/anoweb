@@ -21,11 +21,11 @@ export default function Home() {
           <div className="space-y-4">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-600">Overview</p>
             <h1 className="text-3xl md:text-4xl font-semibold text-slate-900">
-              Building with clarity and Google-inspired polish.
+              Clarity-first, Google-inspired portfolio console.
             </h1>
             <p className="text-slate-700 leading-relaxed max-w-3xl">
-              This console-style dashboard surfaces my profile, education, work history, and the latest things I&apos;ve been writing
-              about. Everything is powered by the live APIs that back this site.
+              A concise hub for profile, education, experience, and the newest writing pulled straight from the live portfolio
+              API—built to be skimmable and fast.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -80,7 +80,9 @@ export default function Home() {
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Experience</p>
             <h2 className="text-2xl font-semibold text-slate-900">Career path</h2>
           </div>
-          <span className="rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-xs font-semibold border border-blue-100">Drag to reprioritise (admin)</span>
+          {isAdmin && (
+            <span className="rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-xs font-semibold border border-blue-100">Drag to reprioritise (admin)</span>
+          )}
         </div>
         <ExperienceCard experience={experience} setExperience={setExperience} />
       </section>
