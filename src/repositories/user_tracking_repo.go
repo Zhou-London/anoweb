@@ -46,22 +46,53 @@ func (r *UserTrackingRepository) EndTracking(sessionID string) error {
 
 // GetTotalHours returns total hours spent by all users
 func (r *UserTrackingRepository) GetTotalHours() (float64, error) {
-	var totalSeconds int64
-	if err := r.db.Model(&models.UserTracking{}).Select("COALESCE(SUM(duration), 0)").Scan(&totalSeconds).Error; err != nil {
+	// Sum completed sessions
+	var completedSeconds int64
+	if err := r.db.Model(&models.UserTracking{}).
+		Where("end_time IS NOT NULL").
+		Select("COALESCE(SUM(duration), 0)").
+		Scan(&completedSeconds).Error; err != nil {
 		return 0, err
 	}
+
+	// Add active sessions (calculate duration on-the-fly)
+	var activeSessions []models.UserTracking
+	if err := r.db.Where("end_time IS NULL").Find(&activeSessions).Error; err != nil {
+		return 0, err
+	}
+
+	var activeSeconds int64
+	for _, session := range activeSessions {
+		activeSeconds += int64(time.Now().Sub(session.StartTime).Seconds())
+	}
+
+	totalSeconds := completedSeconds + activeSeconds
 	return float64(totalSeconds) / 3600.0, nil
 }
 
 // GetUserTotalHours returns total hours spent by a specific user
 func (r *UserTrackingRepository) GetUserTotalHours(userID uint) (float64, error) {
-	var totalSeconds int64
+	// Sum completed sessions
+	var completedSeconds int64
 	if err := r.db.Model(&models.UserTracking{}).
-		Where("user_id = ?", userID).
+		Where("user_id = ? AND end_time IS NOT NULL", userID).
 		Select("COALESCE(SUM(duration), 0)").
-		Scan(&totalSeconds).Error; err != nil {
+		Scan(&completedSeconds).Error; err != nil {
 		return 0, err
 	}
+
+	// Add active sessions (calculate duration on-the-fly)
+	var activeSessions []models.UserTracking
+	if err := r.db.Where("user_id = ? AND end_time IS NULL", userID).Find(&activeSessions).Error; err != nil {
+		return 0, err
+	}
+
+	var activeSeconds int64
+	for _, session := range activeSessions {
+		activeSeconds += int64(time.Now().Sub(session.StartTime).Seconds())
+	}
+
+	totalSeconds := completedSeconds + activeSeconds
 	return float64(totalSeconds) / 3600.0, nil
 }
 

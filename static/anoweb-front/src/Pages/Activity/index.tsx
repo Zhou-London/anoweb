@@ -53,27 +53,39 @@ export default function Activity() {
         setLoading(true);
 
         // Fetch overall statistics (public)
-        const statsData = await apiJson<OverallStats>("/statistics/overall");
+        const statsData = await apiJson<OverallStats>("/statistics/overall", {
+          credentials: "include",
+        });
         setOverallStats(statsData);
 
         // Fetch user-specific data if logged in
         if (user) {
-          const userHoursData = await apiJson<{ total_hours: number }>(`/tracking/user-hours`);
+          const userHoursData = await apiJson<{ total_hours: number }>(`/tracking/user-hours`, {
+            credentials: "include",
+          });
           setUserHours(userHoursData.total_hours);
 
-          const streakData = await apiJson<{ streak: number }>("/statistics/streak");
+          const streakData = await apiJson<{ streak: number }>("/statistics/streak", {
+            credentials: "include",
+          });
           setStreak(streakData.streak);
 
           // Fetch tracking records for logged-in users
-          const recordsData = await apiJson<TrackingRecord[]>("/tracking/records");
+          const recordsData = await apiJson<TrackingRecord[]>("/tracking/records", {
+            credentials: "include",
+          });
           setRecords(recordsData);
         }
 
         // Fetch chart data
-        const usersOverTimeData = await apiJson<TimePoint[]>("/statistics/users-over-time?hours=48");
+        const usersOverTimeData = await apiJson<TimePoint[]>("/statistics/users-over-time?hours=48", {
+          credentials: "include",
+        });
         setUsersOverTime(usersOverTimeData);
 
-        const dailyActiveData = await apiJson<TimePoint[]>("/statistics/daily-active?days=14");
+        const dailyActiveData = await apiJson<TimePoint[]>("/statistics/daily-active?days=14", {
+          credentials: "include",
+        });
         setDailyActive(dailyActiveData);
 
       } catch (error) {
