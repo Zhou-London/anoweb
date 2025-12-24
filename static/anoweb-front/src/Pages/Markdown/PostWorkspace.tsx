@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import MDEditor from "@uiw/react-md-editor";
 import remarkGfm from "remark-gfm";
@@ -6,6 +6,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 import { useErrorNotifier } from "../../Contexts/error_context";
+import { AdminContext } from "../../Contexts/admin_context";
 import { apiFetch, apiJson } from "../../lib/api";
 import type { Post } from "../Projects/types";
 
@@ -53,6 +54,7 @@ function buildDemoPost(id?: string): Post {
 
 export default function PostWorkspace() {
   const { postId } = useParams<{ postId: string }>();
+  const { isAdmin } = useContext(AdminContext);
   const allowMock = Boolean((import.meta as any)?.env?.DEV) && (import.meta as any)?.env?.VITE_ENABLE_DEV_MOCKS !== "false";
   const demoPost = useMemo(() => buildDemoPost(postId), [postId]);
 
@@ -61,13 +63,23 @@ export default function PostWorkspace() {
   const [name, setName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [mode, setMode] = useState<EditorMode>("split");
+  // Default to "preview" for non-admin users, "split" for admin users
+  const [mode, setMode] = useState<EditorMode>("preview");
   const [error, setError] = useState<string | null>(null);
   const [copiedBlock, setCopiedBlock] = useState<string | null>(null);
 
   const notifyError = useErrorNotifier();
   const textRef = useRef<HTMLTextAreaElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  // Update mode when admin status changes
+  useEffect(() => {
+    if (isAdmin) {
+      setMode("split");
+    } else {
+      setMode("preview");
+    }
+  }, [isAdmin]);
 
   useEffect(() => {
     textRef.current = document.getElementById("post-workspace-editor") as HTMLTextAreaElement | null;
@@ -309,23 +321,25 @@ export default function PostWorkspace() {
         </div>
         <div className="flex items-center gap-2">
           <Link to="/projects" className="chip-soft">Back</Link>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={isSaving}
-            className="inline-flex items-center gap-2 rounded-full bg-blue-600 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-blue-700 disabled:bg-blue-300"
-          >
-            {isSaving ? "Saving…" : "Save"}
-          </button>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={isSaving}
+              className="inline-flex items-center gap-2 rounded-full bg-blue-600 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-blue-700 disabled:bg-blue-300"
+            >
+              {isSaving ? "Saving…" : "Save"}
+            </button>
+          )}
         </div>
       </header>
 
       <div className="rounded-3xl border border-slate-200 bg-white/90 shadow-lg overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-2">
           <div className="flex items-center gap-2" role="tablist" aria-label="Editor view modes">
-            {tabButton("write", "Write")}
+            {isAdmin && tabButton("write", "Write")}
             {tabButton("preview", "Preview")}
-            {tabButton("split", "Split")}
+            {isAdmin && tabButton("split", "Split")}
           </div>
           <div className="flex items-center gap-3 text-[11px] text-slate-600">
             <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-1 border border-slate-200">{stats.words} words</span>
@@ -335,7 +349,7 @@ export default function PostWorkspace() {
         </div>
 
         <div className={`grid ${mode === "split" ? "md:grid-cols-2" : "grid-cols-1"}`}>
-          {mode !== "preview" && (
+          {mode !== "preview" && isAdmin && (
             <div className="border-b md:border-b-0 md:border-r border-slate-200">
               <div className="p-4 space-y-4">
                 <label className="block text-sm font-medium text-slate-700">
@@ -395,18 +409,16 @@ export default function PostWorkspace() {
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Preview</p>
                   <p className="text-sm text-slate-700">Matches GitHub markdown rendering, including tables and math.</p>
                 </div>
-                {updatedAt && <span className="text-[11px] text-slate-500">Updated {updatedAt}</span>}
               </div>
               <div className="h-full max-h-[76vh] overflow-auto p-4 scrollbar-clear" ref={previewRef}>
-                <article className="markdown-body prose max-w-none">
-                  <MDEditor.Markdown
-                    source={content || "_Nothing to preview yet. Start typing in the editor to see the GitHub-style preview here._"}
-                    remarkPlugins={[remarkGfm, remarkMath]}
-                    rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]]}
-                    components={markdownComponents}
-                    data-color-mode="light"
-                  />
-                </article>
+                <MDEditor.Markdown
+                  source={content || "_Nothing to preview yet. Start typing in the editor to see the GitHub-style preview here._"}
+                  remarkPlugins={[remarkGfm, remarkMath]}
+                  rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]]}
+                  components={markdownComponents}
+                  className="markdown-body"
+                  data-color-mode="light"
+                />
               </div>
             </div>
           )}
