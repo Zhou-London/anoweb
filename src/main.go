@@ -8,7 +8,7 @@ import (
 	"anonchihaya.co.uk/src/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	// gd "github.com/kwkwc/gin-docs"
+	gd "github.com/kwkwc/gin-docs"
 )
 
 var r = gin.Default()
@@ -70,11 +70,12 @@ func main() {
 
 	routes.InitRoutes(r, DOMAIN, ADMIN_PASS, KEY, IMG_PATH, IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, user_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo)
 
-	// conf := (&gd.Config{}).Default()
-	// apiDoc := gd.ApiDoc{
-	// 	Ge:   r,
-	// 	Conf: conf,
-	// }
-	// apiDoc.OfflineMarkdown("doc/api.md", true)
+	conf := (&gd.Config{}).Default()
+	apiDoc := gd.ApiDoc{
+		Ge:   r,
+		Conf: conf,
+	}
+
+	apiDoc.OfflineMarkdown("doc/api.md", true)
 	r.Run("localhost:" + PORT)
 }

@@ -15,17 +15,20 @@ func registerGuestPopupRoutes(
 ) {
 	handler := handlers.NewGuestPopupHandler(popupRepo)
 
-	// Public endpoint without key checker
-	r.GET(prefix+"/guest-popup/active", handler.GetActiveConfig)
-
-	// Admin endpoints with authentication
-	adminPopup := r.Group(prefix + "/guest-popup")
-	adminPopup.Use(middlewares.KeyChecker(key))
-	adminPopup.Use(middlewares.AuthMiddleware(sessionRepo))
-	adminPopup.Use(middlewares.AdminMiddleware())
+	popup := r.Group(prefix + "/guest-popup")
+	popup.Use(middlewares.KeyChecker(key))
 	{
-		adminPopup.POST("/create", handler.CreateConfig)
-		adminPopup.PUT("/:id", handler.UpdateConfig)
-		adminPopup.GET("/list", handler.GetAllConfigs)
+		// Public endpoint
+		popup.GET("/active", handler.GetActiveConfig)
+
+		// Admin endpoints
+		adminPopup := popup.Group("")
+		adminPopup.Use(middlewares.AuthMiddleware(sessionRepo))
+		adminPopup.Use(middlewares.AdminMiddleware())
+		{
+			adminPopup.POST("/create", handler.CreateConfig)
+			adminPopup.PUT("/:id", handler.UpdateConfig)
+			adminPopup.GET("/list", handler.GetAllConfigs)
+		}
 	}
 }

@@ -15,18 +15,16 @@ func registerTrackingRoutes(
 ) {
 	handler := handlers.NewTrackingHandler(trackingRepo)
 
-	// Tracking endpoints with optional authentication
-	// These endpoints work for both guests and authenticated users
-	tracking := r.Group(prefix + "/tracking")
-	tracking.Use(middlewares.OptionalAuthMiddleware(sessionRepo))
+	// Public tracking endpoints (no auth or key required)
+	trackingPublic := r.Group(prefix + "/tracking")
 	{
-		tracking.POST("/start", handler.StartTracking)
-		tracking.POST("/end", handler.EndTracking)
-		tracking.POST("/update", handler.UpdateTracking)
-		tracking.GET("/total-hours", handler.GetTotalHours)
+		trackingPublic.POST("/start", handler.StartTracking)
+		trackingPublic.POST("/end", handler.EndTracking)
+		trackingPublic.POST("/update", handler.UpdateTracking)
+		trackingPublic.GET("/total-hours", handler.GetTotalHours)
 	}
 
-	// Authenticated tracking endpoints (require login)
+	// Authenticated tracking endpoints
 	trackingAuth := r.Group(prefix + "/tracking")
 	trackingAuth.Use(middlewares.AuthMiddleware(sessionRepo))
 	{
