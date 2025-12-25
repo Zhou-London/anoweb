@@ -267,11 +267,9 @@ export default function Activity() {
         <h1 className="text-4xl font-bold text-slate-900 mb-2">
           {showAdminFeatures ? "Community Dashboard" : "Your Activity"}
         </h1>
-        <p className="text-lg text-slate-600">
-          {showAdminFeatures 
-            ? "Complete overview of community engagement and statistics"
-            : "Track your journey and engagement with our platform"}
-        </p>
+        {showAdminFeatures && (
+          <p className="text-lg text-slate-600">Complete overview of community engagement and statistics</p>
+        )}
       </div>
 
       {loading ? (
