@@ -20,6 +20,16 @@ func GetPostLatest(c *gin.Context, post_repo repositories.PostRepository) {
 	c.JSON(http.StatusOK, post)
 }
 
+func GetPosts(c *gin.Context, post_repo repositories.PostRepository) {
+	posts, err := post_repo.GetAll()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, posts)
+}
+
 func GetPostsShort(c *gin.Context, post_repo repositories.PostRepository) {
 	id := c.Param("id")
 	projectID, err := strconv.Atoi(id)

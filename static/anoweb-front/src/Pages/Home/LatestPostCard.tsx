@@ -2,7 +2,7 @@ import { type Post } from "./types";
 import { Link } from "react-router-dom";
 
 type LatestPostCardProps = {
-  post: Post | null;
+  post: Post;
   size?: "compact" | "default";
 };
 
@@ -18,8 +18,6 @@ function stripMarkdown(md: string): string {
 }
 
 export default function LatestPostCard({ post, size = "compact" }: LatestPostCardProps) {
-  if (!post) return null;
-
   const titleLines = size === "compact" ? 2 : 4;
   const previewLines = size === "compact" ? 3 : 5;
   const pad = size === "compact" ? "p-4" : "p-5";
@@ -41,13 +39,9 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
         target="_blank"
         rel="noreferrer"
         className={`relative block w-full h-full ${pad} space-y-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-2xl`}
-        aria-label={`Open latest post: ${post.name}`}
+        aria-label={`Open post: ${post.name}`}
       >
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/80 text-indigo-700 ring-1 ring-indigo-100 shadow-sm">
-            <span aria-hidden>🆕</span>
-            Latest Post
-          </span>
           <span className="text-[11px] text-slate-600">Updated {updatedStr}</span>
         </div>
 

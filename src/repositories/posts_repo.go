@@ -71,7 +71,7 @@ func (r *postRepository) GetLatest() (*models.Post, error) {
 
 func (r *postRepository) GetAll() ([]*models.Post, error) {
 	var posts []*models.Post
-	if err := r.db.Find(&posts).Error; err != nil {
+	if err := r.db.Order("updated_at DESC").Find(&posts).Error; err != nil {
 		return nil, err
 	}
 	return posts, nil

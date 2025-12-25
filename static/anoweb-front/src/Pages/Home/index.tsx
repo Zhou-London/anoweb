@@ -1,5 +1,6 @@
 // src/components/Home/index.tsx
 import { useContext, useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { UserContext } from "../../Contexts/user_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
@@ -20,7 +21,7 @@ export default function Home() {
   const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
   const notifySuccess = useSuccessNotifier();
-  const { profile, education, experience, setExperience, latestPost, coreSkills, setCoreSkills } = useHomeData();
+  const { profile, education, experience, setExperience, recentPosts, coreSkills, setCoreSkills } = useHomeData();
   const [totalHours, setTotalHours] = useState(0);
   const [userHours, setUserHours] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -30,6 +31,7 @@ export default function Home() {
   const [skillName, setSkillName] = useState("");
   const [skillBullets, setSkillBullets] = useState<string[]>([]);
   const [savingSkill, setSavingSkill] = useState(false);
+  const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -174,6 +176,9 @@ export default function Home() {
     }
   };
 
+  const visiblePosts = isOverviewExpanded ? recentPosts : recentPosts.slice(0, 3);
+  const hasMorePosts = recentPosts.length > 3;
+
   return (
     <div className="space-y-8">
       {/* Statistics Cards */}
@@ -270,7 +275,7 @@ export default function Home() {
                 to="/projects"
                 className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
               >
-                Open posts
+                See more projects
               </Link>
               {showAdminFeatures && (
                 <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 border border-emerald-200">
@@ -279,11 +284,41 @@ export default function Home() {
               )}
             </div>
           </div>
-          {latestPost ? (
-            <LatestPostCard post={latestPost} size="default" />
+          {recentPosts.length > 0 ? (
+            <div className="space-y-3">
+              <motion.div layout className="flex flex-col gap-4">
+                <AnimatePresence initial={false}>
+                  {visiblePosts.map((post) => (
+                    <motion.div
+                      key={post.id}
+                      layout
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <LatestPostCard post={post} size="default" />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+              {hasMorePosts && (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setIsOverviewExpanded((prev) => !prev)}
+                    className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors"
+                  >
+                    {isOverviewExpanded ? "Show Less" : "Show More"}
+                    <span aria-hidden>{isOverviewExpanded ? "▴" : "▾"}</span>
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-white/80 p-6 text-slate-600">
-              No posts yet. Add one from Projects.
+              No posts found.
             </div>
           )}
         </div>
