@@ -25,8 +25,9 @@ func (r *UserTrackingRepository) StartTracking(userID *uint, sessionID string) (
 		return nil, nil
 	}
 
-	// End any lingering active sessions for this session ID before starting a new one
-	if err := r.finalizeActiveSessions(sessionID); err != nil {
+	// End any lingering active sessions for this user before starting a new one
+	// This ensures only one active session exists per user at any time
+	if err := r.finalizeActiveSessionsForUser(userID); err != nil {
 		return nil, err
 	}
 
@@ -58,7 +59,7 @@ func (r *UserTrackingRepository) EndTracking(sessionID string, userID *uint) err
 
 	duration := calculateDuration(&tracking, now)
 	updates := map[string]interface{}{
-		"end_time": tracking.StartTime.Add(time.Duration(duration) * time.Second),
+		"end_time": now,
 		"duration": duration,
 	}
 
@@ -201,6 +202,33 @@ func calculateDuration(tracking *models.UserTracking, now time.Time) int64 {
 	return duration
 }
 
+// finalizeActiveSessionsForUser ends all active sessions for the given user ID.
+// This ensures only one active session exists per user at any time.
+func (r *UserTrackingRepository) finalizeActiveSessionsForUser(userID *uint) error {
+	if userID == nil {
+		return nil
+	}
+
+	var activeSessions []models.UserTracking
+	if err := r.db.Where("user_id = ? AND end_time IS NULL", *userID).Find(&activeSessions).Error; err != nil {
+		return err
+	}
+
+	now := time.Now()
+	for _, session := range activeSessions {
+		duration := calculateDuration(&session, now)
+		updates := map[string]interface{}{
+			"duration": duration,
+			"end_time": now,
+		}
+		if err := r.db.Model(&session).Updates(updates).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // finalizeActiveSessions ends any active sessions for the given session ID.
 // This prevents multiple overlapping sessions from persisting indefinitely.
 func (r *UserTrackingRepository) finalizeActiveSessions(sessionID string) error {
@@ -214,7 +242,7 @@ func (r *UserTrackingRepository) finalizeActiveSessions(sessionID string) error 
 		duration := calculateDuration(&session, now)
 		updates := map[string]interface{}{
 			"duration": duration,
-			"end_time": session.StartTime.Add(time.Duration(duration) * time.Second),
+			"end_time": now,
 		}
 		if err := r.db.Model(&session).Updates(updates).Error; err != nil {
 			return err

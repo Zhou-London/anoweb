@@ -61,7 +61,9 @@ func TestStartTrackingFinalizesExistingSessions(t *testing.T) {
 	repo := setupTrackingRepo(t)
 	start := time.Now().Add(-10 * time.Minute)
 
+	userID := uint(1)
 	existing := &models.UserTracking{
+		UserID:    &userID,
 		SessionID: "sess-1",
 		StartTime: start,
 		Duration:  120,
@@ -74,7 +76,6 @@ func TestStartTrackingFinalizesExistingSessions(t *testing.T) {
 	}
 	forceTimestamps(repo, existing)
 
-	userID := uint(1)
 	if _, err := repo.StartTracking(&userID, "sess-1"); err != nil {
 		t.Fatalf("failed to start tracking: %v", err)
 	}
