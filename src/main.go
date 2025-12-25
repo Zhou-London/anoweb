@@ -50,6 +50,7 @@ func main() {
 	mystery_code_repo := repositories.NewMysteryCodeRepository(repositories.DB)
 	popup_repo := repositories.NewGuestPopupConfigRepository(repositories.DB)
 	stats_repo := repositories.NewStatisticsRepository(repositories.DB)
+	skill_repo := repositories.NewSkillRepository()
 
 	// * Basic Information
 	DOMAIN := os.Getenv("DOMAIN")
@@ -68,7 +69,7 @@ func main() {
 	IMG_PATH := os.Getenv("IMG_PATH")
 	IMG_URL_PREFIX := os.Getenv("IMG_URL_PREFIX")
 
-	routes.InitRoutes(r, DOMAIN, ADMIN_PASS, KEY, IMG_PATH, IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, user_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo)
+	routes.InitRoutes(r, DOMAIN, ADMIN_PASS, KEY, IMG_PATH, IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, user_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, skill_repo)
 
 	conf := (&gd.Config{}).Default()
 	apiDoc := gd.ApiDoc{

@@ -39,3 +39,10 @@ export type Post = {
   created_at: string;
   updated_at: string;
 };
+
+export type Skill = {
+  id: number;
+  name: string;
+  category: string;
+  order_index: number;
+};
