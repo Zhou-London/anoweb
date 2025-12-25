@@ -10,16 +10,19 @@ import ProfileCard from "./ProfileCard";
 import EducationCard from "./EducationCard";
 import ExperienceCard from "./ExperienceCard";
 import LatestPostCard from "./LatestPostCard";
+import CoreSkillCard from "./CoreSkillCard";
+import type { CoreSkill } from "./types";
 
 export default function Home() {
   const { user, isAdmin } = useContext(UserContext);
   const { editMode } = useEditMode();
   const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
-  const { profile, education, experience, setExperience, latestPost } = useHomeData();
+  const { profile, education, experience, setExperience, latestPost, coreSkills, setCoreSkills } = useHomeData();
   const [totalHours, setTotalHours] = useState(0);
   const [userHours, setUserHours] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
+  const [draggedSkill, setDraggedSkill] = useState<CoreSkill | null>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -45,6 +48,73 @@ export default function Home() {
 
     fetchStats();
   }, [user, notifyError]);
+
+  const handleDragStart = (e: React.DragEvent, skill: CoreSkill) => {
+    setDraggedSkill(skill);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetSkill: CoreSkill) => {
+    e.preventDefault();
+    if (!draggedSkill || draggedSkill.id === targetSkill.id) {
+      setDraggedSkill(null);
+      return;
+    }
+
+    const draggedIndex = coreSkills.findIndex((s) => s.id === draggedSkill.id);
+    const targetIndex = coreSkills.findIndex((s) => s.id === targetSkill.id);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    const newSkills = [...coreSkills];
+    newSkills.splice(draggedIndex, 1);
+    newSkills.splice(targetIndex, 0, draggedSkill);
+
+    const updatedSkills = newSkills.map((skill, index) => ({
+      ...skill,
+      order_index: index,
+    }));
+
+    setCoreSkills(updatedSkills);
+    setDraggedSkill(null);
+
+    try {
+      await apiJson("/core-skill/update-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedSkills),
+        credentials: "include",
+      });
+    } catch (err) {
+      notifyError(err instanceof Error ? err.message : "Failed to update skill order");
+      setCoreSkills(coreSkills);
+    }
+  };
+
+  const handleDeleteSkill = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this skill?")) return;
+
+    try {
+      await apiJson(`/core-skill/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      setCoreSkills(coreSkills.filter((s) => s.id !== id));
+    } catch (err) {
+      notifyError(err instanceof Error ? err.message : "Failed to delete skill");
+    }
+  };
+
+  const handleEditSkill = (skill: CoreSkill) => {
+    // TODO: Implement edit modal
+    console.log("Edit skill:", skill);
+    alert("Edit functionality coming soon!");
+  };
 
   return (
     <div className="space-y-8">
@@ -99,6 +169,41 @@ export default function Home() {
           </Link>
         )}
       </div>
+
+      {/* Core Skills Section */}
+      {coreSkills.length > 0 && (
+        <section className="rounded-3xl bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-rose-500/10 border border-purple-200 shadow-lg p-6 md:p-8 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5" aria-hidden />
+          <div className="relative space-y-6">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-purple-700 font-semibold">Core Skills</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-900">What I Bring to the Table</h2>
+              </div>
+              {showAdminFeatures && (
+                <span className="rounded-full bg-purple-50 text-purple-700 px-3 py-1 text-xs font-semibold border border-purple-100">
+                  Drag to reorder (admin)
+                </span>
+              )}
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {coreSkills.map((skill) => (
+                <CoreSkillCard
+                  key={skill.id}
+                  skill={skill}
+                  onDragStart={showAdminFeatures ? handleDragStart : undefined}
+                  onDragOver={showAdminFeatures ? handleDragOver : undefined}
+                  onDrop={showAdminFeatures ? handleDrop : undefined}
+                  onDelete={showAdminFeatures ? handleDeleteSkill : undefined}
+                  onEdit={showAdminFeatures ? handleEditSkill : undefined}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Guest Sign-Up Invitation */}
       {!user && (
         <section className="rounded-3xl bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-fuchsia-500/10 border border-violet-200 shadow-lg p-6 md:p-8 relative overflow-hidden">
