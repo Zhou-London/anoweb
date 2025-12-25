@@ -128,10 +128,42 @@ No documentation found for this API
 
 
 
+## GetDailyActiveUsers-fm
+
+### url
+- /api/statistics/daily-active
+
+### method
+- GET
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
 ## GetHomeMsg
 
 ### url
 - /api/home
+
+### method
+- GET
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## GetOverallStatistics-fm
+
+### url
+- /api/statistics/overall
 
 ### method
 - GET
@@ -160,10 +192,42 @@ No documentation found for this API
 
 
 
+## GetUserStreak-fm
+
+### url
+- /api/statistics/streak
+
+### method
+- GET
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
 ## GetUserTotalHours-fm
 
 ### url
 - /api/tracking/user-hours
+
+### method
+- GET
+
+### doc
+```doc
+No documentation found for this API
+```
+
+
+
+
+## GetUsersOverTime-fm
+
+### url
+- /api/statistics/users-over-time
 
 ### method
 - GET
