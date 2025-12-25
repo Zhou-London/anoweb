@@ -39,3 +39,12 @@ export type Post = {
   created_at: string;
   updated_at: string;
 };
+
+export type CoreSkill = {
+  id: number;
+  name: string;
+  bullet_points: string[];
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+};
