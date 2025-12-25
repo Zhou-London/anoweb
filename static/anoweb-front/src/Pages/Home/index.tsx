@@ -9,6 +9,7 @@ import { apiJson } from "../../lib/api";
 import ProfileCard from "./ProfileCard";
 import EducationCard from "./EducationCard";
 import ExperienceCard from "./ExperienceCard";
+import SkillsCard from "./SkillsCard";
 import LatestPostCard from "./LatestPostCard";
 
 export default function Home() {
@@ -16,7 +17,7 @@ export default function Home() {
   const { editMode } = useEditMode();
   const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
-  const { profile, education, experience, setExperience, latestPost } = useHomeData();
+  const { profile, education, experience, setExperience, skills, setSkills, latestPost } = useHomeData();
   const [totalHours, setTotalHours] = useState(0);
   const [userHours, setUserHours] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -163,6 +164,10 @@ export default function Home() {
       <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-start">
         <ProfileCard profile={profile} />
         <EducationCard education={education} />
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-[1fr_1fr] items-start">
+        <SkillsCard skills={skills} setSkills={setSkills} />
       </section>
 
       <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 p-6 md:p-8">
