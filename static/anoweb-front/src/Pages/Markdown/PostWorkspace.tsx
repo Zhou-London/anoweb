@@ -406,9 +406,6 @@ export default function PostWorkspace() {
 
           {mode !== "write" && (
             <div className="bg-slate-50/60">
-              <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-slate-200">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Preview</p>
-              </div>
               <div className="h-full max-h-[76vh] overflow-auto p-4 scrollbar-clear" ref={previewRef}>
                 <MDEditor.Markdown
                   source={content || "_Nothing to preview yet. Start typing in the editor to see the GitHub-style preview here._"}

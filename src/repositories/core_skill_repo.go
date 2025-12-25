@@ -46,11 +46,22 @@ func (r *coreSkillRepository) Create(coreSkill *models.CoreSkill) (int, error) {
 }
 
 func (r *coreSkillRepository) Update(id int, coreSkill *models.CoreSkill) (*models.CoreSkill, error) {
-	coreSkill.ID = id
-	if err := r.db.Save(coreSkill).Error; err != nil {
+	updates := map[string]interface{}{
+		"name":          coreSkill.Name,
+		"bullet_points": coreSkill.BulletPoints,
+		"order_index":   coreSkill.OrderIndex,
+	}
+
+	if err := r.db.Model(&models.CoreSkill{}).Where("id = ?", id).Updates(updates).Error; err != nil {
 		return nil, err
 	}
-	return coreSkill, nil
+
+	var updated models.CoreSkill
+	if err := r.db.First(&updated, id).Error; err != nil {
+		return nil, err
+	}
+
+	return &updated, nil
 }
 
 func (r *coreSkillRepository) Delete(id int) error {
