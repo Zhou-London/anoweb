@@ -1,6 +1,7 @@
 // src/components/Navbar.tsx
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { UserContext } from "../Contexts/user_context";
 import { useErrorNotifier } from "../Contexts/error_context";
 import { apiFetch } from "../lib/api";
@@ -15,6 +16,14 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const notifyError = useErrorNotifier();
+  const navLinks = useMemo(
+    () => [
+      { label: "Home", to: "/" },
+      { label: "Activity", to: "/activity" },
+      { label: "Projects", to: "/projects" },
+    ],
+    []
+  );
 
   // Wrap BOTH the toggle button and the dropdown in one ref
   const menuWrapRef = useRef<HTMLDivElement | null>(null);
@@ -78,6 +87,37 @@ export default function Navbar() {
     setAccountDropdownOpen(false);
   };
 
+  const isActivePath = (path: string) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
+  };
+
+  const NavLinkItem = ({ to, label }: { to: string; label: string }) => {
+    const active = isActivePath(to);
+
+    return (
+      <motion.div className="relative" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+        {active && (
+          <motion.span
+            layoutId="nav-pill"
+            className="absolute inset-0 rounded-full bg-white shadow-sm border border-slate-200"
+            transition={{ type: "spring", stiffness: 450, damping: 32 }}
+          />
+        )}
+        <Link
+          to={to}
+          className={`relative z-10 px-3 py-1.5 text-sm font-semibold transition-colors ${
+            active ? "text-slate-900" : "text-slate-700 hover:text-slate-900"
+          }`}
+        >
+          {label}
+        </Link>
+      </motion.div>
+    );
+  };
+
   return (
     <>
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-slate-200/80 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
@@ -98,16 +138,10 @@ export default function Navbar() {
             </a>
 
             <div className="hidden md:flex items-center gap-3">
-              <div className="flex items-center gap-2 rounded-full bg-slate-50/80 px-2 py-1 border border-slate-200">
-                <Link to="/" className="nav-chip">
-                  Home
-                </Link>
-                <Link to="/activity" className="nav-chip">
-                  Activity
-                </Link>
-                <Link to="/projects" className="nav-chip">
-                  Projects
-                </Link>
+              <div className="relative flex items-center gap-2 rounded-full bg-slate-50/80 px-2 py-1 border border-slate-200 shadow-inner">
+                {navLinks.map((link) => (
+                  <NavLinkItem key={link.to} to={link.to} label={link.label} />
+                ))}
               </div>
 
               {/* Account Dropdown */}
