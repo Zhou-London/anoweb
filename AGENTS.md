@@ -6,3 +6,7 @@
 
 ## Code style
 - Follows the existing style.
+
+## UI style
+- Follows the existing style.
+- Reference to Google's UI style.
