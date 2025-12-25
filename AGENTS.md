@@ -16,3 +16,5 @@
 
 - Follows the existing style.
 - Reference to Google's UI style.
+- Do not write verbose UI description on any UI component.
+- Avoid verbose text.
