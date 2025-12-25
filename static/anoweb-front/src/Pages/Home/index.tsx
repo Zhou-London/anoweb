@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { UserContext } from "../../Contexts/user_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
+import { useSuccessNotifier } from "../../Contexts/success_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
 import { useHomeData } from "./useHomeData";
 import { apiJson } from "../../lib/api";
@@ -18,11 +19,17 @@ export default function Home() {
   const { editMode } = useEditMode();
   const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
+  const notifySuccess = useSuccessNotifier();
   const { profile, education, experience, setExperience, latestPost, coreSkills, setCoreSkills } = useHomeData();
   const [totalHours, setTotalHours] = useState(0);
   const [userHours, setUserHours] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
   const [draggedSkill, setDraggedSkill] = useState<CoreSkill | null>(null);
+  const [showSkillModal, setShowSkillModal] = useState(false);
+  const [editingSkill, setEditingSkill] = useState<CoreSkill | null>(null);
+  const [skillName, setSkillName] = useState("");
+  const [skillBullets, setSkillBullets] = useState<string[]>([]);
+  const [savingSkill, setSavingSkill] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -97,23 +104,74 @@ export default function Home() {
   };
 
   const handleDeleteSkill = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this skill?")) return;
-
     try {
       await apiJson(`/core-skill/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
       setCoreSkills(coreSkills.filter((s) => s.id !== id));
+      notifySuccess("Skill deleted successfully!");
     } catch (err) {
       notifyError(err instanceof Error ? err.message : "Failed to delete skill");
     }
   };
 
   const handleEditSkill = (skill: CoreSkill) => {
-    // TODO: Implement edit modal
-    console.log("Edit skill:", skill);
-    alert("Edit functionality coming soon!");
+    setEditingSkill(skill);
+    setSkillName(skill.name);
+    setSkillBullets(skill.bullet_points || []);
+    setShowSkillModal(true);
+  };
+
+  const handleAddSkill = () => {
+    setEditingSkill(null);
+    setSkillName("");
+    setSkillBullets([]);
+    setShowSkillModal(true);
+  };
+
+  const handleSaveSkill = async () => {
+    if (!skillName.trim()) {
+      notifyError("Skill name is required");
+      return;
+    }
+
+    setSavingSkill(true);
+    try {
+      const skillData = {
+        name: skillName.trim(),
+        bullet_points: skillBullets.filter((b) => b.trim()),
+        order_index: editingSkill ? editingSkill.order_index : coreSkills.length,
+      };
+
+      if (editingSkill) {
+        const updated = await apiJson<CoreSkill>("/core-skill", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...skillData, id: editingSkill.id }),
+          credentials: "include",
+        });
+        setCoreSkills(coreSkills.map((s) => (s.id === editingSkill.id ? updated : s)));
+        notifySuccess("Skill updated successfully!");
+      } else {
+        const created = await apiJson<CoreSkill>("/core-skill", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(skillData),
+          credentials: "include",
+        });
+        setCoreSkills([...coreSkills, created]);
+        notifySuccess("Skill added successfully!");
+      }
+      setShowSkillModal(false);
+      setSkillName("");
+      setSkillBullets([]);
+      setEditingSkill(null);
+    } catch (err) {
+      notifyError(err instanceof Error ? err.message : "Failed to save skill");
+    } finally {
+      setSavingSkill(false);
+    }
   };
 
   return (
@@ -177,13 +235,13 @@ export default function Home() {
           <div className="relative space-y-6">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-purple-700 font-semibold">Core Skills</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-slate-900">What I Bring to the Table</h2>
+                <p className="text-xs uppercase tracking-[0.2em] text-purple-700 font-semibold">Skills</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-900">Core Skills</h2>
               </div>
               {showAdminFeatures && (
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => alert("Add skill functionality - coming soon!\n\nFor now, you can add skills via API:\nPOST /api/core-skill\n{\n  \"name\": \"Skill Name\",\n  \"bullet_points\": [\"Point 1\", \"Point 2\"],\n  \"order_index\": 0\n}")}
+                    onClick={handleAddSkill}
                     className="inline-flex items-center gap-2 rounded-full bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-700 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -332,6 +390,95 @@ export default function Home() {
           </div>
         </a>
       </section>
+
+      {/* Add/Edit Skill Modal */}
+      {showSkillModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowSkillModal(false)}>
+          <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-6 md:p-8" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-slate-900">{editingSkill ? "Edit Skill" : "Add New Skill"}</h3>
+              <button
+                onClick={() => setShowSkillModal(false)}
+                className="rounded-full p-2 hover:bg-slate-100 transition-colors"
+              >
+                <svg className="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="skill-name" className="block text-sm font-semibold text-slate-700 mb-2">
+                  Skill Name *
+                </label>
+                <input
+                  id="skill-name"
+                  type="text"
+                  value={skillName}
+                  onChange={(e) => setSkillName(e.target.value)}
+                  placeholder="e.g., React, TypeScript, Leadership"
+                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Bullet Points</label>
+                <div className="space-y-2">
+                  {skillBullets.map((bullet, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={bullet}
+                        onChange={(e) => {
+                          const newBullets = [...skillBullets];
+                          newBullets[index] = e.target.value;
+                          setSkillBullets(newBullets);
+                        }}
+                        placeholder={`Point ${index + 1}`}
+                        className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-colors"
+                      />
+                      <button
+                        onClick={() => setSkillBullets(skillBullets.filter((_, i) => i !== index))}
+                        className="rounded-lg p-2 text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => setSkillBullets([...skillBullets, ""])}
+                    className="inline-flex items-center gap-2 rounded-lg bg-purple-50 px-4 py-2 text-sm font-semibold text-purple-700 hover:bg-purple-100 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Bullet Point
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-slate-200">
+              <button
+                onClick={() => setShowSkillModal(false)}
+                className="rounded-lg px-6 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveSkill}
+                disabled={savingSkill || !skillName.trim()}
+                className="rounded-lg bg-purple-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-purple-700 disabled:bg-purple-300 disabled:cursor-not-allowed transition-colors"
+              >
+                {savingSkill ? "Saving..." : editingSkill ? "Update Skill" : "Add Skill"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
