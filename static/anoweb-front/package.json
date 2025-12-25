@@ -16,6 +16,7 @@
     "@tailwindcss/vite": "^4.1.13",
     "@uiw/react-markdown-preview": "^5.1.5",
     "@uiw/react-md-editor": "^4.0.11",
+    "framer-motion": "^12.23.26",
     "highlight.js": "^11.11.1",
     "katex": "^0.16.22",
     "react": "^19.1.1",
