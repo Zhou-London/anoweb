@@ -180,7 +180,7 @@ export default function Home() {
   const hasMorePosts = recentPosts.length > 6;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Statistics Cards */}
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-3xl bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 border border-slate-200 shadow-lg p-6 md:p-8 relative overflow-hidden">
@@ -264,7 +264,7 @@ export default function Home() {
 
       <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 overflow-hidden relative">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-[#e8f0fe]/60 to-green-100/60" aria-hidden />
-        <div className="relative space-y-4 p-6 md:p-8 lg:p-10">
+        <div className="relative space-y-4 p-6 md:p-8">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
               <p className="text-sm font-semibold text-slate-700">Overview</p>
@@ -286,7 +286,7 @@ export default function Home() {
           </div>
           {recentPosts.length > 0 ? (
             <div className="space-y-3">
-              <motion.div layout className="flex flex-col md:flex-row md:overflow-x-auto md:gap-4 gap-4 md:pb-2 custom-scrollbar">
+              <motion.div layout className="flex flex-col gap-4 md:flex-row md:overflow-x-auto md:pb-2 custom-scrollbar">
                 <AnimatePresence initial={false}>
                   {visiblePosts.map((post) => (
                     <motion.div
@@ -399,10 +399,10 @@ export default function Home() {
         <ExperienceCard experience={experience} setExperience={setExperience} />
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid gap-6 md:grid-cols-2">
         <Link
           to="/projects"
-          className="group relative overflow-hidden rounded-3xl bg-white shadow-lg border border-slate-200/80 p-6 md:p-8 flex items-center gap-4"
+          className="group relative overflow-hidden rounded-3xl bg-white shadow-lg border border-slate-200/80 p-6 md:p-8 flex items-center gap-6"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden />
           <div className="relative h-12 w-12 rounded-2xl bg-blue-600 text-white grid place-items-center text-xl font-semibold shadow-md">↗</div>
@@ -414,7 +414,7 @@ export default function Home() {
         </Link>
         <a
           href="mailto:zhouzhouzhang@gmail.com"
-          className="group relative overflow-hidden rounded-3xl bg-white shadow-lg border border-slate-200/80 p-6 md:p-8 flex items-center gap-4"
+          className="group relative overflow-hidden rounded-3xl bg-white shadow-lg border border-slate-200/80 p-6 md:p-8 flex items-center gap-6"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden />
           <div className="relative h-12 w-12 rounded-2xl bg-emerald-600 text-white grid place-items-center text-xl font-semibold shadow-md">✉</div>

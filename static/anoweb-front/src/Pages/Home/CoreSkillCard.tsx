@@ -53,9 +53,9 @@ export default function CoreSkillCard({
       role="button"
       tabIndex={0}
     >
-      <div className="p-6 flex items-start justify-between gap-4">
+      <div className="p-6 flex items-start justify-between gap-6">
         <div className="flex-1">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-4">
             <h3 className="text-xl font-bold text-slate-900">{skill.name}</h3>
             {bulletPoints.length > 0 && (
               <motion.span
@@ -80,9 +80,9 @@ export default function CoreSkillCard({
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] as const }}
                 className="overflow-hidden"
               >
-                <ul className="mt-4 list-none space-y-2">
+                <ul className="mt-4 list-none space-y-3">
                   {bulletPoints.map((point, index) => (
-                    <li key={index} className="flex items-start gap-2 text-slate-700">
+                    <li key={index} className="flex items-start gap-3 text-slate-700">
                       <span className="text-blue-600 font-bold mt-1">•</span>
                       <span className="flex-1 text-sm leading-relaxed">{point}</span>
                     </li>
@@ -94,7 +94,7 @@ export default function CoreSkillCard({
         </div>
 
         {showAdminFeatures && (
-          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+          <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
             {onEdit && (
               <button
                 onClick={() => onEdit(skill)}

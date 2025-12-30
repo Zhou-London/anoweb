@@ -89,7 +89,7 @@ export default function ProjectPage() {
             onSelectProject={setSelectedProjectId}
           />
 
-          <div className="space-y-5">
+          <div className="space-y-6">
             {selectedProject ? (
               <>
                 <ProjectDetails project={selectedProject} onProjectUpdate={refreshProjects} />
