@@ -1,5 +1,6 @@
 import { type Post } from "./types";
 import { Link } from "react-router-dom";
+import { formatRelativeDate } from "../../lib/dateFormat";
 
 type LatestPostCardProps = {
   post: Post;
@@ -23,13 +24,7 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
   const pad = size === "compact" ? "p-4" : "p-5";
   const previewText = stripMarkdown(post.content_md || "");
 
-  const updatedStr = new Date(post.updated_at).toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const updatedStr = formatRelativeDate(post.updated_at);
 
   return (
     <div className="relative w-full overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5 bg-white/90">
@@ -41,10 +36,6 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
         className={`relative block w-full h-full ${pad} space-y-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-2xl`}
         aria-label={`Open post: ${post.name}`}
       >
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] text-slate-600">Updated {updatedStr}</span>
-        </div>
-
         <div className="relative z-10">
           <h3
             className="text-[15px] sm:text-base font-semibold text-gray-900 leading-5 sm:leading-6 tracking-tight"
@@ -82,7 +73,7 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
         <div className="pt-1.5">
           <p className="text-[11px] sm:text-xs text-slate-600 inline-flex items-center gap-1">
             <span className="inline-block h-2 w-2 rounded-full bg-blue-500" aria-hidden />
-            Open in markdown tab
+            {updatedStr}
           </p>
         </div>
       </Link>

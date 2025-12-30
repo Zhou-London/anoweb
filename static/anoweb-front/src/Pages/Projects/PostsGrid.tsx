@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { type PostShort } from "./types";
 import { UserContext } from "../../Contexts/user_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
+import { formatRelativeDate } from "../../lib/dateFormat";
 
 type PostsGridProps = {
   posts: PostShort[];
@@ -137,15 +138,13 @@ function PostGridCard({ post, onViewPost, onDeletePost, showAdminFeatures }: Pos
             >
               {post.name}
             </p>
-            <p className="text-[11px] text-slate-600 mt-1">
-              Updated {new Date(post.updated_at).toLocaleDateString()}
-            </p>
           </div>
         </div>
 
         <div className="mt-auto pt-3 flex items-center justify-between border-t border-slate-100">
-          <span className="inline-flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-1.5 text-[11px] text-slate-600">
             <span className="h-2 w-2 rounded-full bg-blue-500" aria-hidden />
+            {formatRelativeDate(post.updated_at)}
           </span>
           {showAdminFeatures && (
             <button

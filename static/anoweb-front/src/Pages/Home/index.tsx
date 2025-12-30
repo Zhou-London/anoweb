@@ -176,8 +176,8 @@ export default function Home() {
     }
   };
 
-  const visiblePosts = isOverviewExpanded ? recentPosts : recentPosts.slice(0, 3);
-  const hasMorePosts = recentPosts.length > 3;
+  const visiblePosts = isOverviewExpanded ? recentPosts : recentPosts.slice(0, 6);
+  const hasMorePosts = recentPosts.length > 6;
 
   return (
     <div className="space-y-8">
@@ -286,7 +286,7 @@ export default function Home() {
           </div>
           {recentPosts.length > 0 ? (
             <div className="space-y-3">
-              <motion.div layout className="flex flex-col gap-4">
+              <motion.div layout className="flex flex-col md:flex-row md:overflow-x-auto md:gap-4 gap-4 md:pb-2 custom-scrollbar">
                 <AnimatePresence initial={false}>
                   {visiblePosts.map((post) => (
                     <motion.div
@@ -296,7 +296,7 @@ export default function Home() {
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
+                      className="overflow-hidden md:min-w-[320px] md:max-w-[320px] flex-shrink-0"
                     >
                       <LatestPostCard post={post} size="default" />
                     </motion.div>
