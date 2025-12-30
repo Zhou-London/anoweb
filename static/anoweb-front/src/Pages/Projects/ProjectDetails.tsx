@@ -22,11 +22,13 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   // When the selected project changes, reset the form data
   useEffect(() => {
     setFormData({ ...project });
     setIsEditing(false); // Exit edit mode if another project is selected
+    setIsDescriptionExpanded(false); // Reset expand state
   }, [project]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +81,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-8 h-full">
           {/* Left side: Image Upload */}
           <div className="w-full md:w-1/3 flex flex-col items-center gap-4">
-            <img src={formData.image_url} alt="Project preview" className="w-full h-auto object-cover rounded-2xl shadow-md" />
+            <img src={formData.image_url} alt="Project preview" className="w-full h-auto max-h-96 object-contain rounded-2xl shadow-md" />
             <input
               type="file"
               accept="image/*"
@@ -136,6 +138,9 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
   }
 
   // Default: Render the static view
+  // Check if description is long enough to need expansion
+  const descriptionNeedsExpansion = project.description.length > 400; // rough character count
+
   return (
     <section className="flex-1 rounded-3xl bg-white/70 backdrop-blur-lg overflow-hidden border border-blue-200/50 flex flex-col md:flex-row gap-8 p-8 mb-6 min-h-0 shadow-lg relative">
       {/* Edit button for admins */}
@@ -147,10 +152,54 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
           Edit Project
         </button>
       )}
-      <img src={project.image_url} alt={project.name} className="w-full md:w-1/3 h-auto object-cover rounded-2xl shadow-md"/>
-      <div className="overflow-y-auto custom-scrollbar flex-1">
+      <div className="w-full md:w-1/3 flex-shrink-0">
+        <img
+          src={project.image_url}
+          alt={project.name}
+          className="w-full h-auto max-h-96 object-contain rounded-2xl shadow-md"
+        />
+      </div>
+      <div className="overflow-y-auto custom-scrollbar flex-1 min-w-0">
         <h2 className="text-3xl font-bold text-slate-800 mb-4">{project.name}</h2>
-        <p className="text-slate-700 whitespace-pre-wrap leading-relaxed mb-4">{project.description}</p>
+        <div className="relative mb-4">
+          <div
+            className={`text-slate-700 whitespace-pre-wrap leading-relaxed overflow-hidden transition-all duration-300 ${
+              isDescriptionExpanded ? 'max-h-none' : 'max-h-[300px]'
+            }`}
+            style={{
+              maskImage: !isDescriptionExpanded && descriptionNeedsExpansion
+                ? 'linear-gradient(to bottom, black 60%, transparent 100%)'
+                : 'none',
+              WebkitMaskImage: !isDescriptionExpanded && descriptionNeedsExpansion
+                ? 'linear-gradient(to bottom, black 60%, transparent 100%)'
+                : 'none'
+            }}
+          >
+            {project.description}
+          </div>
+          {descriptionNeedsExpansion && (
+            <button
+              onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+              className="mt-2 text-blue-600 hover:text-blue-800 font-semibold text-sm transition-colors flex items-center gap-1"
+            >
+              {isDescriptionExpanded ? (
+                <>
+                  Show less
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  </svg>
+                </>
+              ) : (
+                <>
+                  Show more
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </>
+              )}
+            </button>
+          )}
+        </div>
         <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
           Visit Project →
         </a>

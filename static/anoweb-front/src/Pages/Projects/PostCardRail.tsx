@@ -107,7 +107,11 @@ export function PostCardRail({
       </div>
       <div
         ref={railRef}
-        className="h-60 flex items-center gap-4 overflow-x-auto snap-x snap-mandatory custom-scrollbar pb-2"
+        className="h-60 flex items-center gap-4 overflow-x-auto overflow-y-hidden snap-x snap-mandatory custom-scrollbar pb-2"
+        style={{
+          scrollbarWidth: 'thin',
+          WebkitOverflowScrolling: 'touch'
+        }}
       >
         {isLoading ? (
           <p className="text-slate-500 px-4">Loading Posts...</p>
@@ -119,9 +123,10 @@ export function PostCardRail({
                 cardRefs.current[post.id] = el;
               }}
               onClick={() => handleCardClick(post)}
-              className={`shrink-0 w-64 h-full snap-start rounded-2xl border p-4 cursor-pointer bg-white/80 shadow-sm hover:shadow-md transition-all duration-200 relative ${
+              className={`shrink-0 w-64 h-full snap-start snap-always rounded-2xl border p-4 cursor-pointer bg-white/80 shadow-sm hover:shadow-md transition-all duration-200 relative ${
                 focusedPostId === post.id ? "focused-card" : "border-slate-200"
               }`}
+              style={{ minWidth: '16rem' }}
             >
               <div className="flex items-start gap-2">
                 <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white grid place-items-center text-sm font-semibold">
