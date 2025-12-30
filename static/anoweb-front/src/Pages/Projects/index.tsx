@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { useProjectData } from "./useProjectData";
 import ProjectList from "./ProjectList";
 import { ProjectDetails } from "./ProjectDetails";
-import { PostCardRail } from "./PostCardRail";
+import { PostsGrid } from "./PostsGrid";
 import CreateProjectModal from "./CreateProjectModal";
 import CreatePostModal from "./CreatePostModal";
 import { UserContext } from "../../Contexts/user_context";
@@ -93,7 +93,7 @@ export default function ProjectPage() {
             {selectedProject ? (
               <>
                 <ProjectDetails project={selectedProject} onProjectUpdate={refreshProjects} />
-                <PostCardRail
+                <PostsGrid
                   posts={posts}
                   isLoading={isLoadingPosts}
                   onViewPost={handleViewPost}
