@@ -23,7 +23,9 @@ export default function AccountPage() {
   const [bio, setBio] = useState(fan?.bio || "");
   const [loading, setLoading] = useState(false);
   const [records, setRecords] = useState<TrackingRecord[]>([]);
+  const [pageIndex, setPageIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const pageSize = 10;
 
   useEffect(() => {
     const fetchRecords = async () => {
@@ -32,12 +34,23 @@ export default function AccountPage() {
           credentials: "include",
         });
         setRecords(data);
+        setPageIndex(0);
       } catch (err) {
         console.error("Failed to load tracking records:", err);
       }
     };
     fetchRecords();
   }, []);
+  useEffect(() => {
+    if (records.length === 0) {
+      if (pageIndex !== 0) setPageIndex(0);
+      return;
+    }
+    const maxIndex = Math.max(0, Math.ceil(records.length / pageSize) - 1);
+    if (pageIndex > maxIndex) {
+      setPageIndex(maxIndex);
+    }
+  }, [pageIndex, records.length]);
 
   if (!fan) {
     navigate("/");
@@ -97,6 +110,11 @@ export default function AccountPage() {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();
   };
+
+  const totalPages = Math.max(1, Math.ceil(records.length / pageSize));
+  const hasPrevPage = pageIndex > 0;
+  const hasNextPage = pageIndex < totalPages - 1;
+  const pagedRecords = records.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -259,26 +277,55 @@ export default function AccountPage() {
         {records.length === 0 ? (
           <p className="text-slate-600 text-center py-8">No session records yet. Keep exploring!</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-200">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Start Time</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">End Time</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Duration</th>
-                </tr>
-              </thead>
-              <tbody>
-                {records.map((record) => (
-                  <tr key={record.id} className="border-b border-slate-100 hover:bg-slate-50/70">
-                    <td className="py-3 px-4 text-sm text-slate-700">{formatDate(record.start_time)}</td>
-                    <td className="py-3 px-4 text-sm text-slate-700">{record.end_time ? formatDate(record.end_time) : "Active"}</td>
-                    <td className="py-3 px-4 text-sm text-slate-700">{formatDuration(record.duration)}</td>
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Start Time</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">End Time</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Duration</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {pagedRecords.map((record) => (
+                    <tr key={record.id} className="border-b border-slate-100 hover:bg-slate-50/70">
+                      <td className="py-3 px-4 text-sm text-slate-700">{formatDate(record.start_time)}</td>
+                      <td className="py-3 px-4 text-sm text-slate-700">
+                        {record.end_time ? formatDate(record.end_time) : "Active"}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-slate-700">{formatDuration(record.duration)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-4 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setPageIndex((prev) => Math.max(0, prev - 1))}
+                disabled={!hasPrevPage}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                aria-label="Previous page"
+              >
+                <span aria-hidden="true">←</span>
+                Prev
+              </button>
+              <span className="text-sm font-medium text-slate-500">
+                Page {pageIndex + 1} of {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPageIndex((prev) => Math.min(totalPages - 1, prev + 1))}
+                disabled={!hasNextPage}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                aria-label="Next page"
+              >
+                Next
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>
