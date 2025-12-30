@@ -15,7 +15,13 @@ func NewGuestPopupHandler(popupRepo *repositories.GuestPopupConfigRepository) *G
 	return &GuestPopupHandler{popupRepo: popupRepo}
 }
 
-// GetActiveConfig handles GET /api/guest-popup/active
+// GetActiveConfig godoc
+// @Summary Get active guest popup config
+// @Tags guest-popup
+// @Produce json
+// @Success 200 {object} GuestPopupConfigResponse
+// @Failure 404 {object} ErrorResponse
+// @Router /guest-popup/active [get]
 func (h *GuestPopupHandler) GetActiveConfig(c *gin.Context) {
 	config, err := h.popupRepo.GetActiveConfig()
 	if err != nil {
@@ -26,7 +32,16 @@ func (h *GuestPopupHandler) GetActiveConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, config)
 }
 
-// CreateConfig handles POST /api/guest-popup/create (admin only)
+// CreateConfig godoc
+// @Summary Create guest popup config
+// @Tags guest-popup
+// @Accept json
+// @Produce json
+// @Param body body GuestPopupConfigRequest true "Config"
+// @Success 200 {object} GuestPopupConfigResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /guest-popup/create [post]
 func (h *GuestPopupHandler) CreateConfig(c *gin.Context) {
 	var req struct {
 		Title    string `json:"title" binding:"required"`
@@ -47,7 +62,17 @@ func (h *GuestPopupHandler) CreateConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, config)
 }
 
-// UpdateConfig handles PUT /api/guest-popup/:id (admin only)
+// UpdateConfig godoc
+// @Summary Update guest popup config
+// @Tags guest-popup
+// @Accept json
+// @Produce json
+// @Param id path int true "Config ID"
+// @Param body body GuestPopupConfigRequest true "Config"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /guest-popup/{id} [put]
 func (h *GuestPopupHandler) UpdateConfig(c *gin.Context) {
 	var req struct {
 		Title    string `json:"title" binding:"required"`
@@ -73,7 +98,13 @@ func (h *GuestPopupHandler) UpdateConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Configuration updated successfully"})
 }
 
-// GetAllConfigs handles GET /api/guest-popup/list (admin only)
+// GetAllConfigs godoc
+// @Summary List guest popup configs
+// @Tags guest-popup
+// @Produce json
+// @Success 200 {array} GuestPopupConfigResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /guest-popup/list [get]
 func (h *GuestPopupHandler) GetAllConfigs(c *gin.Context) {
 	configs, err := h.popupRepo.GetAllConfigs()
 	if err != nil {

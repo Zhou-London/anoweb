@@ -20,7 +20,17 @@ func NewMysteryCodeHandler(mysteryCodeRepo *repositories.MysteryCodeRepository, 
 	}
 }
 
-// VerifyCode handles POST /api/mystery-code/verify
+// VerifyCode godoc
+// @Summary Verify a mystery code
+// @Tags mystery-code
+// @Accept json
+// @Produce json
+// @Param body body MysteryCodeRequest true "Mystery code"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /mystery-code/verify [post]
 func (h *MysteryCodeHandler) VerifyCode(c *gin.Context) {
 	var req struct {
 		Code string `json:"code" binding:"required"`
@@ -60,7 +70,16 @@ func (h *MysteryCodeHandler) VerifyCode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Admin privileges granted successfully"})
 }
 
-// CreateCode handles POST /api/mystery-code/create (admin only)
+// CreateCode godoc
+// @Summary Create a mystery code
+// @Tags mystery-code
+// @Accept json
+// @Produce json
+// @Param body body MysteryCodeRequest true "Mystery code"
+// @Success 200 {object} models.MysteryCode
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /mystery-code/create [post]
 func (h *MysteryCodeHandler) CreateCode(c *gin.Context) {
 	var req struct {
 		Code string `json:"code" binding:"required"`
@@ -80,7 +99,13 @@ func (h *MysteryCodeHandler) CreateCode(c *gin.Context) {
 	c.JSON(http.StatusOK, code)
 }
 
-// GetAllCodes handles GET /api/mystery-code/list (admin only)
+// GetAllCodes godoc
+// @Summary List mystery codes
+// @Tags mystery-code
+// @Produce json
+// @Success 200 {array} models.MysteryCode
+// @Failure 500 {object} ErrorResponse
+// @Router /mystery-code/list [get]
 func (h *MysteryCodeHandler) GetAllCodes(c *gin.Context) {
 	codes, err := h.mysteryCodeRepo.GetAllCodes()
 	if err != nil {

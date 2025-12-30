@@ -10,6 +10,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetProjects godoc
+// @Summary List projects
+// @Tags project
+// @Produce json
+// @Success 200 {array} models.Project
+// @Failure 500 {object} ErrorResponse
+// @Router /project [get]
 func GetProjects(c *gin.Context, project_repo repositories.ProjectRepository) {
 	projects, err := project_repo.GetAll()
 	if err != nil {
@@ -20,6 +27,16 @@ func GetProjects(c *gin.Context, project_repo repositories.ProjectRepository) {
 	c.JSON(http.StatusOK, projects)
 }
 
+// PostProject godoc
+// @Summary Create project
+// @Tags project
+// @Accept json
+// @Produce json
+// @Param body body models.Project true "Project"
+// @Success 201 {object} models.Project
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /project [post]
 func PostProject(c *gin.Context, project_repo repositories.ProjectRepository) {
 	var project models.Project
 	if err := c.ShouldBind(&project); err != nil {
@@ -37,6 +54,16 @@ func PostProject(c *gin.Context, project_repo repositories.ProjectRepository) {
 	c.JSON(http.StatusCreated, project)
 }
 
+// PostProjectImg godoc
+// @Summary Update project image URL
+// @Tags project
+// @Accept json
+// @Produce json
+// @Param body body ProjectImageUpdateRequest true "Project image update"
+// @Success 200 {object} models.Project
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /project/update-image-url [post]
 func PostProjectImg(c *gin.Context, project_repo repositories.ProjectRepository) {
 	type RequestBody struct {
 		ID       int    `json:"id"`
@@ -59,6 +86,16 @@ func PostProjectImg(c *gin.Context, project_repo repositories.ProjectRepository)
 	c.JSON(http.StatusOK, project)
 }
 
+// PutProject godoc
+// @Summary Update project
+// @Tags project
+// @Accept json
+// @Produce json
+// @Param body body models.Project true "Project fields"
+// @Success 200 {object} models.Project
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /project [put]
 func PutProject(c *gin.Context, project_repo repositories.ProjectRepository) {
 	var project models.Project
 	if err := c.ShouldBind(&project); err != nil {
@@ -92,6 +129,15 @@ func PutProject(c *gin.Context, project_repo repositories.ProjectRepository) {
 
 }
 
+// DeleteProject godoc
+// @Summary Delete project
+// @Tags project
+// @Produce json
+// @Param id path int true "Project ID"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /project/{id} [delete]
 func DeleteProject(c *gin.Context, project_repo repositories.ProjectRepository) {
 	id := c.Param("id")
 	projectID, err := strconv.Atoi(id)

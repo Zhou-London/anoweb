@@ -10,6 +10,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetPostLatest godoc
+// @Summary Get latest post
+// @Tags post
+// @Produce json
+// @Success 200 {object} models.Post
+// @Failure 500 {object} ErrorResponse
+// @Router /post/latest [get]
 func GetPostLatest(c *gin.Context, post_repo repositories.PostRepository) {
 	post, err := post_repo.GetLatest()
 	if err != nil {
@@ -20,6 +27,13 @@ func GetPostLatest(c *gin.Context, post_repo repositories.PostRepository) {
 	c.JSON(http.StatusOK, post)
 }
 
+// GetPosts godoc
+// @Summary List posts
+// @Tags post
+// @Produce json
+// @Success 200 {array} models.Post
+// @Failure 500 {object} ErrorResponse
+// @Router /post [get]
 func GetPosts(c *gin.Context, post_repo repositories.PostRepository) {
 	posts, err := post_repo.GetAll()
 	if err != nil {
@@ -30,6 +44,15 @@ func GetPosts(c *gin.Context, post_repo repositories.PostRepository) {
 	c.JSON(http.StatusOK, posts)
 }
 
+// GetPostsShort godoc
+// @Summary List posts for project
+// @Tags post
+// @Produce json
+// @Param id path int true "Project ID"
+// @Success 200 {array} models.Post
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /post/project/{id} [get]
 func GetPostsShort(c *gin.Context, post_repo repositories.PostRepository) {
 	id := c.Param("id")
 	projectID, err := strconv.Atoi(id)
@@ -47,6 +70,15 @@ func GetPostsShort(c *gin.Context, post_repo repositories.PostRepository) {
 	c.JSON(http.StatusOK, posts)
 }
 
+// GetPost godoc
+// @Summary Get post
+// @Tags post
+// @Produce json
+// @Param id path int true "Post ID"
+// @Success 200 {object} models.Post
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /post/{id} [get]
 func GetPost(c *gin.Context, post_repo repositories.PostRepository) {
 	id := c.Param("id")
 	postID, err := strconv.Atoi(id)
@@ -64,6 +96,16 @@ func GetPost(c *gin.Context, post_repo repositories.PostRepository) {
 	c.JSON(http.StatusOK, post)
 }
 
+// PostPost godoc
+// @Summary Create post
+// @Tags post
+// @Accept json
+// @Produce json
+// @Param body body PostCreateRequest true "Post"
+// @Success 201 {object} models.Post
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /post [post]
 func PostPost(c *gin.Context, post_repo repositories.PostRepository) {
 
 	type PostPostReq struct {
@@ -95,6 +137,16 @@ func PostPost(c *gin.Context, post_repo repositories.PostRepository) {
 	c.JSON(http.StatusCreated, post)
 }
 
+// PutPost godoc
+// @Summary Update post
+// @Tags post
+// @Accept json
+// @Produce json
+// @Param body body PostUpdateRequest true "Post fields"
+// @Success 200 {object} models.Post
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /post [put]
 func PutPost(c *gin.Context, post_repo repositories.PostRepository) {
 	type PutPostReq struct {
 		ID        int    `json:"id"`
@@ -135,6 +187,15 @@ func PutPost(c *gin.Context, post_repo repositories.PostRepository) {
 	c.JSON(http.StatusOK, updatedPost)
 }
 
+// DeletePost godoc
+// @Summary Delete post
+// @Tags post
+// @Produce json
+// @Param id path int true "Post ID"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /post/{id} [delete]
 func DeletePost(c *gin.Context, post_repo repositories.PostRepository) {
 	id := c.Param("id")
 	postID, err := strconv.Atoi(id)

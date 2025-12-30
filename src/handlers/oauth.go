@@ -16,9 +16,9 @@ import (
 )
 
 type OAuthHandler struct {
-	fanRepo     *repositories.FanRepository
-	sessionRepo *repositories.SessionRepository
-	domain      string
+	fanRepo      *repositories.FanRepository
+	sessionRepo  *repositories.SessionRepository
+	domain       string
 	googleConfig *oauth2.Config
 }
 
@@ -50,7 +50,13 @@ func NewOAuthHandler(fanRepo *repositories.FanRepository, sessionRepo *repositor
 	}
 }
 
-// GoogleLogin initiates Google OAuth flow
+// GoogleLogin godoc
+// @Summary Start Google OAuth
+// @Tags oauth
+// @Produce json
+// @Success 200 {object} FanOAuthInitResponse
+// @Failure 503 {object} ErrorResponse
+// @Router /auth/google [get]
 func (h *OAuthHandler) GoogleLogin(c *gin.Context) {
 	// Check if Google OAuth is configured
 	if h.googleConfig.ClientID == "" {
@@ -67,7 +73,15 @@ func (h *OAuthHandler) GoogleLogin(c *gin.Context) {
 	})
 }
 
-// GoogleCallback handles the callback from Google OAuth
+// GoogleCallback godoc
+// @Summary Google OAuth callback
+// @Tags oauth
+// @Produce json
+// @Param code query string true "Authorization code"
+// @Success 302 {string} string
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /auth/google/callback [get]
 func (h *OAuthHandler) GoogleCallback(c *gin.Context) {
 	code := c.Query("code")
 	if code == "" {

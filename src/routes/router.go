@@ -27,6 +27,7 @@ func InitRoutes(
 	statsRepo *repositories.StatisticsRepository,
 	coreSkillRepo repositories.CoreSkillRepository,
 ) {
+	registerSwaggerRoutes(r)
 	registerFanRoutes(r, domain, imgPath, imgURLPrefix, fanRepo, sessionRepo)
 	registerAdminRoutes(r, domain, adminPass, key)
 	registerStaticRoutes(r, key, imgPath, imgURLPrefix, sessionRepo)

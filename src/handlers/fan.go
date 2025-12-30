@@ -25,7 +25,17 @@ func NewFanHandler(fanRepo *repositories.FanRepository, sessionRepo *repositorie
 	}
 }
 
-// Register handles fan registration
+// Register godoc
+// @Summary Register
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param body body FanAuthRegisterRequest true "Registration"
+// @Success 201 {object} FanAuthRegisterResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 409 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /auth/register [post]
 func (h *FanHandler) Register(c *gin.Context) {
 	type RegisterRequest struct {
 		Username string `json:"username" binding:"required"`
@@ -94,7 +104,17 @@ func (h *FanHandler) Register(c *gin.Context) {
 	})
 }
 
-// Login handles fan login
+// Login godoc
+// @Summary Login
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param body body FanAuthLoginRequest true "Login"
+// @Success 200 {object} FanAuthLoginResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /auth/login [post]
 func (h *FanHandler) Login(c *gin.Context) {
 	type LoginRequest struct {
 		Username string `json:"username" binding:"required"`
@@ -149,7 +169,12 @@ func (h *FanHandler) Login(c *gin.Context) {
 	})
 }
 
-// Logout handles fan logout
+// Logout godoc
+// @Summary Logout
+// @Tags auth
+// @Produce json
+// @Success 200 {object} MessageResponse
+// @Router /auth/logout [post]
 func (h *FanHandler) Logout(c *gin.Context) {
 	token, err := c.Cookie("session_token")
 	if err != nil {
@@ -166,7 +191,13 @@ func (h *FanHandler) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }
 
-// GetCurrentUser returns the current authenticated fan
+// GetCurrentUser godoc
+// @Summary Current user
+// @Tags auth
+// @Produce json
+// @Success 200 {object} FanPublicUserResponse
+// @Failure 401 {object} ErrorResponse
+// @Router /auth/me [get]
 func (h *FanHandler) GetCurrentUser(c *gin.Context) {
 	fan, exists := c.Get("user")
 	if !exists {
@@ -186,7 +217,18 @@ func (h *FanHandler) GetCurrentUser(c *gin.Context) {
 	})
 }
 
-// UpdateProfile handles profile updates
+// UpdateProfile godoc
+// @Summary Update profile
+// @Tags fan
+// @Accept json
+// @Produce json
+// @Param body body FanUpdateProfileRequest true "Profile fields"
+// @Success 200 {object} FanPublicProfileResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /fan/profile [put]
+// @Router /user/profile [put]
 func (h *FanHandler) UpdateProfile(c *gin.Context) {
 	fan, exists := c.Get("user")
 	if !exists {
@@ -227,7 +269,18 @@ func (h *FanHandler) UpdateProfile(c *gin.Context) {
 	})
 }
 
-// UploadProfilePhoto handles profile photo upload
+// UploadProfilePhoto godoc
+// @Summary Upload profile photo
+// @Tags fan
+// @Accept mpfd
+// @Produce json
+// @Param file formData file true "Image file"
+// @Success 200 {object} FanProfilePhotoResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /fan/profile/photo [post]
+// @Router /user/profile/photo [post]
 func (h *FanHandler) UploadProfilePhoto(c *gin.Context, imgPath, imgURLPrefix string) {
 	fan, exists := c.Get("user")
 	if !exists {
@@ -273,7 +326,15 @@ func (h *FanHandler) UploadProfilePhoto(c *gin.Context, imgPath, imgURLPrefix st
 	})
 }
 
-// VerifyEmail handles email verification
+// VerifyEmail godoc
+// @Summary Verify email
+// @Tags auth
+// @Produce json
+// @Param token query string true "Verification token"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /auth/verify-email [get]
 func (h *FanHandler) VerifyEmail(c *gin.Context) {
 	token := c.Query("token")
 	if token == "" {
@@ -305,7 +366,16 @@ func (h *FanHandler) VerifyEmail(c *gin.Context) {
 	})
 }
 
-// ResendVerificationEmail resends the verification email
+// ResendVerificationEmail godoc
+// @Summary Resend verification email
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param body body FanAuthResendVerificationRequest true "Email"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /auth/resend-verification [post]
 func (h *FanHandler) ResendVerificationEmail(c *gin.Context) {
 	type ResendRequest struct {
 		Email string `json:"email" binding:"required,email"`
@@ -348,7 +418,14 @@ func (h *FanHandler) ResendVerificationEmail(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Verification email has been sent"})
 }
 
-// GetAllUsers returns all fans (for community list)
+// GetAllUsers godoc
+// @Summary List users
+// @Tags fan
+// @Produce json
+// @Success 200 {array} FanPublicUserResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /fan/list [get]
+// @Router /user/list [get]
 func (h *FanHandler) GetAllUsers(c *gin.Context) {
 	fans, err := h.fanRepo.GetAll()
 	if err != nil {

@@ -9,6 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// UploadImage godoc
+// @Summary Upload image
+// @Tags static
+// @Accept mpfd
+// @Produce plain
+// @Param file formData file true "Image file"
+// @Success 200 {string} string
+// @Failure 400 {string} string
+// @Failure 500 {string} string
+// @Router /static/upload-image [post]
 func UploadImage(c *gin.Context, img_path string, img_url_prefix string) {
 	file, err := c.FormFile("file")
 	if err != nil {

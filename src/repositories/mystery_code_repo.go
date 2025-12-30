@@ -30,11 +30,11 @@ func (r *MysteryCodeRepository) CreateCode(code string) (*models.MysteryCode, er
 // VerifyAndUseCode verifies a code and marks it as used
 func (r *MysteryCodeRepository) VerifyAndUseCode(code string, userID uint) error {
 	var mysteryCode models.MysteryCode
-	
+
 	if err := r.db.Where("code = ? AND is_used = ?", code, false).First(&mysteryCode).Error; err != nil {
 		return err
 	}
-	
+
 	now := time.Now()
 	return r.db.Model(&mysteryCode).Updates(map[string]interface{}{
 		"is_used": true,

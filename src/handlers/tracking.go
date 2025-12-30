@@ -16,7 +16,16 @@ func NewTrackingHandler(trackingRepo *repositories.FanTrackingRepository) *Track
 	return &TrackingHandler{trackingRepo: trackingRepo}
 }
 
-// StartTracking handles POST /api/tracking/start
+// StartTracking godoc
+// @Summary Start tracking
+// @Tags tracking
+// @Accept json
+// @Produce json
+// @Param body body TrackingSessionRequest true "Session"
+// @Success 200 {object} models.FanTracking
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /tracking/start [post]
 func (h *TrackingHandler) StartTracking(c *gin.Context) {
 	var req struct {
 		SessionID string `json:"session_id" binding:"required"`
@@ -49,7 +58,16 @@ func (h *TrackingHandler) StartTracking(c *gin.Context) {
 	c.JSON(http.StatusOK, tracking)
 }
 
-// EndTracking handles POST /api/tracking/end
+// EndTracking godoc
+// @Summary End tracking
+// @Tags tracking
+// @Accept json
+// @Produce json
+// @Param body body TrackingSessionRequest true "Session"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /tracking/end [post]
 func (h *TrackingHandler) EndTracking(c *gin.Context) {
 	var req struct {
 		SessionID string `json:"session_id" binding:"required"`
@@ -83,7 +101,16 @@ func (h *TrackingHandler) EndTracking(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Tracking ended successfully"})
 }
 
-// UpdateTracking handles POST /api/tracking/update
+// UpdateTracking godoc
+// @Summary Update tracking
+// @Tags tracking
+// @Accept json
+// @Produce json
+// @Param body body TrackingSessionRequest true "Session"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /tracking/update [post]
 func (h *TrackingHandler) UpdateTracking(c *gin.Context) {
 	var req struct {
 		SessionID string `json:"session_id" binding:"required"`
@@ -115,7 +142,13 @@ func (h *TrackingHandler) UpdateTracking(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Tracking updated successfully"})
 }
 
-// GetTotalHours handles GET /api/tracking/total-hours
+// GetTotalHours godoc
+// @Summary Total tracked hours
+// @Tags tracking
+// @Produce json
+// @Success 200 {object} TotalHoursResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /tracking/total-hours [get]
 func (h *TrackingHandler) GetTotalHours(c *gin.Context) {
 	totalHours, err := h.trackingRepo.GetTotalHours()
 	if err != nil {
@@ -126,7 +159,14 @@ func (h *TrackingHandler) GetTotalHours(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"total_hours": totalHours})
 }
 
-// GetUserTotalHours handles GET /api/tracking/user-hours
+// GetUserTotalHours godoc
+// @Summary Current user tracked hours
+// @Tags tracking
+// @Produce json
+// @Success 200 {object} TotalHoursResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /tracking/user-hours [get]
 func (h *TrackingHandler) GetUserTotalHours(c *gin.Context) {
 	fan, exists := c.Get("user")
 	if !exists {
@@ -150,7 +190,13 @@ func (h *TrackingHandler) GetUserTotalHours(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"total_hours": totalHours})
 }
 
-// GetAllTrackingRecords handles GET /api/tracking/records
+// GetAllTrackingRecords godoc
+// @Summary List tracking records
+// @Tags tracking
+// @Produce json
+// @Success 200 {array} models.FanTracking
+// @Failure 500 {object} ErrorResponse
+// @Router /tracking/records [get]
 func (h *TrackingHandler) GetAllTrackingRecords(c *gin.Context) {
 	// Optional: filter by current fan if not admin
 	var fanID *uint

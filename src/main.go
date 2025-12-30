@@ -12,6 +12,10 @@ import (
 
 var r = gin.Default()
 
+// @title anoweb API
+// @version 1.0
+// @description Backend API documentation for anoweb.
+// @BasePath /api
 func main() {
 
 	err := godotenv.Load()

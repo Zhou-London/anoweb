@@ -10,6 +10,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetCoreSkills godoc
+// @Summary List core skills
+// @Tags core-skill
+// @Produce json
+// @Success 200 {array} models.CoreSkill
+// @Failure 500 {object} ErrorResponse
+// @Router /core-skill [get]
 func GetCoreSkills(c *gin.Context, coreSkillRepo repositories.CoreSkillRepository) {
 	coreSkills, err := coreSkillRepo.GetAll()
 	if err != nil {
@@ -20,6 +27,16 @@ func GetCoreSkills(c *gin.Context, coreSkillRepo repositories.CoreSkillRepositor
 	c.JSON(http.StatusOK, coreSkills)
 }
 
+// PostCoreSkill godoc
+// @Summary Create core skill
+// @Tags core-skill
+// @Accept json
+// @Produce json
+// @Param body body models.CoreSkill true "Core skill"
+// @Success 201 {object} models.CoreSkill
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /core-skill [post]
 func PostCoreSkill(c *gin.Context, coreSkillRepo repositories.CoreSkillRepository) {
 	var coreSkill models.CoreSkill
 	if err := c.ShouldBind(&coreSkill); err != nil {
@@ -37,6 +54,16 @@ func PostCoreSkill(c *gin.Context, coreSkillRepo repositories.CoreSkillRepositor
 	c.JSON(http.StatusCreated, coreSkill)
 }
 
+// PutCoreSkill godoc
+// @Summary Update core skill
+// @Tags core-skill
+// @Accept json
+// @Produce json
+// @Param body body models.CoreSkill true "Core skill fields"
+// @Success 200 {object} models.CoreSkill
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /core-skill [put]
 func PutCoreSkill(c *gin.Context, coreSkillRepo repositories.CoreSkillRepository) {
 	var coreSkill models.CoreSkill
 	if err := c.ShouldBind(&coreSkill); err != nil {
@@ -72,6 +99,15 @@ func PutCoreSkill(c *gin.Context, coreSkillRepo repositories.CoreSkillRepository
 	c.JSON(http.StatusOK, updatedCoreSkill)
 }
 
+// DeleteCoreSkill godoc
+// @Summary Delete core skill
+// @Tags core-skill
+// @Produce json
+// @Param id path int true "Core skill ID"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /core-skill/{id} [delete]
 func DeleteCoreSkill(c *gin.Context, coreSkillRepo repositories.CoreSkillRepository) {
 	id := c.Param("id")
 	coreSkillID, err := strconv.Atoi(id)
@@ -89,6 +125,16 @@ func DeleteCoreSkill(c *gin.Context, coreSkillRepo repositories.CoreSkillReposit
 	c.JSON(http.StatusOK, gin.H{"message": "Core skill deleted successfully"})
 }
 
+// UpdateCoreSkillOrder godoc
+// @Summary Update core skill order
+// @Tags core-skill
+// @Accept json
+// @Produce json
+// @Param body body []models.CoreSkill true "Core skills with updated order_index"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /core-skill/update-order [post]
 func UpdateCoreSkillOrder(c *gin.Context, coreSkillRepo repositories.CoreSkillRepository) {
 	var skills []models.CoreSkill
 	if err := c.ShouldBindJSON(&skills); err != nil {

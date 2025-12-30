@@ -45,6 +45,16 @@ func normalizeDateString(value string) (string, error) {
 	return value, nil
 }
 
+// UploadExperienceImg godoc
+// @Summary Upload experience image
+// @Tags experience
+// @Accept mpfd
+// @Produce json
+// @Param file formData file true "Image file"
+// @Success 200 {object} ImageUploadResponse
+// @Failure 400 {string} string
+// @Failure 500 {string} string
+// @Router /experience/upload-experience-img [post]
 func UploadExperienceImg(c *gin.Context, img_path string, img_url_prefix string) {
 	file, err := c.FormFile("file")
 	if err != nil {
@@ -64,6 +74,13 @@ func UploadExperienceImg(c *gin.Context, img_path string, img_url_prefix string)
 	})
 }
 
+// GetAllExperiences godoc
+// @Summary List experiences
+// @Tags experience
+// @Produce json
+// @Success 200 {object} ExperiencesResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /experience [get]
 func GetAllExperiences(c *gin.Context, experience_repo repositories.ExperienceRepository) {
 	exps, err := experience_repo.GetAll()
 	if err != nil {
@@ -74,6 +91,15 @@ func GetAllExperiences(c *gin.Context, experience_repo repositories.ExperienceRe
 	c.JSON(http.StatusOK, gin.H{"experience": exps})
 }
 
+// GetExperienceByID godoc
+// @Summary Get experience
+// @Tags experience
+// @Produce json
+// @Param id path int true "Experience ID"
+// @Success 200 {object} ExperienceResponse
+// @Failure 400 {object} MessageResponse
+// @Failure 500 {object} MessageResponse
+// @Router /experience/{id} [get]
 func GetExperienceByID(c *gin.Context, experience_repo repositories.ExperienceRepository) {
 	id := c.Param("id")
 	expID, err := strconv.Atoi(id)
@@ -91,6 +117,16 @@ func GetExperienceByID(c *gin.Context, experience_repo repositories.ExperienceRe
 	c.JSON(http.StatusOK, gin.H{"experience": exp})
 }
 
+// PostExperience godoc
+// @Summary Create experience
+// @Tags experience
+// @Accept json
+// @Produce json
+// @Param body body models.Experience true "Experience"
+// @Success 201 {object} ExperienceResponse
+// @Failure 400 {object} MessageResponse
+// @Failure 500 {object} MessageResponse
+// @Router /experience [post]
 func PostExperience(c *gin.Context, experience_repo repositories.ExperienceRepository) {
 	type ExperienceRequest struct {
 		Company      string   `json:"company"`
@@ -144,6 +180,16 @@ func PostExperience(c *gin.Context, experience_repo repositories.ExperienceRepos
 	c.JSON(http.StatusCreated, gin.H{"experience": exp})
 }
 
+// PutExperience godoc
+// @Summary Update experience
+// @Tags experience
+// @Accept json
+// @Produce json
+// @Param body body models.Experience true "Experience fields"
+// @Success 200 {object} ExperienceResponse
+// @Failure 400 {object} MessageResponse
+// @Failure 500 {object} MessageResponse
+// @Router /experience [put]
 func PutExperience(c *gin.Context, experience_repo repositories.ExperienceRepository) {
 	type ExperienceUpdate struct {
 		ID           int       `json:"id"`
@@ -241,6 +287,15 @@ func PutExperience(c *gin.Context, experience_repo repositories.ExperienceReposi
 	c.JSON(http.StatusOK, gin.H{"experience": exp})
 }
 
+// DeleteExperience godoc
+// @Summary Delete experience
+// @Tags experience
+// @Produce json
+// @Param id path int true "Experience ID"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} MessageResponse
+// @Failure 500 {object} MessageResponse
+// @Router /experience/{id} [delete]
 func DeleteExperience(c *gin.Context, experience_repo repositories.ExperienceRepository) {
 	id := c.Param("id")
 	expID, err := strconv.Atoi(id)
@@ -259,6 +314,13 @@ func DeleteExperience(c *gin.Context, experience_repo repositories.ExperienceRep
 
 }
 
+// GetExperiencesShort godoc
+// @Summary List experiences (short)
+// @Tags experience
+// @Produce json
+// @Success 200 {array} models.Experience
+// @Failure 500 {object} ErrorResponse
+// @Router /experience/short [get]
 func GetExperiencesShort(c *gin.Context, experience_repo repositories.ExperienceRepository) {
 	experiences, err := experience_repo.GetAllShort()
 	if err != nil {
@@ -269,6 +331,16 @@ func GetExperiencesShort(c *gin.Context, experience_repo repositories.Experience
 	c.JSON(http.StatusOK, experiences)
 }
 
+// PutExperienceOrder godoc
+// @Summary Update experience order
+// @Tags experience
+// @Accept json
+// @Produce json
+// @Param body body []ExperienceOrderUpdate true "Order updates"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /experience/order [put]
 func PutExperienceOrder(c *gin.Context, experience_repo repositories.ExperienceRepository) {
 
 	type PutExperienceOrderRequest struct {

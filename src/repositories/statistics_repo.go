@@ -156,13 +156,13 @@ type FansOverTimePoint struct {
 // GetFansOverTime returns hourly visitor counts for the last N hours
 func (r *StatisticsRepository) GetFansOverTime(hours int) ([]FansOverTimePoint, error) {
 	var results []FansOverTimePoint
-	
+
 	since := time.Now().Add(-time.Duration(hours) * time.Hour)
-	
+
 	// Detect database type
 	dbName := r.db.Dialector.Name()
 	var query string
-	
+
 	if dbName == "sqlite" {
 		query = `
 			SELECT 
@@ -185,7 +185,7 @@ func (r *StatisticsRepository) GetFansOverTime(hours int) ([]FansOverTimePoint, 
 			ORDER BY hour ASC
 		`
 	}
-	
+
 	err := r.db.Raw(query, since).Scan(&results).Error
 	return results, err
 }
@@ -199,13 +199,13 @@ type DailyActiveUsersPoint struct {
 // GetDailyActiveUsers returns daily active user counts for the last N days
 func (r *StatisticsRepository) GetDailyActiveUsers(days int) ([]DailyActiveUsersPoint, error) {
 	var results []DailyActiveUsersPoint
-	
+
 	since := time.Now().Add(-time.Duration(days) * 24 * time.Hour)
-	
+
 	// Detect database type
 	dbName := r.db.Dialector.Name()
 	var query string
-	
+
 	if dbName == "sqlite" {
 		query = `
 			SELECT 
@@ -228,7 +228,7 @@ func (r *StatisticsRepository) GetDailyActiveUsers(days int) ([]DailyActiveUsers
 			ORDER BY date ASC
 		`
 	}
-	
+
 	err := r.db.Raw(query, since).Scan(&results).Error
 	return results, err
 }

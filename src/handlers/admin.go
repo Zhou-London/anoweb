@@ -6,6 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// PostAdminCheck godoc
+// @Summary Validate admin password
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param body body AdminCheckRequest true "Admin password"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} MessageResponse
+// @Router /admin [post]
 func PostAdminCheck(c *gin.Context, domain string, admin_pass string, key string) {
 
 	type PostAdminCheckRequest struct {
@@ -26,6 +36,13 @@ func PostAdminCheck(c *gin.Context, domain string, admin_pass string, key string
 	}
 }
 
+// GetStatusCheck godoc
+// @Summary Check admin status
+// @Tags admin
+// @Produce json
+// @Success 200 {object} AdminStatusResponse
+// @Failure 401 {object} AdminStatusResponse
+// @Router /admin/status [get]
 func GetStatusCheck(c *gin.Context, expectedKey string) {
 	key, err := c.Cookie("key")
 	if err != nil || key != expectedKey {
@@ -35,6 +52,12 @@ func GetStatusCheck(c *gin.Context, expectedKey string) {
 	c.JSON(http.StatusOK, gin.H{"isAdmin": true})
 }
 
+// PostAdminLogout godoc
+// @Summary Logout admin (clear key cookie)
+// @Tags admin
+// @Produce json
+// @Success 200 {object} MessageResponse
+// @Router /admin/logout [post]
 func PostAdminLogout(c *gin.Context, domain string) {
 	c.SetCookie("key", "", -1, "/", domain, false, true)
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out"})

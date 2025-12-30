@@ -9,6 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// UploadProfileImg godoc
+// @Summary Upload profile image
+// @Tags profile
+// @Accept mpfd
+// @Produce json
+// @Param file formData file true "Image file"
+// @Success 200 {object} ImageUploadResponse
+// @Failure 400 {string} string
+// @Failure 500 {string} string
+// @Router /profile/upload-image [post]
 func UploadProfileImg(c *gin.Context, img_path string, img_url_prefix string) {
 	file, err := c.FormFile("file")
 	if err != nil {
@@ -28,6 +38,13 @@ func UploadProfileImg(c *gin.Context, img_path string, img_url_prefix string) {
 	})
 }
 
+// GetProfileInfo godoc
+// @Summary Get profile
+// @Tags profile
+// @Produce json
+// @Success 200 {object} models.Profile
+// @Failure 500 {object} ErrorResponse
+// @Router /profile [get]
 func GetProfileInfo(c *gin.Context, profile_repo repositories.ProfileRepository) {
 	profile, err := profile_repo.GetByID(1)
 	if err != nil {
@@ -38,6 +55,13 @@ func GetProfileInfo(c *gin.Context, profile_repo repositories.ProfileRepository)
 	c.JSON(http.StatusOK, profile)
 }
 
+// DeleteProfileInfo godoc
+// @Summary Delete profile
+// @Tags profile
+// @Produce json
+// @Success 200 {object} MessageResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /profile [delete]
 func DeleteProfileInfo(c *gin.Context, profile_repo repositories.ProfileRepository) {
 	err := profile_repo.Delete(1)
 	if err != nil {
@@ -48,6 +72,16 @@ func DeleteProfileInfo(c *gin.Context, profile_repo repositories.ProfileReposito
 	c.JSON(http.StatusOK, gin.H{"message": "Profile info deleted successfully"})
 }
 
+// PostProfileInfo godoc
+// @Summary Create profile
+// @Tags profile
+// @Accept json
+// @Produce json
+// @Param body body models.Profile true "Profile"
+// @Success 200 {object} models.Profile
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /profile [post]
 func PostProfileInfo(c *gin.Context, profile_repo repositories.ProfileRepository) {
 
 	count, countErr := profile_repo.Counts()
@@ -75,6 +109,16 @@ func PostProfileInfo(c *gin.Context, profile_repo repositories.ProfileRepository
 	c.JSON(http.StatusOK, profile)
 }
 
+// PutProfileInfo godoc
+// @Summary Update profile
+// @Tags profile
+// @Accept json
+// @Produce json
+// @Param body body models.Profile true "Profile fields"
+// @Success 200 {object} models.Profile
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /profile [put]
 func PutProfileInfo(c *gin.Context, profile_repo repositories.ProfileRepository) {
 
 	oldProfile, err := profile_repo.GetByID(1)

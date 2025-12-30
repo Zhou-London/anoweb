@@ -21,7 +21,13 @@ func NewStatisticsHandler(statsRepo *repositories.StatisticsRepository, tracking
 	}
 }
 
-// GetOverallStatistics handles GET /api/statistics/overall
+// GetOverallStatistics godoc
+// @Summary Overall statistics
+// @Tags statistics
+// @Produce json
+// @Success 200 {object} OverallStatisticsResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /statistics/overall [get]
 func (h *StatisticsHandler) GetOverallStatistics(c *gin.Context) {
 	totalFans, err := h.statsRepo.GetTotalFans()
 	if err != nil {
@@ -90,7 +96,14 @@ func (h *StatisticsHandler) GetOverallStatistics(c *gin.Context) {
 	})
 }
 
-// GetUserStreak handles GET /api/statistics/streak (authenticated)
+// GetUserStreak godoc
+// @Summary Current user streak
+// @Tags statistics
+// @Produce json
+// @Success 200 {object} StreakResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /statistics/streak [get]
 func (h *StatisticsHandler) GetUserStreak(c *gin.Context) {
 	fan, exists := c.Get("user")
 	if !exists {
@@ -115,7 +128,14 @@ func (h *StatisticsHandler) GetUserStreak(c *gin.Context) {
 	})
 }
 
-// GetUsersOverTime handles GET /api/statistics/users-over-time?hours=24
+// GetUsersOverTime godoc
+// @Summary Visitors over time
+// @Tags statistics
+// @Produce json
+// @Param hours query int false "Hours (1-168)" default(24)
+// @Success 200 {array} repositories.FansOverTimePoint
+// @Failure 500 {object} ErrorResponse
+// @Router /statistics/users-over-time [get]
 func (h *StatisticsHandler) GetUsersOverTime(c *gin.Context) {
 	hours := 24 // default
 	if h := c.Query("hours"); h != "" {
@@ -133,7 +153,14 @@ func (h *StatisticsHandler) GetUsersOverTime(c *gin.Context) {
 	c.JSON(http.StatusOK, data)
 }
 
-// GetDailyActiveUsers handles GET /api/statistics/daily-active?days=30
+// GetDailyActiveUsers godoc
+// @Summary Daily active users
+// @Tags statistics
+// @Produce json
+// @Param days query int false "Days (1-365)" default(30)
+// @Success 200 {array} repositories.DailyActiveUsersPoint
+// @Failure 500 {object} ErrorResponse
+// @Router /statistics/daily-active [get]
 func (h *StatisticsHandler) GetDailyActiveUsers(c *gin.Context) {
 	days := 30 // default
 	if d := c.Query("days"); d != "" {
