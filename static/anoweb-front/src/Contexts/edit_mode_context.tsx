@@ -26,7 +26,7 @@ export function EditModeProvider({ children }: { children: ReactNode }) {
 export function useEditMode() {
   const context = useContext(EditModeContext);
   if (!context) {
-    throw new Error("useEditMode must be used within EditModeProvider");
+    throw new Error("useEditMode must be fan?d within EditModeProvider");
   }
   return context;
 }

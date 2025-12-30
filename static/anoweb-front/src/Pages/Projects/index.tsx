@@ -7,7 +7,7 @@ import { ProjectDetails } from "./ProjectDetails";
 import { PostsGrid } from "./PostsGrid";
 import CreateProjectModal from "./CreateProjectModal";
 import CreatePostModal from "./CreatePostModal";
-import { UserContext } from "../../Contexts/user_context";
+import { FanContext } from "../../Contexts/fan_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
 
 const styles = `
@@ -43,7 +43,7 @@ export default function ProjectPage() {
     refreshPosts,
     handleDeletePost,
   } = useProjectData();
-  const { isAdmin } = useContext(UserContext);
+  const { isAdmin } = useContext(FanContext);
   const { editMode } = useEditMode();
   const showAdminFeatures = isAdmin && editMode;
 

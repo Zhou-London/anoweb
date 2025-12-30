@@ -22,7 +22,7 @@ func InitDatabase(usr string, pass string, host string, port string, name string
 	}
 
 	if err := DB.AutoMigrate(
-		&models.User{},
+		&models.Fan{},
 		&models.Session{},
 		&models.Profile{},
 		&models.Experience{},
@@ -30,7 +30,7 @@ func InitDatabase(usr string, pass string, host string, port string, name string
 		&models.Project{},
 		&models.Learning{},
 		&models.Post{},
-		&models.UserTracking{},
+		&models.FanTracking{},
 		&models.MysteryCode{},
 		&models.GuestPopupConfig{},
 		&models.CoreSkill{},

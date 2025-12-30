@@ -14,14 +14,14 @@ func NewStatisticsRepository(db *gorm.DB) *StatisticsRepository {
 	return &StatisticsRepository{db: db}
 }
 
-// GetTotalUsers returns the total number of registered users
-func (r *StatisticsRepository) GetTotalUsers() (int64, error) {
+// GetTotalFans returns the total number of registered fans
+func (r *StatisticsRepository) GetTotalFans() (int64, error) {
 	var count int64
 	err := r.db.Table("users").Count(&count).Error
 	return count, err
 }
 
-// GetUniqueVisitors returns the count of unique users (registered + guests)
+// GetUniqueVisitors returns the count of unique visitors (registered fans + guests)
 func (r *StatisticsRepository) GetUniqueVisitors() (int64, error) {
 	var count int64
 	// Count distinct session_ids from user_trackings
@@ -42,7 +42,7 @@ func (r *StatisticsRepository) GetUniqueVisitorsLast24Hours() (int64, error) {
 	return count, err
 }
 
-// GetRegisteredVisitorsEver returns count of registered users who have visited
+// GetRegisteredVisitorsEver returns count of registered fans who have visited
 func (r *StatisticsRepository) GetRegisteredVisitorsEver() (int64, error) {
 	var count int64
 	err := r.db.Table("user_trackings").
@@ -62,7 +62,7 @@ func (r *StatisticsRepository) GetGuestVisitorsEver() (int64, error) {
 	return count, err
 }
 
-// GetRegisteredVisitorsLast24Hours returns registered users who visited in last 24h
+// GetRegisteredVisitorsLast24Hours returns registered fans who visited in last 24h
 func (r *StatisticsRepository) GetRegisteredVisitorsLast24Hours() (int64, error) {
 	var count int64
 	since := time.Now().Add(-24 * time.Hour)
@@ -86,7 +86,7 @@ func (r *StatisticsRepository) GetGuestVisitorsLast24Hours() (int64, error) {
 	return count, err
 }
 
-// GetActiveUsersToday returns users who have visited today
+// GetActiveUsersToday returns visitors who have visited today (fans + guests)
 func (r *StatisticsRepository) GetActiveUsersToday() (int64, error) {
 	var count int64
 	today := time.Now().Truncate(24 * time.Hour)
@@ -97,32 +97,32 @@ func (r *StatisticsRepository) GetActiveUsersToday() (int64, error) {
 	return count, err
 }
 
-// GetUserStreak returns the current streak (consecutive days) for a user
-func (r *StatisticsRepository) GetUserStreak(userID uint) (int, error) {
+// GetFanStreak returns the current streak (consecutive days) for a fan
+func (r *StatisticsRepository) GetFanStreak(fanID uint) (int, error) {
 	var dates []time.Time
-	
-	// Get all distinct dates the user has visited, ordered by date descending
+
+	// Get all distinct dates the fan has visited, ordered by date descending
 	err := r.db.Table("user_trackings").
 		Select("DATE(start_time) as date").
-		Where("user_id = ?", userID).
+		Where("user_id = ?", fanID).
 		Group("DATE(start_time)").
 		Order("date DESC").
 		Scan(&dates).Error
-	
+
 	if err != nil {
 		return 0, err
 	}
-	
+
 	if len(dates) == 0 {
 		return 0, nil
 	}
-	
+
 	// Calculate streak
 	streak := 0
 	today := time.Now().Truncate(24 * time.Hour)
 	expectedDate := today
-	
-	// Check if user visited today or yesterday (streak can continue)
+
+	// Check if fan visited today or yesterday (streak can continue)
 	firstDate := dates[0].Truncate(24 * time.Hour)
 	if firstDate.Equal(today) {
 		expectedDate = today
@@ -132,7 +132,7 @@ func (r *StatisticsRepository) GetUserStreak(userID uint) (int, error) {
 		// Streak is broken
 		return 0, nil
 	}
-	
+
 	// Count consecutive days
 	for _, date := range dates {
 		dateOnly := date.Truncate(24 * time.Hour)
@@ -143,19 +143,19 @@ func (r *StatisticsRepository) GetUserStreak(userID uint) (int, error) {
 			break
 		}
 	}
-	
+
 	return streak, nil
 }
 
-// UsersOverTimePoint represents a data point for users over time
-type UsersOverTimePoint struct {
+// FansOverTimePoint represents a data point for visitors over time
+type FansOverTimePoint struct {
 	Hour  string `json:"hour"`
 	Count int64  `json:"count"`
 }
 
-// GetUsersOverTime returns hourly user counts for the last N hours
-func (r *StatisticsRepository) GetUsersOverTime(hours int) ([]UsersOverTimePoint, error) {
-	var results []UsersOverTimePoint
+// GetFansOverTime returns hourly visitor counts for the last N hours
+func (r *StatisticsRepository) GetFansOverTime(hours int) ([]FansOverTimePoint, error) {
+	var results []FansOverTimePoint
 	
 	since := time.Now().Add(-time.Duration(hours) * time.Hour)
 	

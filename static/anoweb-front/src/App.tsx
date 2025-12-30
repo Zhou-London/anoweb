@@ -1,10 +1,11 @@
 import { Route, Routes, useLocation } from "react-router";
 import { AnimatePresence } from "framer-motion";
-import Activity from "./Pages/Activity";
+import Community from "./Pages/Community";
 import ProjectPage from "./Pages/Projects";
 import Home from "./Pages/Home";
 import PostWorkspace from "./Pages/Markdown/PostWorkspace";
 import AccountPage from "./Pages/Account";
+import VerifyEmail from "./Pages/VerifyEmail";
 import PageTransition from "./Components/page_transition";
 
 export default function AppRouter() {
@@ -22,10 +23,10 @@ export default function AppRouter() {
           }
         />
         <Route
-          path="/activity"
+          path="/community"
           element={
             <PageTransition>
-              <Activity />
+              <Community />
             </PageTransition>
           }
         />
@@ -52,6 +53,10 @@ export default function AppRouter() {
               <AccountPage />
             </PageTransition>
           }
+        />
+        <Route
+          path="/verify-email"
+          element={<VerifyEmail />}
         />
       </Routes>
     </AnimatePresence>

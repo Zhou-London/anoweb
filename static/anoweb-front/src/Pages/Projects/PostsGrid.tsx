@@ -3,7 +3,7 @@
 import { useMemo, useContext } from "react";
 import { motion } from "framer-motion";
 import { type PostShort } from "./types";
-import { UserContext } from "../../Contexts/user_context";
+import { FanContext } from "../../Contexts/fan_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
 import { formatRelativeDate } from "../../lib/dateFormat";
 
@@ -34,7 +34,7 @@ export function PostsGrid({
   onOpenCreateModal,
   onDeletePost,
 }: PostsGridProps) {
-  const { isAdmin } = useContext(UserContext);
+  const { isAdmin } = useContext(FanContext);
   const { editMode } = useEditMode();
   const showAdminFeatures = isAdmin && editMode;
 

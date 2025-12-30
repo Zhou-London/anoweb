@@ -1,7 +1,7 @@
 // src/components/Home/index.tsx
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { UserContext } from "../../Contexts/user_context";
+import { FanContext } from "../../Contexts/fan_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { useSuccessNotifier } from "../../Contexts/success_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
@@ -15,7 +15,7 @@ import CoreSkillCard from "./CoreSkillCard";
 import type { CoreSkill } from "./types";
 
 export default function Home() {
-  const { user, isAdmin } = useContext(UserContext);
+  const { fan, isAdmin } = useContext(FanContext);
   const { editMode } = useEditMode();
   const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
@@ -40,7 +40,7 @@ export default function Home() {
         });
         setTotalHours(totalData.total_hours);
 
-        if (user) {
+        if (fan) {
           const userHoursData = await apiJson<{ total_hours: number }>("/tracking/user-hours", {
             credentials: "include",
           });
@@ -54,7 +54,7 @@ export default function Home() {
     };
 
     fetchStats();
-  }, [user, notifyError]);
+  }, [fan, notifyError]);
 
   const handleDragStart = (e: React.DragEvent, skill: CoreSkill) => {
     setDraggedSkill(skill);
@@ -190,12 +190,12 @@ export default function Home() {
               <h2 className="text-3xl font-bold text-slate-900">
                 {loadingStats ? "..." : `${totalHours.toFixed(1)}h`}
               </h2>
-              <p className="text-sm text-slate-700 mt-1">Spent by all users on this web</p>
+              <p className="text-sm text-slate-700 mt-1">Spent by all fan?s on this web</p>
             </div>
           </div>
         </div>
 
-        {user ? (
+        {fan ? (
           <div className="rounded-3xl bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-green-500/10 border border-slate-200 shadow-lg p-6 md:p-8 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5" aria-hidden />
             <div className="relative flex items-center gap-4">
@@ -231,7 +231,7 @@ export default function Home() {
       </div>
 
       {/* Guest Sign-Up Invitation */}
-      {!user && (
+      {!fan && (
         <section className="rounded-3xl bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-fuchsia-500/10 border border-violet-200 shadow-lg p-6 md:p-8 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 to-fuchsia-500/5" aria-hidden />
           <div className="relative flex flex-col md:flex-row items-center gap-6">

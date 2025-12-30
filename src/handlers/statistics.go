@@ -11,10 +11,10 @@ import (
 
 type StatisticsHandler struct {
 	statsRepo    *repositories.StatisticsRepository
-	trackingRepo *repositories.UserTrackingRepository
+	trackingRepo *repositories.FanTrackingRepository
 }
 
-func NewStatisticsHandler(statsRepo *repositories.StatisticsRepository, trackingRepo *repositories.UserTrackingRepository) *StatisticsHandler {
+func NewStatisticsHandler(statsRepo *repositories.StatisticsRepository, trackingRepo *repositories.FanTrackingRepository) *StatisticsHandler {
 	return &StatisticsHandler{
 		statsRepo:    statsRepo,
 		trackingRepo: trackingRepo,
@@ -23,9 +23,9 @@ func NewStatisticsHandler(statsRepo *repositories.StatisticsRepository, tracking
 
 // GetOverallStatistics handles GET /api/statistics/overall
 func (h *StatisticsHandler) GetOverallStatistics(c *gin.Context) {
-	totalUsers, err := h.statsRepo.GetTotalUsers()
+	totalFans, err := h.statsRepo.GetTotalFans()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get total users"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get total fans"})
 		return
 	}
 
@@ -78,7 +78,7 @@ func (h *StatisticsHandler) GetOverallStatistics(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"total_users":              totalUsers,
+		"total_users":              totalFans,
 		"unique_visitors_ever":     uniqueVisitors,
 		"unique_visitors_24h":      visitors24h,
 		"registered_visitors_ever": registeredEver,
@@ -92,21 +92,21 @@ func (h *StatisticsHandler) GetOverallStatistics(c *gin.Context) {
 
 // GetUserStreak handles GET /api/statistics/streak (authenticated)
 func (h *StatisticsHandler) GetUserStreak(c *gin.Context) {
-	user, exists := c.Get("user")
+	fan, exists := c.Get("user")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
 		return
 	}
 
-	u, ok := user.(*models.User)
+	f, ok := fan.(*models.Fan)
 	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user context"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid fan context"})
 		return
 	}
 
-	streak, err := h.statsRepo.GetUserStreak(u.ID)
+	streak, err := h.statsRepo.GetFanStreak(f.ID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user streak"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get fan streak"})
 		return
 	}
 
@@ -124,9 +124,9 @@ func (h *StatisticsHandler) GetUsersOverTime(c *gin.Context) {
 		}
 	}
 
-	data, err := h.statsRepo.GetUsersOverTime(hours)
+	data, err := h.statsRepo.GetFansOverTime(hours)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get users over time"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get visitors over time"})
 		return
 	}
 

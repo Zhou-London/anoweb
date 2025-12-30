@@ -2,13 +2,13 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { UserContext } from "../Contexts/user_context";
+import { FanContext } from "../Contexts/fan_context";
 import { useErrorNotifier } from "../Contexts/error_context";
 import { apiFetch } from "../lib/api";
 import AuthModal from "./auth_modal";
 
 export default function Navbar() {
-  const { user, isAuthenticated, isAdmin, refreshUser } = useContext(UserContext);
+  const { fan, isAuthenticated, isAdmin, refreshFan } = useContext(FanContext);
   const [open, setOpen] = useState(false);
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -19,7 +19,7 @@ export default function Navbar() {
   const navLinks = useMemo(
     () => [
       { label: "Home", to: "/" },
-      { label: "Activity", to: "/activity" },
+      { label: "Community", to: "/community" },
       { label: "Projects", to: "/projects" },
     ],
     []
@@ -74,7 +74,7 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       await apiFetch("/auth/logout", { method: "POST", credentials: "include" });
-      await refreshUser();
+      await refreshFan();
       setAccountDropdownOpen(false);
     } catch (err) {
       notifyError(err instanceof Error ? err.message : "Failed to log out");
@@ -151,15 +151,15 @@ export default function Navbar() {
                   className="flex items-center gap-2 rounded-full hover:bg-slate-100 p-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
                   aria-label="Account menu"
                 >
-                  {isAuthenticated && user?.profile_photo ? (
+                  {isAuthenticated && fan?.profile_photo ? (
                     <img
-                      src={user.profile_photo}
-                      alt={user.username}
+                      src={fan.profile_photo}
+                      alt={fan.username}
                       className="w-8 h-8 rounded-full object-cover border-2 border-slate-200"
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-400 to-slate-500 flex items-center justify-center text-white text-sm font-bold">
-                      {isAuthenticated && user ? user.username.charAt(0).toUpperCase() : "?"}
+                      {isAuthenticated && fan ? fan.username.charAt(0).toUpperCase() : "?"}
                     </div>
                   )}
                   {isAdmin && (

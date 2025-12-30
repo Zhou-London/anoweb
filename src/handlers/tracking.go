@@ -9,10 +9,10 @@ import (
 )
 
 type TrackingHandler struct {
-	trackingRepo *repositories.UserTrackingRepository
+	trackingRepo *repositories.FanTrackingRepository
 }
 
-func NewTrackingHandler(trackingRepo *repositories.UserTrackingRepository) *TrackingHandler {
+func NewTrackingHandler(trackingRepo *repositories.FanTrackingRepository) *TrackingHandler {
 	return &TrackingHandler{trackingRepo: trackingRepo}
 }
 
@@ -27,20 +27,20 @@ func (h *TrackingHandler) StartTracking(c *gin.Context) {
 		return
 	}
 
-	// Get user ID from context if authenticated
-	var userID *uint
-	if user, exists := c.Get("user"); exists {
-		if u, ok := user.(*models.User); ok {
-			userID = &u.ID
+	// Get fan ID from context if authenticated
+	var fanID *uint
+	if fan, exists := c.Get("user"); exists {
+		if f, ok := fan.(*models.Fan); ok {
+			fanID = &f.ID
 		}
 	}
 
-	if userID == nil {
+	if fanID == nil {
 		c.JSON(http.StatusOK, gin.H{"message": "Guest sessions are not tracked"})
 		return
 	}
 
-	tracking, err := h.trackingRepo.StartTracking(userID, req.SessionID)
+	tracking, err := h.trackingRepo.StartTracking(fanID, req.SessionID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start tracking"})
 		return
@@ -60,22 +60,22 @@ func (h *TrackingHandler) EndTracking(c *gin.Context) {
 		return
 	}
 
-	// Get user ID from context if authenticated
-	var userID *uint
-	if user, exists := c.Get("user"); exists {
-		if u, ok := user.(*models.User); ok {
-			userID = &u.ID
+	// Get fan ID from context if authenticated
+	var fanID *uint
+	if fan, exists := c.Get("user"); exists {
+		if f, ok := fan.(*models.Fan); ok {
+			fanID = &f.ID
 		}
 	}
 
-	if userID == nil {
+	if fanID == nil {
 		// Cleanup any lingering sessions for the guest session ID without tracking it
-		_ = h.trackingRepo.EndTracking(req.SessionID, userID)
+		_ = h.trackingRepo.EndTracking(req.SessionID, fanID)
 		c.JSON(http.StatusOK, gin.H{"message": "Guest sessions are not tracked"})
 		return
 	}
 
-	if err := h.trackingRepo.EndTracking(req.SessionID, userID); err != nil {
+	if err := h.trackingRepo.EndTracking(req.SessionID, fanID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to end tracking"})
 		return
 	}
@@ -94,20 +94,20 @@ func (h *TrackingHandler) UpdateTracking(c *gin.Context) {
 		return
 	}
 
-	// Get user ID from context if authenticated
-	var userID *uint
-	if user, exists := c.Get("user"); exists {
-		if u, ok := user.(*models.User); ok {
-			userID = &u.ID
+	// Get fan ID from context if authenticated
+	var fanID *uint
+	if fan, exists := c.Get("user"); exists {
+		if f, ok := fan.(*models.Fan); ok {
+			fanID = &f.ID
 		}
 	}
 
-	if userID == nil {
+	if fanID == nil {
 		c.JSON(http.StatusOK, gin.H{"message": "Guest sessions are not tracked"})
 		return
 	}
 
-	if err := h.trackingRepo.UpdateActiveSession(req.SessionID, userID); err != nil {
+	if err := h.trackingRepo.UpdateActiveSession(req.SessionID, fanID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update tracking"})
 		return
 	}
@@ -128,20 +128,20 @@ func (h *TrackingHandler) GetTotalHours(c *gin.Context) {
 
 // GetUserTotalHours handles GET /api/tracking/user-hours
 func (h *TrackingHandler) GetUserTotalHours(c *gin.Context) {
-	user, exists := c.Get("user")
+	fan, exists := c.Get("user")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Fan not authenticated"})
 		return
 	}
 
-	u, ok := user.(*models.User)
+	f, ok := fan.(*models.Fan)
 	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user context"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid fan context"})
 		return
 	}
-	uid := u.ID
+	fid := f.ID
 
-	totalHours, err := h.trackingRepo.GetUserTotalHours(uid)
+	totalHours, err := h.trackingRepo.GetFanTotalHours(fid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user hours"})
 		return
@@ -152,19 +152,19 @@ func (h *TrackingHandler) GetUserTotalHours(c *gin.Context) {
 
 // GetAllTrackingRecords handles GET /api/tracking/records
 func (h *TrackingHandler) GetAllTrackingRecords(c *gin.Context) {
-	// Optional: filter by current user if not admin
-	var userID *uint
-	if user, exists := c.Get("user"); exists {
-		if u, ok := user.(*models.User); ok {
-			// Check if user is admin
-			if !u.IsAdmin {
-				// Non-admin users can only see their own records
-				userID = &u.ID
+	// Optional: filter by current fan if not admin
+	var fanID *uint
+	if fan, exists := c.Get("user"); exists {
+		if f, ok := fan.(*models.Fan); ok {
+			// Check if fan is admin
+			if !f.IsAdmin {
+				// Non-admin fans can only see their own records
+				fanID = &f.ID
 			}
 		}
 	}
 
-	records, err := h.trackingRepo.GetAllTrackingRecords(userID)
+	records, err := h.trackingRepo.GetAllTrackingRecords(fanID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get tracking records"})
 		return

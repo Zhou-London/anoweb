@@ -10,7 +10,7 @@ import (
 func registerTrackingRoutes(
 	r *gin.Engine,
 	key string,
-	trackingRepo *repositories.UserTrackingRepository,
+	trackingRepo *repositories.FanTrackingRepository,
 	sessionRepo *repositories.SessionRepository,
 ) {
 	handler := handlers.NewTrackingHandler(trackingRepo)

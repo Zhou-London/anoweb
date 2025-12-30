@@ -11,10 +11,10 @@ func registerMysteryCodeRoutes(
 	r *gin.Engine,
 	key string,
 	mysteryCodeRepo *repositories.MysteryCodeRepository,
-	userRepo *repositories.UserRepository,
+	fanRepo *repositories.FanRepository,
 	sessionRepo *repositories.SessionRepository,
 ) {
-	handler := handlers.NewMysteryCodeHandler(mysteryCodeRepo, userRepo)
+	handler := handlers.NewMysteryCodeHandler(mysteryCodeRepo, fanRepo)
 
 	// User endpoint - verify code (no KeyChecker needed, just auth)
 	mysteryCodeUser := r.Group(prefix + "/mystery-code")

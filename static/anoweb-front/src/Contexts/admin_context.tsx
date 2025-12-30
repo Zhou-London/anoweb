@@ -1,12 +1,12 @@
 import { createContext, useState, useEffect, type ReactNode } from "react";
 import { apiJson } from "../lib/api";
 
-interface UserContextType {
+interface FanContextType {
   isAdmin: boolean;
   setIsAdmin: (value: boolean) => void;
 }
 
-export const UserContext = createContext<UserContextType>({
+export const FanContext = createContext<FanContextType>({
   isAdmin: false,
   setIsAdmin: () => {},
 });
@@ -21,8 +21,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ isAdmin, setIsAdmin }}>
+    <FanContext.Provider value={{ isAdmin, setIsAdmin }}>
       {children}
-    </UserContext.Provider>
+    </FanContext.Provider>
   );
 }

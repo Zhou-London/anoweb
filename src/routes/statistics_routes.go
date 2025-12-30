@@ -10,7 +10,7 @@ import (
 func registerStatisticsRoutes(
 	r *gin.Engine,
 	statsRepo *repositories.StatisticsRepository,
-	trackingRepo *repositories.UserTrackingRepository,
+	trackingRepo *repositories.FanTrackingRepository,
 	sessionRepo *repositories.SessionRepository,
 ) {
 	handler := handlers.NewStatisticsHandler(statsRepo, trackingRepo)

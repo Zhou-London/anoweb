@@ -10,29 +10,29 @@ import (
 
 const inactiveSessionGracePeriod = 2 * time.Minute
 
-type UserTrackingRepository struct {
+type FanTrackingRepository struct {
 	db *gorm.DB
 }
 
-func NewUserTrackingRepository(db *gorm.DB) *UserTrackingRepository {
-	return &UserTrackingRepository{db: db}
+func NewFanTrackingRepository(db *gorm.DB) *FanTrackingRepository {
+	return &FanTrackingRepository{db: db}
 }
 
 // StartTracking creates a new tracking session
-func (r *UserTrackingRepository) StartTracking(userID *uint, sessionID string) (*models.UserTracking, error) {
+func (r *FanTrackingRepository) StartTracking(fanID *uint, sessionID string) (*models.FanTracking, error) {
 	// Do not track guests
-	if userID == nil {
+	if fanID == nil {
 		return nil, nil
 	}
 
-	// End any lingering active sessions for this user before starting a new one
-	// This ensures only one active session exists per user at any time
-	if err := r.finalizeActiveSessionsForUser(userID); err != nil {
+	// End any lingering active sessions for this fan before starting a new one
+	// This ensures only one active session exists per fan at any time
+	if err := r.finalizeActiveSessionsForFan(fanID); err != nil {
 		return nil, err
 	}
 
-	tracking := &models.UserTracking{
-		UserID:    userID,
+	tracking := &models.FanTracking{
+		FanID:     fanID,
 		SessionID: sessionID,
 		StartTime: time.Now(),
 	}
@@ -43,9 +43,9 @@ func (r *UserTrackingRepository) StartTracking(userID *uint, sessionID string) (
 }
 
 // EndTracking updates the tracking session with end time and duration
-func (r *UserTrackingRepository) EndTracking(sessionID string, userID *uint) error {
+func (r *FanTrackingRepository) EndTracking(sessionID string, fanID *uint) error {
 	now := time.Now()
-	var tracking models.UserTracking
+	var tracking models.FanTracking
 
 	// Prioritize the most recent active session for this session ID
 	if err := r.db.Where("session_id = ? AND end_time IS NULL", sessionID).
@@ -64,8 +64,8 @@ func (r *UserTrackingRepository) EndTracking(sessionID string, userID *uint) err
 	}
 
 	// Update user_id if provided and not already set
-	if userID != nil && tracking.UserID == nil {
-		updates["user_id"] = userID
+	if fanID != nil && tracking.FanID == nil {
+		updates["user_id"] = fanID
 	}
 
 	if err := r.db.Model(&tracking).Updates(updates).Error; err != nil {
@@ -76,11 +76,11 @@ func (r *UserTrackingRepository) EndTracking(sessionID string, userID *uint) err
 	return r.finalizeActiveSessions(sessionID)
 }
 
-// GetTotalHours returns total hours spent by all users
-func (r *UserTrackingRepository) GetTotalHours() (float64, error) {
+// GetTotalHours returns total hours spent by all fans
+func (r *FanTrackingRepository) GetTotalHours() (float64, error) {
 	// Sum completed sessions
 	var completedSeconds int64
-	if err := r.db.Model(&models.UserTracking{}).
+	if err := r.db.Model(&models.FanTracking{}).
 		Where("end_time IS NOT NULL").
 		Where("user_id IS NOT NULL").
 		Select("COALESCE(SUM(duration), 0)").
@@ -89,7 +89,7 @@ func (r *UserTrackingRepository) GetTotalHours() (float64, error) {
 	}
 
 	// Add active sessions (calculate duration on-the-fly)
-	var activeSessions []models.UserTracking
+	var activeSessions []models.FanTracking
 	if err := r.db.Where("end_time IS NULL AND user_id IS NOT NULL").Find(&activeSessions).Error; err != nil {
 		return 0, err
 	}
@@ -104,20 +104,20 @@ func (r *UserTrackingRepository) GetTotalHours() (float64, error) {
 	return float64(totalSeconds) / 3600.0, nil
 }
 
-// GetUserTotalHours returns total hours spent by a specific user
-func (r *UserTrackingRepository) GetUserTotalHours(userID uint) (float64, error) {
+// GetFanTotalHours returns total hours spent by a specific fan
+func (r *FanTrackingRepository) GetFanTotalHours(fanID uint) (float64, error) {
 	// Sum completed sessions
 	var completedSeconds int64
-	if err := r.db.Model(&models.UserTracking{}).
-		Where("user_id = ? AND end_time IS NOT NULL", userID).
+	if err := r.db.Model(&models.FanTracking{}).
+		Where("user_id = ? AND end_time IS NOT NULL", fanID).
 		Select("COALESCE(SUM(duration), 0)").
 		Scan(&completedSeconds).Error; err != nil {
 		return 0, err
 	}
 
 	// Add active sessions (calculate duration on-the-fly)
-	var activeSessions []models.UserTracking
-	if err := r.db.Where("user_id = ? AND end_time IS NULL", userID).Find(&activeSessions).Error; err != nil {
+	var activeSessions []models.FanTracking
+	if err := r.db.Where("user_id = ? AND end_time IS NULL", fanID).Find(&activeSessions).Error; err != nil {
 		return 0, err
 	}
 
@@ -131,13 +131,13 @@ func (r *UserTrackingRepository) GetUserTotalHours(userID uint) (float64, error)
 	return float64(totalSeconds) / 3600.0, nil
 }
 
-// GetAllTrackingRecords returns all tracking records with optional user filter
-func (r *UserTrackingRepository) GetAllTrackingRecords(userID *uint) ([]models.UserTracking, error) {
-	var records []models.UserTracking
+// GetAllTrackingRecords returns all tracking records with optional fan filter
+func (r *FanTrackingRepository) GetAllTrackingRecords(fanID *uint) ([]models.FanTracking, error) {
+	var records []models.FanTracking
 	query := r.db.Order("start_time DESC")
 
-	if userID != nil {
-		query = query.Where("user_id = ?", *userID)
+	if fanID != nil {
+		query = query.Where("user_id = ?", *fanID)
 	}
 
 	if err := query.Find(&records).Error; err != nil {
@@ -147,8 +147,8 @@ func (r *UserTrackingRepository) GetAllTrackingRecords(userID *uint) ([]models.U
 }
 
 // GetActiveSession returns the active tracking session for a session ID
-func (r *UserTrackingRepository) GetActiveSession(sessionID string) (*models.UserTracking, error) {
-	var tracking models.UserTracking
+func (r *FanTrackingRepository) GetActiveSession(sessionID string) (*models.FanTracking, error) {
+	var tracking models.FanTracking
 	if err := r.db.Where("session_id = ? AND end_time IS NULL", sessionID).
 		Order("start_time DESC").
 		First(&tracking).Error; err != nil {
@@ -158,14 +158,14 @@ func (r *UserTrackingRepository) GetActiveSession(sessionID string) (*models.Use
 }
 
 // UpdateActiveSession updates the duration of an active session
-func (r *UserTrackingRepository) UpdateActiveSession(sessionID string, userID *uint) error {
+func (r *FanTrackingRepository) UpdateActiveSession(sessionID string, fanID *uint) error {
 	// Do not track guests
-	if userID == nil {
+	if fanID == nil {
 		return nil
 	}
 
-	var tracking models.UserTracking
-	if err := r.db.Where("session_id = ? AND end_time IS NULL AND user_id = ?", sessionID, *userID).
+	var tracking models.FanTracking
+	if err := r.db.Where("session_id = ? AND end_time IS NULL AND user_id = ?", sessionID, *fanID).
 		Order("start_time DESC").
 		First(&tracking).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -180,14 +180,14 @@ func (r *UserTrackingRepository) UpdateActiveSession(sessionID string, userID *u
 	}
 
 	// Update user_id if provided and not already set
-	if userID != nil && tracking.UserID == nil {
-		updates["user_id"] = userID
+	if fanID != nil && tracking.FanID == nil {
+		updates["user_id"] = fanID
 	}
 
 	return r.db.Model(&tracking).Updates(updates).Error
 }
 
-func calculateDuration(tracking *models.UserTracking, now time.Time) int64 {
+func calculateDuration(tracking *models.FanTracking, now time.Time) int64 {
 	duration := tracking.Duration
 	lastUpdate := tracking.UpdatedAt
 	if lastUpdate.IsZero() {
@@ -202,15 +202,15 @@ func calculateDuration(tracking *models.UserTracking, now time.Time) int64 {
 	return duration
 }
 
-// finalizeActiveSessionsForUser ends all active sessions for the given user ID.
-// This ensures only one active session exists per user at any time.
-func (r *UserTrackingRepository) finalizeActiveSessionsForUser(userID *uint) error {
-	if userID == nil {
+// finalizeActiveSessionsForFan ends all active sessions for the given fan ID.
+// This ensures only one active session exists per fan at any time.
+func (r *FanTrackingRepository) finalizeActiveSessionsForFan(fanID *uint) error {
+	if fanID == nil {
 		return nil
 	}
 
-	var activeSessions []models.UserTracking
-	if err := r.db.Where("user_id = ? AND end_time IS NULL", *userID).Find(&activeSessions).Error; err != nil {
+	var activeSessions []models.FanTracking
+	if err := r.db.Where("user_id = ? AND end_time IS NULL", *fanID).Find(&activeSessions).Error; err != nil {
 		return err
 	}
 
@@ -231,8 +231,8 @@ func (r *UserTrackingRepository) finalizeActiveSessionsForUser(userID *uint) err
 
 // finalizeActiveSessions ends any active sessions for the given session ID.
 // This prevents multiple overlapping sessions from persisting indefinitely.
-func (r *UserTrackingRepository) finalizeActiveSessions(sessionID string) error {
-	var activeSessions []models.UserTracking
+func (r *FanTrackingRepository) finalizeActiveSessions(sessionID string) error {
+	var activeSessions []models.FanTracking
 	if err := r.db.Where("session_id = ? AND end_time IS NULL", sessionID).Find(&activeSessions).Error; err != nil {
 		return err
 	}

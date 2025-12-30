@@ -1,20 +1,20 @@
 import { useContext, useState, useRef } from "react";
-import { UserContext } from "../../Contexts/user_context";
+import { FanContext } from "../../Contexts/fan_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { useSuccessNotifier } from "../../Contexts/success_context";
 import { apiFetch } from "../../lib/api";
 import { useNavigate } from "react-router";
 
 export default function AccountPage() {
-  const { user, refreshUser } = useContext(UserContext);
+  const { fan, refreshFan } = useContext(FanContext);
   const notifyError = useErrorNotifier();
   const notifySuccess = useSuccessNotifier();
   const navigate = useNavigate();
-  const [bio, setBio] = useState(user?.bio || "");
+  const [bio, setBio] = useState(fan?.bio || "");
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!user) {
+  if (!fan) {
     navigate("/");
     return null;
   }
@@ -30,7 +30,7 @@ export default function AccountPage() {
         body: JSON.stringify({ bio }),
         credentials: "include",
       });
-      await refreshUser();
+      await refreshFan();
       notifySuccess("Profile updated successfully!");
     } catch (err) {
       notifyError(err instanceof Error ? err.message : "Failed to update profile");
@@ -53,7 +53,7 @@ export default function AccountPage() {
         body: formData,
         credentials: "include",
       });
-      await refreshUser();
+      await refreshFan();
       notifySuccess("Profile photo updated successfully!");
     } catch (err) {
       notifyError(err instanceof Error ? err.message : "Failed to upload photo");
@@ -73,15 +73,15 @@ export default function AccountPage() {
             <label className="block text-sm font-medium text-slate-700 mb-3">Profile Photo</label>
             <div className="flex items-center gap-4">
               <div className="relative">
-                {user.profile_photo ? (
+                {fan.profile_photo ? (
                   <img
-                    src={user.profile_photo}
-                    alt={user.username}
+                    src={fan.profile_photo}
+                    alt={fan.username}
                     className="w-20 h-20 rounded-full object-cover border-2 border-slate-200"
                   />
                 ) : (
                   <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
-                    {user.username.charAt(0).toUpperCase()}
+                    {fan.username.charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
@@ -109,7 +109,7 @@ export default function AccountPage() {
             <label className="block text-sm font-medium text-slate-700 mb-1">Username</label>
             <input
               type="text"
-              value={user.username}
+              value={fan.username}
               disabled
               className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed"
             />
@@ -119,7 +119,7 @@ export default function AccountPage() {
             <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
             <input
               type="email"
-              value={user.email}
+              value={fan.email}
               disabled
               className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed"
             />
@@ -151,7 +151,7 @@ export default function AccountPage() {
           </form>
 
           {/* Mystery Code Section */}
-          {!user.is_admin && (
+          {!fan.is_admin && (
             <div className="mt-6 p-6 bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 rounded-lg">
               <h3 className="text-lg font-semibold text-slate-900 mb-2">Unlock Admin Access</h3>
               <p className="text-sm text-slate-600 mb-4">
@@ -172,7 +172,7 @@ export default function AccountPage() {
                       body: JSON.stringify({ code }),
                       credentials: "include",
                     });
-                    await refreshUser();
+                    await refreshFan();
                     notifySuccess("Admin privileges granted! Please refresh the page.");
                     e.currentTarget.reset();
                   } catch (err) {
@@ -202,7 +202,7 @@ export default function AccountPage() {
           )}
 
           {/* Admin Badge */}
-          {user.is_admin && (
+          {fan.is_admin && (
             <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
