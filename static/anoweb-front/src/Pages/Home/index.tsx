@@ -31,7 +31,7 @@ export default function Home() {
   const [skillName, setSkillName] = useState("");
   const [skillBullets, setSkillBullets] = useState<string[]>([]);
   const [savingSkill, setSavingSkill] = useState(false);
-  const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
+  const [isOverviewExpanded] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -305,14 +305,7 @@ export default function Home() {
               </motion.div>
               {hasMorePosts && (
                 <div>
-                  <button
-                    type="button"
-                    onClick={() => setIsOverviewExpanded((prev) => !prev)}
-                    className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors"
-                  >
-                    {isOverviewExpanded ? "Show Less" : "Show More"}
-                    <span aria-hidden>{isOverviewExpanded ? "▴" : "▾"}</span>
-                  </button>
+                  
                 </div>
               )}
             </div>
