@@ -17,6 +17,9 @@ func registerPostRoutes(r *gin.Engine, key string, postsRepo repositories.PostRe
 		}
 	})
 	{
+		post.GET("", func(ctx *gin.Context) {
+			handlers.GetPosts(ctx, postsRepo)
+		})
 		post.GET("/latest", func(ctx *gin.Context) {
 			handlers.GetPostLatest(ctx, postsRepo)
 		})

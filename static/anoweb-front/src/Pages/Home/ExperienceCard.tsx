@@ -166,7 +166,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
           >
             <div className="hidden sm:absolute sm:left-4 sm:top-4 sm:bottom-4 sm:w-px sm:bg-slate-200/80" aria-hidden />
             <div className="flex flex-col gap-4 sm:grid sm:grid-cols-[auto_1fr_auto] sm:items-start sm:gap-4">
-              <div className="flex items-center gap-3 text-[11px] text-slate-600 sm:flex-col sm:items-center sm:gap-2">
+              <div className="flex items-center gap-3 text-sm text-slate-600 sm:flex-col sm:items-center sm:gap-2">
                 <span className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 border border-blue-100 grid place-items-center font-semibold shadow-sm">
                   {index + 1}
                 </span>
@@ -181,7 +181,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                 <div className="min-w-0 flex-1 space-y-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-base font-semibold text-slate-900 truncate">{exp.company}</p>
-                    {showAdminFeatures && <span className="text-[10px] uppercase tracking-[0.12em] text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">Drag</span>}
+                    {showAdminFeatures && <span className="text-xs font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">Drag</span>}
                   </div>
                   <p className="text-xs text-slate-600 truncate">{exp.position}</p>
                   {!showAdminFeatures && exp.description && <p className="text-sm text-slate-700 leading-snug">{exp.description}</p>}
@@ -191,7 +191,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                         <label className="text-xs font-medium text-slate-700" htmlFor={`description-${exp.id}`}>
                           Description
                         </label>
-                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700 border border-amber-100">
+                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700 border border-amber-100">
                           Admin edit
                         </span>
                       </div>
@@ -229,7 +229,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                         <label className="text-xs font-medium text-slate-700" htmlFor={`bullets-${exp.id}`}>
                           Bullet points
                         </label>
-                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 border border-blue-100">
+                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700 border border-blue-100">
                           Editable
                         </span>
                       </div>
@@ -284,11 +284,11 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                 </div>
               </div>
               <div className="flex flex-col items-start gap-2 text-left sm:items-end sm:text-right sm:min-w-[140px]">
-                <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-600">
+                <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
                   <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
                   <span className="rounded-full bg-slate-50 border border-slate-200 px-2 py-1">{range}</span>
                 </div>
-                {exp.present && <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-1 text-[11px]">Active</span>}
+                {exp.present && <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-1 text-xs">Active</span>}
               </div>
             </div>
           </li>

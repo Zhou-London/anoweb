@@ -2,7 +2,7 @@
 export default function About() {
   return (
     <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-6 md:p-10 space-y-4">
-      <p className="text-xs uppercase tracking-[0.2em] text-slate-500">About</p>
+      <p className="text-sm font-semibold text-slate-700">About</p>
       <h1 className="text-3xl font-semibold text-slate-900">Designing with a Google-inspired lens</h1>
       <p className="text-slate-700 leading-relaxed">
         Clean surfaces, tight grids, and direct data from the Go APIs keep the experience quick and focused.

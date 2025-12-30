@@ -27,7 +27,7 @@ function EducationRow({ edu }: { edu: Education }) {
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold text-slate-900 truncate">{edu.school}</p>
-            <span className="rounded-full bg-slate-50 border border-slate-200 text-[11px] px-2 py-0.5 text-slate-700">
+            <span className="rounded-full bg-slate-50 border border-slate-200 text-xs px-2 py-0.5 text-slate-700">
               {formatRange(edu.start_date, edu.end_date)}
             </span>
           </div>
@@ -61,7 +61,7 @@ export default function EducationCard({ education }: EducationCardProps) {
     <article className="bg-white/90 rounded-3xl shadow-lg border border-slate-200 p-6 md:p-8 h-full flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Education</p>
+          <p className="text-sm font-semibold text-slate-700">Education</p>
           <h2 className="text-xl font-semibold text-slate-900">Academic trail</h2>
         </div>
         <span className="rounded-full bg-indigo-50 text-indigo-700 px-3 py-1 text-xs font-semibold border border-indigo-100">

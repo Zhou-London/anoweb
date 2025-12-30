@@ -19,7 +19,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
   return (
     <article className="relative overflow-hidden rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-6 md:p-8">
-      <div className="flex items-start gap-4 md:gap-6">
+      <div className="flex items-start gap-6">
         <div className="shrink-0">
           <img
             src="/image/profile-img.png"
@@ -27,16 +27,16 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             className="w-36 h-36 md:w-40 md:h-40 rounded-2xl object-cover border border-slate-200 shadow-sm"
           />
         </div>
-        <div className="min-w-0 space-y-3 flex-1">
-          <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Profile</p>
+        <div className="min-w-0 space-y-4 flex-1">
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-slate-700">Profile</p>
             <h2 className="text-2xl font-semibold text-slate-900">{profile.name}</h2>
             <p className="text-slate-700 leading-relaxed whitespace-pre-line">{profile.bio}</p>
           </div>
 
-          <div className="space-y-2 pt-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Contact</p>
-            <div className="flex flex-col gap-2">
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-slate-700">Contact</p>
+            <div className="flex flex-col gap-3">
               {fields.map((field) => {
                 const value = profile[field.key];
                 const href = value ? field.buildHref(value) : undefined;

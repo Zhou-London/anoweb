@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { useProjectData } from "./useProjectData";
 import ProjectList from "./ProjectList";
 import { ProjectDetails } from "./ProjectDetails";
-import { PostCardRail } from "./PostCardRail";
+import { PostsGrid } from "./PostsGrid";
 import CreateProjectModal from "./CreateProjectModal";
 import CreatePostModal from "./CreatePostModal";
 import { UserContext } from "../../Contexts/user_context";
@@ -54,12 +54,9 @@ export default function ProjectPage() {
         <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-r from-[#e8f0fe] via-white to-[#e6f4ea]" aria-hidden />
           <div className="relative p-6 md:p-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Projects</p>
-              <h1 className="text-3xl font-semibold text-slate-900">Workspace</h1>
-              <p className="text-slate-700 mt-1 max-w-3xl">
-                Skim projects and their posts in one place, with a focused reader for the details.
-              </p>
+            <div>
+              <h1 className="text-3xl font-semibold text-slate-900">Projects</h1>
+              <p className="text-slate-700 mt-1">Browse my works.</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 text-xs font-semibold">
@@ -89,11 +86,11 @@ export default function ProjectPage() {
             onSelectProject={setSelectedProjectId}
           />
 
-          <div className="space-y-5">
+          <div className="space-y-6">
             {selectedProject ? (
               <>
                 <ProjectDetails project={selectedProject} onProjectUpdate={refreshProjects} />
-                <PostCardRail
+                <PostsGrid
                   posts={posts}
                   isLoading={isLoadingPosts}
                   onViewPost={handleViewPost}

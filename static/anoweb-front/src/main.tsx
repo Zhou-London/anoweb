@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router";
 import AppRouter from "./App";
 import { UserProvider } from "./Contexts/user_context";
 import { ErrorProvider } from "./Contexts/error_context";
+import { SuccessProvider } from "./Contexts/success_context";
 import { EditModeProvider } from "./Contexts/edit_mode_context";
 import Navbar from "./Components/navbar";
 import GuestPopup from "./Components/guest_popup";
@@ -43,11 +44,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <ErrorProvider>
-        <UserProvider>
-          <EditModeProvider>
-            <App />
-          </EditModeProvider>
-        </UserProvider>
+        <SuccessProvider>
+          <UserProvider>
+            <EditModeProvider>
+              <App />
+            </EditModeProvider>
+          </UserProvider>
+        </SuccessProvider>
       </ErrorProvider>
     </BrowserRouter>
   </React.StrictMode>

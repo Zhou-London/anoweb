@@ -35,6 +35,11 @@ func (h *TrackingHandler) StartTracking(c *gin.Context) {
 		}
 	}
 
+	if userID == nil {
+		c.JSON(http.StatusOK, gin.H{"message": "Guest sessions are not tracked"})
+		return
+	}
+
 	tracking, err := h.trackingRepo.StartTracking(userID, req.SessionID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start tracking"})
@@ -55,7 +60,22 @@ func (h *TrackingHandler) EndTracking(c *gin.Context) {
 		return
 	}
 
-	if err := h.trackingRepo.EndTracking(req.SessionID); err != nil {
+	// Get user ID from context if authenticated
+	var userID *uint
+	if user, exists := c.Get("user"); exists {
+		if u, ok := user.(*models.User); ok {
+			userID = &u.ID
+		}
+	}
+
+	if userID == nil {
+		// Cleanup any lingering sessions for the guest session ID without tracking it
+		_ = h.trackingRepo.EndTracking(req.SessionID, userID)
+		c.JSON(http.StatusOK, gin.H{"message": "Guest sessions are not tracked"})
+		return
+	}
+
+	if err := h.trackingRepo.EndTracking(req.SessionID, userID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to end tracking"})
 		return
 	}
@@ -74,7 +94,20 @@ func (h *TrackingHandler) UpdateTracking(c *gin.Context) {
 		return
 	}
 
-	if err := h.trackingRepo.UpdateActiveSession(req.SessionID); err != nil {
+	// Get user ID from context if authenticated
+	var userID *uint
+	if user, exists := c.Get("user"); exists {
+		if u, ok := user.(*models.User); ok {
+			userID = &u.ID
+		}
+	}
+
+	if userID == nil {
+		c.JSON(http.StatusOK, gin.H{"message": "Guest sessions are not tracked"})
+		return
+	}
+
+	if err := h.trackingRepo.UpdateActiveSession(req.SessionID, userID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update tracking"})
 		return
 	}

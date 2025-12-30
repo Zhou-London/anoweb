@@ -317,7 +317,7 @@ export default function PostWorkspace() {
     <div className="space-y-4">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-1">
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Markdown</p>
+          <p className="text-sm font-semibold text-slate-700">Markdown</p>
           <h1 className="text-2xl font-semibold text-slate-900">{name}</h1>
           {updatedAt && <p className="text-xs text-slate-600">Updated {updatedAt}</p>}
         </div>
@@ -343,7 +343,7 @@ export default function PostWorkspace() {
             {tabButton("preview", "Preview")}
             {showAdminFeatures && tabButton("split", "Split")}
           </div>
-          <div className="flex items-center gap-3 text-[11px] text-slate-600">
+          <div className="flex items-center gap-3 text-sm text-slate-600">
             <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-1 border border-slate-200">{stats.words} words</span>
             <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-1 border border-slate-200">{stats.lines} lines</span>
             <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-1 border border-slate-200">{stats.chars} chars</span>
@@ -377,7 +377,7 @@ export default function PostWorkspace() {
                         <span className="hidden sm:inline">{action.label}</span>
                       </button>
                     ))}
-                    <span className="text-[11px] text-slate-500 ml-auto">Supports GitHub flavored markdown + math.</span>
+                    <span className="text-xs text-slate-600 ml-auto">Supports GitHub flavored markdown + math.</span>
                   </div>
                   <div className="overflow-hidden rounded-b-2xl">
                     <MDEditor
@@ -406,9 +406,6 @@ export default function PostWorkspace() {
 
           {mode !== "write" && (
             <div className="bg-slate-50/60">
-              <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-slate-200">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Preview</p>
-              </div>
               <div className="h-full max-h-[76vh] overflow-auto p-4 scrollbar-clear" ref={previewRef}>
                 <MDEditor.Markdown
                   source={content || "_Nothing to preview yet. Start typing in the editor to see the GitHub-style preview here._"}

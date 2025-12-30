@@ -149,8 +149,8 @@ func (r *StatisticsRepository) GetUserStreak(userID uint) (int, error) {
 
 // UsersOverTimePoint represents a data point for users over time
 type UsersOverTimePoint struct {
-	Hour  time.Time `json:"hour"`
-	Count int64     `json:"count"`
+	Hour  string `json:"hour"`
+	Count int64  `json:"count"`
 }
 
 // GetUsersOverTime returns hourly user counts for the last N hours
@@ -192,8 +192,8 @@ func (r *StatisticsRepository) GetUsersOverTime(hours int) ([]UsersOverTimePoint
 
 // DailyActiveUsersPoint represents daily active users
 type DailyActiveUsersPoint struct {
-	Date  time.Time `json:"date"`
-	Count int64     `json:"count"`
+	Date  string `json:"date"`
+	Count int64  `json:"count"`
 }
 
 // GetDailyActiveUsers returns daily active user counts for the last N days
