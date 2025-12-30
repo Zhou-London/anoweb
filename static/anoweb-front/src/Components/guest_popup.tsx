@@ -119,7 +119,7 @@ export default function GuestPopup({ onOpenAuth }: GuestPopupProps) {
             {/* Benefits */}
             {benefits.length > 0 && (
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 text-left">
-                <p className="text-xs uppercase tracking-[0.2em] text-indigo-600 font-semibold mb-3">
+                <p className="text-sm font-semibold text-indigo-600 mb-3">
                   What you'll get
                 </p>
                 <ul className="space-y-2">

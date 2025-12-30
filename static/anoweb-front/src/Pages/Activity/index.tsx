@@ -349,7 +349,7 @@ export default function Activity() {
           >
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
-                <p className="text-sm uppercase tracking-[0.2em] text-white/70">Today&apos;s Snapshot</p>
+                <p className="text-sm font-semibold text-white/80">Today&apos;s snapshot</p>
                 <h2 className="text-3xl font-bold mt-2">Keep the momentum going</h2>
               </div>
               <motion.div

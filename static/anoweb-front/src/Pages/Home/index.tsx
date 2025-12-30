@@ -224,7 +224,7 @@ export default function Home() {
                 🚀
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Start Tracking</p>
+                <p className="text-sm font-semibold text-slate-700">Start tracking</p>
                 <h2 className="text-2xl font-bold text-slate-900">Sign up to track your time</h2>
                 <p className="text-sm text-slate-700 mt-1">Join the community and see your impact</p>
               </div>
@@ -267,7 +267,7 @@ export default function Home() {
         <div className="relative space-y-4 p-6 md:p-8 lg:p-10">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-600">Overview</p>
+              <p className="text-sm font-semibold text-slate-700">Overview</p>
               <h1 className="text-3xl md:text-4xl font-semibold text-slate-900">Recent posts</h1>
             </div>
             <div className="flex items-center gap-2">
@@ -336,7 +336,7 @@ export default function Home() {
           <div className="relative space-y-6">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-purple-700 font-semibold">Skills</p>
+                <p className="text-sm font-semibold text-purple-700">Skills</p>
                 <h2 className="text-3xl md:text-4xl font-bold text-slate-900">Core Skills</h2>
               </div>
               {showAdminFeatures && (
@@ -389,7 +389,7 @@ export default function Home() {
       <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 p-6 md:p-8">
         <div className="flex items-center justify-between gap-4 mb-6">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Experience</p>
+            <p className="text-sm font-semibold text-slate-700">Experience</p>
             <h2 className="text-2xl font-semibold text-slate-900">Career path</h2>
           </div>
           {showAdminFeatures && (
@@ -407,7 +407,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden />
           <div className="relative h-12 w-12 rounded-2xl bg-blue-600 text-white grid place-items-center text-xl font-semibold shadow-md">↗</div>
           <div className="relative">
-            <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Navigate</p>
+            <p className="text-sm font-semibold text-slate-700">Navigate</p>
             <h3 className="text-xl font-semibold text-slate-900">Projects workspace</h3>
             <p className="text-sm text-slate-700 mt-1">Review projects and posts quickly.</p>
           </div>
@@ -419,7 +419,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden />
           <div className="relative h-12 w-12 rounded-2xl bg-emerald-600 text-white grid place-items-center text-xl font-semibold shadow-md">✉</div>
           <div className="relative">
-            <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Contact</p>
+            <p className="text-sm font-semibold text-slate-700">Contact</p>
             <h3 className="text-xl font-semibold text-slate-900">Get in touch</h3>
             <p className="text-sm text-slate-700 mt-1">Reach out for collaboration.</p>
           </div>

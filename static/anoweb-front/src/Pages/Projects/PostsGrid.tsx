@@ -48,7 +48,7 @@ export function PostsGrid({
     <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-6 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Posts</p>
+          <p className="text-sm font-semibold text-slate-700">Posts</p>
           <h3 className="text-lg font-semibold text-slate-900">Project updates</h3>
         </div>
         {showAdminFeatures && (

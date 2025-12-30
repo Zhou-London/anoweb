@@ -181,7 +181,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                 <div className="min-w-0 flex-1 space-y-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-base font-semibold text-slate-900 truncate">{exp.company}</p>
-                    {showAdminFeatures && <span className="text-[10px] uppercase tracking-[0.12em] text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">Drag</span>}
+                    {showAdminFeatures && <span className="text-xs font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">Drag</span>}
                   </div>
                   <p className="text-xs text-slate-600 truncate">{exp.position}</p>
                   {!showAdminFeatures && exp.description && <p className="text-sm text-slate-700 leading-snug">{exp.description}</p>}

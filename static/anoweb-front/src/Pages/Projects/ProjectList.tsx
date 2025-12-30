@@ -26,7 +26,7 @@ export default function ProjectList({
     <aside className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Projects</p>
+          <p className="text-sm font-semibold text-slate-700">Projects</p>
           <h2 className="text-lg font-semibold text-slate-900">Navigation rail</h2>
         </div>
         {showAdminFeatures && (

@@ -317,7 +317,7 @@ export default function PostWorkspace() {
     <div className="space-y-4">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-1">
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Markdown</p>
+          <p className="text-sm font-semibold text-slate-700">Markdown</p>
           <h1 className="text-2xl font-semibold text-slate-900">{name}</h1>
           {updatedAt && <p className="text-xs text-slate-600">Updated {updatedAt}</p>}
         </div>

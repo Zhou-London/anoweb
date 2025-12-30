@@ -132,7 +132,7 @@ export default function Navbar() {
                 Z
               </span>
               <div className="flex flex-col leading-tight">
-                <span className="text-[13px] uppercase tracking-[0.18em] text-slate-500">Portfolio</span>
+                <span className="text-sm font-semibold text-slate-700">Portfolio</span>
                 <span className="-mt-0.5">zhouzhouzhang.co.uk</span>
               </div>
             </a>

@@ -29,13 +29,13 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         </div>
         <div className="min-w-0 space-y-3 flex-1">
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Profile</p>
+            <p className="text-sm font-semibold text-slate-700">Profile</p>
             <h2 className="text-2xl font-semibold text-slate-900">{profile.name}</h2>
             <p className="text-slate-700 leading-relaxed whitespace-pre-line">{profile.bio}</p>
           </div>
 
           <div className="space-y-2 pt-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Contact</p>
+            <p className="text-sm font-semibold text-slate-700">Contact</p>
             <div className="flex flex-col gap-2">
               {fields.map((field) => {
                 const value = profile[field.key];
