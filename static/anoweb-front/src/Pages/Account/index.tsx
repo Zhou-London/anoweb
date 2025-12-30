@@ -1,9 +1,19 @@
-import { useContext, useState, useRef } from "react";
+import { useContext, useState, useRef, useEffect } from "react";
 import { FanContext } from "../../Contexts/fan_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { useSuccessNotifier } from "../../Contexts/success_context";
-import { apiFetch } from "../../lib/api";
+import { apiFetch, apiJson } from "../../lib/api";
 import { useNavigate } from "react-router";
+
+interface TrackingRecord {
+  id: number;
+  user_id?: number;
+  session_id: string;
+  start_time: string;
+  end_time?: string;
+  duration: number;
+  created_at: string;
+}
 
 export default function AccountPage() {
   const { fan, refreshFan } = useContext(FanContext);
@@ -12,7 +22,22 @@ export default function AccountPage() {
   const navigate = useNavigate();
   const [bio, setBio] = useState(fan?.bio || "");
   const [loading, setLoading] = useState(false);
+  const [records, setRecords] = useState<TrackingRecord[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const fetchRecords = async () => {
+      try {
+        const data = await apiJson<TrackingRecord[]>("/tracking/records", {
+          credentials: "include",
+        });
+        setRecords(data);
+      } catch (err) {
+        console.error("Failed to load tracking records:", err);
+      }
+    };
+    fetchRecords();
+  }, []);
 
   if (!fan) {
     navigate("/");
@@ -60,6 +85,17 @@ export default function AccountPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatDuration = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours}h ${minutes}m ${secs}s`;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString();
   };
 
   return (
@@ -213,6 +249,37 @@ export default function AccountPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Session History */}
+      <div className="mt-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-slate-900 mb-6 flex items-center gap-2">
+          <span>📝</span> Your Session History
+        </h2>
+        {records.length === 0 ? (
+          <p className="text-slate-600 text-center py-8">No session records yet. Keep exploring!</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-200">
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Start Time</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">End Time</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Duration</th>
+                </tr>
+              </thead>
+              <tbody>
+                {records.map((record) => (
+                  <tr key={record.id} className="border-b border-slate-100 hover:bg-slate-50/70">
+                    <td className="py-3 px-4 text-sm text-slate-700">{formatDate(record.start_time)}</td>
+                    <td className="py-3 px-4 text-sm text-slate-700">{record.end_time ? formatDate(record.end_time) : "Active"}</td>
+                    <td className="py-3 px-4 text-sm text-slate-700">{formatDuration(record.duration)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

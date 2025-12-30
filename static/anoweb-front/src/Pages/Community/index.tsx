@@ -130,17 +130,6 @@ export default function Community() {
     fetchData();
   }, [fan, notifyError]);
 
-  const formatDuration = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hours}h ${minutes}m ${secs}s`;
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
-
   const formatHours = (hours: number) => {
     return hours.toFixed(2);
   };
@@ -331,7 +320,6 @@ export default function Community() {
       "hero hero hero hero chart1 chart1"
       "stats stats stats stats chart1 chart1"
       "community community community chart2 chart2 chart2"
-      "history history history history history history"
     `,
   };
 
@@ -448,55 +436,6 @@ export default function Community() {
             whileHover={{ y: -4 }}
           >
             <ChartCard title="Daily Active Users (14 days)" data={dailyActive} xKey="date" color="purple" />
-          </motion.div>
-
-          <motion.div
-            className="rounded-3xl bg-white/85 backdrop-blur-md shadow-xl border border-slate-200/90 p-6 md:p-8"
-            style={{ gridArea: "history" }}
-            variants={itemVariants}
-            initial="hidden"
-            animate="show"
-            whileHover={{ y: -3 }}
-          >
-            <h2 className="text-2xl font-semibold text-slate-900 mb-6 flex items-center gap-2">
-              <span>📝</span> Your Session History
-            </h2>
-            {records.length === 0 ? (
-              <p className="text-slate-600 text-center py-8">No session records yet. Keep exploring!</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-slate-200">
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Start Time</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">End Time</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Duration</th>
-                      {showAdminFeatures && (
-                        <>
-                          <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">User ID</th>
-                          <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Session ID</th>
-                        </>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {records.map((record) => (
-                      <tr key={record.id} className="border-b border-slate-100 hover:bg-slate-50/70">
-                        <td className="py-3 px-4 text-sm text-slate-700">{formatDate(record.start_time)}</td>
-                        <td className="py-3 px-4 text-sm text-slate-700">{record.end_time ? formatDate(record.end_time) : "Active"}</td>
-                        <td className="py-3 px-4 text-sm text-slate-700">{formatDuration(record.duration)}</td>
-                        {showAdminFeatures && (
-                          <>
-                            <td className="py-3 px-4 text-sm text-slate-700">{record.user_id || "Guest"}</td>
-                            <td className="py-3 px-4 text-sm text-slate-600 font-mono text-xs">{record.session_id.substring(0, 8)}...</td>
-                          </>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
           </motion.div>
 
           <motion.div

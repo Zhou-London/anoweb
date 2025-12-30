@@ -21,7 +21,7 @@ func (r *SessionRepository) Create(session *models.Session) error {
 
 func (r *SessionRepository) FindByToken(token string) (*models.Session, error) {
 	var session models.Session
-	err := r.db.Preload("User").Where("token = ? AND expires_at > ?", token, time.Now()).First(&session).Error
+	err := r.db.Preload("Fan").Where("token = ? AND expires_at > ?", token, time.Now()).First(&session).Error
 	if err != nil {
 		return nil, err
 	}
