@@ -2,7 +2,7 @@
 
 import { useContext } from "react";
 import { type Project } from "./types";
-import { UserContext } from "../../Contexts/user_context";
+import { FanContext } from "../../Contexts/fan_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
 
 type ProjectListProps = {
@@ -18,7 +18,7 @@ export default function ProjectList({
   isLoading,
   onSelectProject,
 }: ProjectListProps) {
-  const { isAdmin } = useContext(UserContext);
+  const { isAdmin } = useContext(FanContext);
   const { editMode } = useEditMode();
   const showAdminFeatures = isAdmin && editMode;
 

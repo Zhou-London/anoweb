@@ -14,23 +14,23 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setupUserTestRouter(t *testing.T) *gin.Engine {
+func setupFanTestRouter(t *testing.T) *gin.Engine {
 	t.Helper()
 	gin.SetMode(gin.TestMode)
 	setupTestDatabase(t)
 	
-	userRepo := repositories.NewUserRepository()
+	userRepo := repositories.NewFanRepository()
 	sessionRepo := repositories.NewSessionRepository()
 	
 	r := gin.Default()
-	registerUserRoutes(r, "localhost", "/tmp/test_images", "http://localhost/images/", userRepo, sessionRepo)
+	registerFanRoutes(r, "localhost", "/tmp/test_images", "http://localhost/images/", userRepo, sessionRepo)
 	
 	return r
 }
 
-func TestUserRegistration(t *testing.T) {
+func TestFanRegistration(t *testing.T) {
 	
-	r := setupUserTestRouter(t)
+	r := setupFanTestRouter(t)
 	
 	// Test successful registration
 	t.Run("Successful Registration", func(t *testing.T) {
@@ -48,10 +48,10 @@ func TestUserRegistration(t *testing.T) {
 		r.ServeHTTP(w, req)
 		
 		assert.Equal(t, http.StatusCreated, w.Code)
-		
+
 		var response map[string]interface{}
 		json.Unmarshal(w.Body.Bytes(), &response)
-		assert.Equal(t, "User registered successfully", response["message"])
+		assert.Equal(t, "Fan registered successfully. Please check your email to verify your account.", response["message"])
 	})
 	
 	// Test duplicate username
@@ -73,19 +73,19 @@ func TestUserRegistration(t *testing.T) {
 	})
 }
 
-func TestUserLogin(t *testing.T) {
-	r := setupUserTestRouter(t)
-	userRepo := repositories.NewUserRepository()
+func TestFanLogin(t *testing.T) {
+	r := setupFanTestRouter(t)
+	userRepo := repositories.NewFanRepository()
 	
 	// Create a test user
 	hashedPassword, _ := util.HashPassword("password123")
-	testUser := &models.User{
+	testFan := &models.Fan{
 		Username:     "logintest",
 		Email:        "login@example.com",
 		PasswordHash: hashedPassword,
 		IsAdmin:      false,
 	}
-	userRepo.Create(testUser)
+	userRepo.Create(testFan)
 	
 	// Test successful login
 	t.Run("Successful Login", func(t *testing.T) {
@@ -147,8 +147,8 @@ func TestUserLogin(t *testing.T) {
 	})
 }
 
-func TestUserLogout(t *testing.T) {
-	r := setupUserTestRouter(t)
+func TestFanLogout(t *testing.T) {
+	r := setupFanTestRouter(t)
 	
 	// Test logout
 	t.Run("Logout", func(t *testing.T) {

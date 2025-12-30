@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import { motion } from "framer-motion";
-import { UserContext } from "../../Contexts/user_context";
+import { FanContext } from "../../Contexts/fan_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
 import { apiJson } from "../../lib/api";
@@ -47,8 +47,8 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: defaultEase } },
 };
 
-export default function Activity() {
-  const { user, isAdmin } = useContext(UserContext);
+export default function Community() {
+  const { fan, isAdmin } = useContext(FanContext);
   const { editMode } = useEditMode();
   const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
@@ -58,15 +58,25 @@ export default function Activity() {
   const [userHours, setUserHours] = useState(0);
   const [streak, setStreak] = useState(0);
   const [overallStats, setOverallStats] = useState<OverallStats | null>(null);
-  const [usersOverTime, setUsersOverTime] = useState<TimePoint[]>([]);
+  const [fansOverTime, setFansOverTime] = useState<TimePoint[]>([]);
   const [dailyActive, setDailyActive] = useState<TimePoint[]>([]);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<"login" | "register">("login");
+  const [communityFans, setCommunityFans] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState("registration");
 
   const openAuthModal = (mode: "login" | "register") => {
     setAuthModalMode(mode);
     setAuthModalOpen(true);
   };
+
+  const filteredFans = useMemo(() => {
+    return communityFans.filter((fan) =>
+      fan.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (fan.bio && fan.bio.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  }, [communityFans, searchQuery]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,7 +88,7 @@ export default function Activity() {
         });
         setOverallStats(statsData);
 
-        if (user) {
+        if (fan) {
           const userHoursData = await apiJson<{ total_hours: number }>(`/tracking/user-hours`, {
             credentials: "include",
           });
@@ -93,12 +103,17 @@ export default function Activity() {
             credentials: "include",
           });
           setRecords(recordsData);
+
+          const fansData = await apiJson<any[]>("/user/list", {
+            credentials: "include",
+          });
+          setCommunityFans(fansData);
         }
 
-        const usersOverTimeData = await apiJson<TimePoint[]>("/statistics/users-over-time?hours=48", {
+        const fansOverTimeData = await apiJson<TimePoint[]>("/statistics/users-over-time?hours=48", {
           credentials: "include",
         });
-        setUsersOverTime(usersOverTimeData);
+        setFansOverTime(fansOverTimeData);
 
         const dailyActiveData = await apiJson<TimePoint[]>("/statistics/daily-active?days=14", {
           credentials: "include",
@@ -113,18 +128,7 @@ export default function Activity() {
     };
 
     fetchData();
-  }, [user, notifyError]);
-
-  const formatDuration = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hours}h ${minutes}m ${secs}s`;
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
+  }, [fan, notifyError]);
 
   const formatHours = (hours: number) => {
     return hours.toFixed(2);
@@ -138,7 +142,7 @@ export default function Activity() {
               icon: "👥",
               title: "Total Members",
               value: overallStats.total_users,
-              subtitle: "Registered users",
+              subtitle: "Registered fan?s",
               color: "blue" as const,
             },
             {
@@ -216,7 +220,7 @@ export default function Activity() {
     [overallStats]
   );
 
-  if (!user) {
+  if (!fan) {
     return (
       <motion.div
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8"
@@ -230,8 +234,8 @@ export default function Activity() {
           initial="hidden"
           animate="show"
         >
-          <h1 className="text-4xl font-bold text-slate-900 mb-3">Community Activity</h1>
-          <p className="text-lg text-slate-600 mb-6">Join our community to track your journey and see personalized statistics!</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Join Our Amazing Community! 🌟</h1>
+          <p className="text-lg text-slate-700 mb-6">Become a fan and unlock exclusive features! Track your journey, connect with fellow fans, and be part of something special.</p>
           <div className="flex items-center justify-center gap-4">
             <motion.button
               onClick={() => openAuthModal("login")}
@@ -275,7 +279,7 @@ export default function Activity() {
 
             <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-6" variants={containerVariants} initial="hidden" animate="show">
               <motion.div variants={itemVariants} whileHover={{ y: -4 }}>
-                <ChartCard title="Visitors Over Time (48h)" data={usersOverTime} xKey="hour" color="blue" />
+                <ChartCard title="Visitors Over Time (48h)" data={fansOverTime} xKey="hour" color="blue" />
               </motion.div>
               <motion.div variants={itemVariants} whileHover={{ y: -4 }}>
                 <ChartCard title="Daily Active Users (14 days)" data={dailyActive} xKey="date" color="purple" />
@@ -288,9 +292,9 @@ export default function Activity() {
               initial="hidden"
               animate="show"
             >
-              <h2 className="text-2xl font-bold text-slate-900 mb-3">🚀 Ready to Join the Community?</h2>
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Ready to Become a Fan? ✨</h2>
               <p className="text-slate-700 mb-6 max-w-2xl mx-auto">
-                Create an account to unlock personalized tracking, view your streak, and see detailed statistics about your journey with us!
+                Join thousands of fans in our community! Create your account and start your adventure. It's free, fun, and takes just 30 seconds! 🎉
               </p>
               <motion.button
                 onClick={() => openAuthModal("register")}
@@ -298,7 +302,7 @@ export default function Activity() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Get Started Free
+                Join the Fan Club Now! 🚀
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -316,7 +320,6 @@ export default function Activity() {
       "hero hero hero hero chart1 chart1"
       "stats stats stats stats chart1 chart1"
       "community community community chart2 chart2 chart2"
-      "history history history history history history"
     `,
   };
 
@@ -422,7 +425,7 @@ export default function Activity() {
             animate="show"
             whileHover={{ y: -4 }}
           >
-            <ChartCard title="Visitors Over Time (48h)" data={usersOverTime} xKey="hour" color="blue" />
+            <ChartCard title="Visitors Over Time (48h)" data={fansOverTime} xKey="hour" color="blue" />
           </motion.div>
           <motion.div
             className="md:col-span-3"
@@ -436,51 +439,68 @@ export default function Activity() {
           </motion.div>
 
           <motion.div
-            className="rounded-3xl bg-white/85 backdrop-blur-md shadow-xl border border-slate-200/90 p-6 md:p-8"
-            style={{ gridArea: "history" }}
+            className="rounded-3xl bg-white/85 backdrop-blur-md shadow-xl border border-slate-200/90 p-6 md:p-8 md:col-span-6"
             variants={itemVariants}
             initial="hidden"
             animate="show"
             whileHover={{ y: -3 }}
           >
-            <h2 className="text-2xl font-semibold text-slate-900 mb-6 flex items-center gap-2">
-              <span>📝</span> Your Session History
-            </h2>
-            {records.length === 0 ? (
-              <p className="text-slate-600 text-center py-8">No session records yet. Keep exploring!</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-slate-200">
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Start Time</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">End Time</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Duration</th>
-                      {showAdminFeatures && (
-                        <>
-                          <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">User ID</th>
-                          <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Session ID</th>
-                        </>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {records.map((record) => (
-                      <tr key={record.id} className="border-b border-slate-100 hover:bg-slate-50/70">
-                        <td className="py-3 px-4 text-sm text-slate-700">{formatDate(record.start_time)}</td>
-                        <td className="py-3 px-4 text-sm text-slate-700">{record.end_time ? formatDate(record.end_time) : "Active"}</td>
-                        <td className="py-3 px-4 text-sm text-slate-700">{formatDuration(record.duration)}</td>
-                        {showAdminFeatures && (
-                          <>
-                            <td className="py-3 px-4 text-sm text-slate-700">{record.user_id || "Guest"}</td>
-                            <td className="py-3 px-4 text-sm text-slate-600 font-mono text-xs">{record.session_id.substring(0, 8)}...</td>
-                          </>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-sm font-semibold text-slate-700">Community</p>
+                <h2 className="text-2xl font-semibold text-slate-900">Fellow Fans</h2>
               </div>
+              <div className="flex items-center gap-3">
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="registration">Registration Time</option>
+                </select>
+              </div>
+            </div>
+
+            <input
+              type="search"
+              placeholder="Search fans by name or bio..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredFans.map((fan) => (
+                <motion.div
+                  key={fan.id}
+                  className="rounded-xl bg-white border border-slate-200 p-4 hover:shadow-md transition-shadow"
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="flex items-center gap-3">
+                    {fan.profile_photo ? (
+                      <img src={fan.profile_photo} alt={fan.username} className="w-12 h-12 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-lg font-bold">
+                        {fan.username.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-slate-900 truncate">{fan.username}</h3>
+                      <p className="text-xs text-slate-600">
+                        Joined {new Date(fan.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  {fan.bio && (
+                    <p className="mt-3 text-sm text-slate-700 line-clamp-2">{fan.bio}</p>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+
+            {filteredFans.length === 0 && (
+              <p className="text-slate-600 text-center py-8">No fans found matching your search.</p>
             )}
           </motion.div>
         </div>

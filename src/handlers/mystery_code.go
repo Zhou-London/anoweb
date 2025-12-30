@@ -10,13 +10,13 @@ import (
 
 type MysteryCodeHandler struct {
 	mysteryCodeRepo *repositories.MysteryCodeRepository
-	userRepo        *repositories.UserRepository
+	fanRepo         *repositories.FanRepository
 }
 
-func NewMysteryCodeHandler(mysteryCodeRepo *repositories.MysteryCodeRepository, userRepo *repositories.UserRepository) *MysteryCodeHandler {
+func NewMysteryCodeHandler(mysteryCodeRepo *repositories.MysteryCodeRepository, fanRepo *repositories.FanRepository) *MysteryCodeHandler {
 	return &MysteryCodeHandler{
 		mysteryCodeRepo: mysteryCodeRepo,
-		userRepo:        userRepo,
+		fanRepo:         fanRepo,
 	}
 }
 
@@ -31,28 +31,28 @@ func (h *MysteryCodeHandler) VerifyCode(c *gin.Context) {
 		return
 	}
 
-	// Get user ID from context
-	user, exists := c.Get("user")
+	// Get fan ID from context
+	fan, exists := c.Get("user")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Fan not authenticated"})
 		return
 	}
 
-	u, ok := user.(*models.User)
+	f, ok := fan.(*models.Fan)
 	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user context"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid fan context"})
 		return
 	}
-	uid := u.ID
+	fid := f.ID
 
 	// Verify and use the code
-	if err := h.mysteryCodeRepo.VerifyAndUseCode(req.Code, uid); err != nil {
+	if err := h.mysteryCodeRepo.VerifyAndUseCode(req.Code, fid); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or already used code"})
 		return
 	}
 
-	// Update user to admin
-	if err := h.userRepo.SetAdmin(uid, true); err != nil {
+	// Update fan to admin
+	if err := h.fanRepo.SetAdmin(fid, true); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to grant admin privileges"})
 		return
 	}

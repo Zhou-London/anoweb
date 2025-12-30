@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import AppRouter from "./App";
-import { UserProvider } from "./Contexts/user_context";
+import { FanProvider } from "./Contexts/fan_context";
 import { ErrorProvider } from "./Contexts/error_context";
 import { SuccessProvider } from "./Contexts/success_context";
 import { EditModeProvider } from "./Contexts/edit_mode_context";
@@ -45,11 +45,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <ErrorProvider>
         <SuccessProvider>
-          <UserProvider>
+          <FanProvider>
             <EditModeProvider>
               <App />
             </EditModeProvider>
-          </UserProvider>
+          </FanProvider>
         </SuccessProvider>
       </ErrorProvider>
     </BrowserRouter>

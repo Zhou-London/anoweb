@@ -1,7 +1,7 @@
 // src/components/Home/index.tsx
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { UserContext } from "../../Contexts/user_context";
+import { FanContext } from "../../Contexts/fan_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { useSuccessNotifier } from "../../Contexts/success_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
@@ -15,7 +15,7 @@ import CoreSkillCard from "./CoreSkillCard";
 import type { CoreSkill } from "./types";
 
 export default function Home() {
-  const { user, isAdmin } = useContext(UserContext);
+  const { fan, isAdmin } = useContext(FanContext);
   const { editMode } = useEditMode();
   const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
@@ -30,6 +30,7 @@ export default function Home() {
   const [skillName, setSkillName] = useState("");
   const [skillBullets, setSkillBullets] = useState<string[]>([]);
   const [savingSkill, setSavingSkill] = useState(false);
+  const [newFans, setNewFans] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -40,7 +41,7 @@ export default function Home() {
         });
         setTotalHours(totalData.total_hours);
 
-        if (user) {
+        if (fan) {
           const userHoursData = await apiJson<{ total_hours: number }>("/tracking/user-hours", {
             credentials: "include",
           });
@@ -54,7 +55,24 @@ export default function Home() {
     };
 
     fetchStats();
-  }, [user, notifyError]);
+  }, [fan, notifyError]);
+
+  useEffect(() => {
+    const fetchNewFans = async () => {
+      if (fan) {
+        try {
+          const fans = await apiJson<any[]>("/user/list", {
+            credentials: "include",
+          });
+          // Get the 3 most recent fans
+          setNewFans(fans.slice(0, 3));
+        } catch (err) {
+          console.error("Failed to load new fans:", err);
+        }
+      }
+    };
+    fetchNewFans();
+  }, [fan]);
 
   const handleDragStart = (e: React.DragEvent, skill: CoreSkill) => {
     setDraggedSkill(skill);
@@ -190,12 +208,12 @@ export default function Home() {
               <h2 className="text-3xl font-bold text-slate-900">
                 {loadingStats ? "..." : `${totalHours.toFixed(1)}h`}
               </h2>
-              <p className="text-sm text-slate-700 mt-1">Spent by all users on this web</p>
+              <p className="text-sm text-slate-700 mt-1">Spent by all fan?s on this web</p>
             </div>
           </div>
         </div>
 
-        {user ? (
+        {fan ? (
           <div className="rounded-3xl bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-green-500/10 border border-slate-200 shadow-lg p-6 md:p-8 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5" aria-hidden />
             <div className="relative flex items-center gap-4">
@@ -212,7 +230,7 @@ export default function Home() {
           </div>
         ) : (
           <Link
-            to="/activity"
+            to="/community"
             className="group rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-red-500/10 border border-slate-200 shadow-lg p-6 md:p-8 relative overflow-hidden hover:shadow-xl transition-shadow"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden />
@@ -231,7 +249,7 @@ export default function Home() {
       </div>
 
       {/* Guest Sign-Up Invitation */}
-      {!user && (
+      {!fan && (
         <section className="rounded-3xl bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-fuchsia-500/10 border border-violet-200 shadow-lg p-6 md:p-8 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 to-fuchsia-500/5" aria-hidden />
           <div className="relative flex flex-col md:flex-row items-center gap-6">
@@ -246,7 +264,7 @@ export default function Home() {
                 Join our vibrant community today and gain access to exclusive features, personalized tracking, and so much more. Your journey to greatness starts here!
               </p>
               <Link
-                to="/activity"
+                to="/community"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
               >
                 Sign Up Now
@@ -258,6 +276,77 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* New Fans Section */}
+      <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 p-6 md:p-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-purple-50/50" aria-hidden />
+        <div className="relative">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <span>👋</span> New Fans
+          </h2>
+          {!fan ? (
+            <div className="relative">
+              <div className="blur-sm select-none pointer-events-none">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="bg-white rounded-xl border border-slate-200 p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600" />
+                        <div className="flex-1">
+                          <div className="h-4 bg-slate-300 rounded w-24 mb-1" />
+                          <div className="h-3 bg-slate-200 rounded w-32" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-slate-200">
+                  <p className="text-lg font-semibold text-slate-900 mb-2">Want to see who joined?</p>
+                  <p className="text-sm text-slate-600 mb-4">Sign up to discover new community members!</p>
+                  <Link
+                    to="/community"
+                    className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all"
+                  >
+                    Join Now
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ) : newFans.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {newFans.map((newFan) => (
+                <div key={newFan.id} className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3">
+                    {newFan.profile_photo ? (
+                      <img src={newFan.profile_photo} alt={newFan.username} className="w-12 h-12 rounded-full object-cover border-2 border-slate-200" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-lg font-bold">
+                        {newFan.username.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-slate-900 truncate">{newFan.username}</h3>
+                      <p className="text-xs text-slate-600">
+                        Joined {new Date(newFan.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  {newFan.bio && (
+                    <p className="mt-3 text-sm text-slate-700 line-clamp-2">{newFan.bio}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-600 text-center py-8">No new fans yet. Be the first to join!</p>
+          )}
+        </div>
+      </section>
 
       <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 overflow-hidden relative">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-[#e8f0fe]/60 to-green-100/60" aria-hidden />

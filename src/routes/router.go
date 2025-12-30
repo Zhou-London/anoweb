@@ -19,15 +19,15 @@ func InitRoutes(
 	educationsRepo repositories.EducationRepository,
 	projectsRepo repositories.ProjectRepository,
 	postsRepo repositories.PostRepository,
-	userRepo *repositories.UserRepository,
+	fanRepo *repositories.FanRepository,
 	sessionRepo *repositories.SessionRepository,
-	trackingRepo *repositories.UserTrackingRepository,
+	trackingRepo *repositories.FanTrackingRepository,
 	mysteryCodeRepo *repositories.MysteryCodeRepository,
 	popupRepo *repositories.GuestPopupConfigRepository,
 	statsRepo *repositories.StatisticsRepository,
 	coreSkillRepo repositories.CoreSkillRepository,
 ) {
-	registerUserRoutes(r, domain, imgPath, imgURLPrefix, userRepo, sessionRepo)
+	registerFanRoutes(r, domain, imgPath, imgURLPrefix, fanRepo, sessionRepo)
 	registerAdminRoutes(r, domain, adminPass, key)
 	registerStaticRoutes(r, key, imgPath, imgURLPrefix, sessionRepo)
 	registerHomeRoutes(r, key, sessionRepo)
@@ -37,7 +37,7 @@ func InitRoutes(
 	registerEducationRoutes(r, key, imgPath, imgURLPrefix, educationsRepo, sessionRepo)
 	registerPostRoutes(r, key, postsRepo, sessionRepo)
 	registerTrackingRoutes(r, key, trackingRepo, sessionRepo)
-	registerMysteryCodeRoutes(r, key, mysteryCodeRepo, userRepo, sessionRepo)
+	registerMysteryCodeRoutes(r, key, mysteryCodeRepo, fanRepo, sessionRepo)
 	registerGuestPopupRoutes(r, key, popupRepo, sessionRepo)
 	registerStatisticsRoutes(r, statsRepo, trackingRepo, sessionRepo)
 	registerCoreSkillRoutes(r, key, coreSkillRepo, sessionRepo)

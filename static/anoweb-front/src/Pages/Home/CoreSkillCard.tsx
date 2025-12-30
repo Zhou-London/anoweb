@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { CoreSkill } from "./types";
 import { useEditMode } from "../../Contexts/edit_mode_context";
-import { UserContext } from "../../Contexts/user_context";
+import { FanContext } from "../../Contexts/fan_context";
 
 interface CoreSkillCardProps {
   skill: CoreSkill;
@@ -23,7 +23,7 @@ export default function CoreSkillCard({
 }: CoreSkillCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { editMode } = useEditMode();
-  const { isAdmin } = useContext(UserContext);
+  const { isAdmin } = useContext(FanContext);
   const showAdminFeatures = isAdmin && editMode;
   const bulletPoints = skill.bullet_points || [];
 

@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { UserContext } from "../Contexts/user_context";
+import { FanContext } from "../Contexts/fan_context";
 import { apiJson } from "../lib/api";
 
 interface PopupConfig {
@@ -14,17 +14,17 @@ interface GuestPopupProps {
 }
 
 export default function GuestPopup({ onOpenAuth }: GuestPopupProps) {
-  const { user } = useContext(UserContext);
+  const { fan } = useContext(FanContext);
   const [config, setConfig] = useState<PopupConfig | null>(null);
   const [benefits, setBenefits] = useState<string[]>([]);
   const [isVisible, setIsVisible] = useState(false);
   const [hasShown, setHasShown] = useState(false);
 
   useEffect(() => {
-    // Don't show if user is logged in or popup has already been shown
-    if (user || hasShown) return;
+    // Don't show if fan is logged in or popup has already been shown
+    if (fan || hasShown) return;
 
-    // Check if user has dismissed the popup in this session
+    // Check if fan has dismissed the popup in this session
     const dismissed = sessionStorage.getItem("guest_popup_dismissed");
     if (dismissed) return;
 
@@ -55,7 +55,7 @@ export default function GuestPopup({ onOpenAuth }: GuestPopupProps) {
     };
 
     fetchConfig();
-  }, [user, hasShown]);
+  }, [fan, hasShown]);
 
   const handleClose = () => {
     setIsVisible(false);

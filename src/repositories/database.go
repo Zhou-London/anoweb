@@ -13,6 +13,7 @@ var DB *gorm.DB
 
 // InitDatabase sets up the database connection and auto-migrates models.
 func InitDatabase(usr string, pass string, host string, port string, name string) {
+	// MySQL
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", usr, pass, host, port, name)
 
 	var err error
@@ -22,7 +23,7 @@ func InitDatabase(usr string, pass string, host string, port string, name string
 	}
 
 	if err := DB.AutoMigrate(
-		&models.User{},
+		&models.Fan{},
 		&models.Session{},
 		&models.Profile{},
 		&models.Experience{},
@@ -30,7 +31,7 @@ func InitDatabase(usr string, pass string, host string, port string, name string
 		&models.Project{},
 		&models.Learning{},
 		&models.Post{},
-		&models.UserTracking{},
+		&models.FanTracking{},
 		&models.MysteryCode{},
 		&models.GuestPopupConfig{},
 		&models.CoreSkill{},

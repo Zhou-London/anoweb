@@ -32,6 +32,12 @@ func main() {
 	}
 	repositories.InitDatabase(DBUSER, DBPASS, DBHOST, DBPORT, DBNAME)
 
+	// Mark existing fans as verified (migration)
+	fanRepoForMigration := repositories.NewFanRepository()
+	if err := fanRepoForMigration.MarkExistingFansAsVerified(); err != nil {
+		log.Printf("Warning: Failed to mark existing fans as verified: %v", err)
+	}
+
 	sqlDB, err := repositories.DB.DB()
 	if err != nil {
 		log.Fatal(err)
@@ -43,9 +49,9 @@ func main() {
 	educations_repo := repositories.NewEducationRepository()
 	projects_repo := repositories.NewProjectRepository()
 	posts_repo := repositories.NewPostRepository()
-	user_repo := repositories.NewUserRepository()
+	fan_repo := repositories.NewFanRepository()
 	session_repo := repositories.NewSessionRepository()
-	tracking_repo := repositories.NewUserTrackingRepository(repositories.DB)
+	tracking_repo := repositories.NewFanTrackingRepository(repositories.DB)
 	mystery_code_repo := repositories.NewMysteryCodeRepository(repositories.DB)
 	popup_repo := repositories.NewGuestPopupConfigRepository(repositories.DB)
 	stats_repo := repositories.NewStatisticsRepository(repositories.DB)
@@ -68,7 +74,7 @@ func main() {
 	IMG_PATH := os.Getenv("IMG_PATH")
 	IMG_URL_PREFIX := os.Getenv("IMG_URL_PREFIX")
 
-	routes.InitRoutes(r, DOMAIN, ADMIN_PASS, KEY, IMG_PATH, IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, user_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo)
+	routes.InitRoutes(r, DOMAIN, ADMIN_PASS, KEY, IMG_PATH, IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo)
 
 	r.Run("localhost:" + PORT)
 }

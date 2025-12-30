@@ -6,7 +6,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 import { useErrorNotifier } from "../../Contexts/error_context";
-import { UserContext } from "../../Contexts/user_context";
+import { FanContext } from "../../Contexts/fan_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
 import { apiFetch, apiJson } from "../../lib/api";
 import type { Post } from "../Projects/types";
@@ -55,7 +55,7 @@ function buildDemoPost(id?: string): Post {
 
 export default function PostWorkspace() {
   const { postId } = useParams<{ postId: string }>();
-  const { isAdmin } = useContext(UserContext);
+  const { isAdmin } = useContext(FanContext);
   const { editMode } = useEditMode();
   const showAdminFeatures = isAdmin && editMode;
   const allowMock = Boolean((import.meta as any)?.env?.DEV) && (import.meta as any)?.env?.VITE_ENABLE_DEV_MOCKS !== "false";
@@ -66,7 +66,7 @@ export default function PostWorkspace() {
   const [name, setName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  // Default to "preview" for non-admin users, "split" for admin users
+  // Default to "preview" for non-admin fan?s, "split" for admin fan?s
   const [mode, setMode] = useState<EditorMode>("preview");
   const [error, setError] = useState<string | null>(null);
   const [copiedBlock, setCopiedBlock] = useState<string | null>(null);

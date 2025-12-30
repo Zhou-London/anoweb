@@ -1,20 +1,58 @@
-import { useContext, useState, useRef } from "react";
-import { UserContext } from "../../Contexts/user_context";
+import { useContext, useState, useRef, useEffect } from "react";
+import { FanContext } from "../../Contexts/fan_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { useSuccessNotifier } from "../../Contexts/success_context";
-import { apiFetch } from "../../lib/api";
+import { apiFetch, apiJson } from "../../lib/api";
 import { useNavigate } from "react-router";
 
+interface TrackingRecord {
+  id: number;
+  user_id?: number;
+  session_id: string;
+  start_time: string;
+  end_time?: string;
+  duration: number;
+  created_at: string;
+}
+
 export default function AccountPage() {
-  const { user, refreshUser } = useContext(UserContext);
+  const { fan, refreshFan } = useContext(FanContext);
   const notifyError = useErrorNotifier();
   const notifySuccess = useSuccessNotifier();
   const navigate = useNavigate();
-  const [bio, setBio] = useState(user?.bio || "");
+  const [bio, setBio] = useState(fan?.bio || "");
   const [loading, setLoading] = useState(false);
+  const [records, setRecords] = useState<TrackingRecord[]>([]);
+  const [pageIndex, setPageIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const pageSize = 10;
 
-  if (!user) {
+  useEffect(() => {
+    const fetchRecords = async () => {
+      try {
+        const data = await apiJson<TrackingRecord[]>("/tracking/records", {
+          credentials: "include",
+        });
+        setRecords(data);
+        setPageIndex(0);
+      } catch (err) {
+        console.error("Failed to load tracking records:", err);
+      }
+    };
+    fetchRecords();
+  }, []);
+  useEffect(() => {
+    if (records.length === 0) {
+      if (pageIndex !== 0) setPageIndex(0);
+      return;
+    }
+    const maxIndex = Math.max(0, Math.ceil(records.length / pageSize) - 1);
+    if (pageIndex > maxIndex) {
+      setPageIndex(maxIndex);
+    }
+  }, [pageIndex, records.length]);
+
+  if (!fan) {
     navigate("/");
     return null;
   }
@@ -30,7 +68,7 @@ export default function AccountPage() {
         body: JSON.stringify({ bio }),
         credentials: "include",
       });
-      await refreshUser();
+      await refreshFan();
       notifySuccess("Profile updated successfully!");
     } catch (err) {
       notifyError(err instanceof Error ? err.message : "Failed to update profile");
@@ -53,7 +91,7 @@ export default function AccountPage() {
         body: formData,
         credentials: "include",
       });
-      await refreshUser();
+      await refreshFan();
       notifySuccess("Profile photo updated successfully!");
     } catch (err) {
       notifyError(err instanceof Error ? err.message : "Failed to upload photo");
@@ -61,6 +99,22 @@ export default function AccountPage() {
       setLoading(false);
     }
   };
+
+  const formatDuration = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours}h ${minutes}m ${secs}s`;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString();
+  };
+
+  const totalPages = Math.max(1, Math.ceil(records.length / pageSize));
+  const hasPrevPage = pageIndex > 0;
+  const hasNextPage = pageIndex < totalPages - 1;
+  const pagedRecords = records.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -73,15 +127,15 @@ export default function AccountPage() {
             <label className="block text-sm font-medium text-slate-700 mb-3">Profile Photo</label>
             <div className="flex items-center gap-4">
               <div className="relative">
-                {user.profile_photo ? (
+                {fan.profile_photo ? (
                   <img
-                    src={user.profile_photo}
-                    alt={user.username}
+                    src={fan.profile_photo}
+                    alt={fan.username}
                     className="w-20 h-20 rounded-full object-cover border-2 border-slate-200"
                   />
                 ) : (
                   <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
-                    {user.username.charAt(0).toUpperCase()}
+                    {fan.username.charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
@@ -109,7 +163,7 @@ export default function AccountPage() {
             <label className="block text-sm font-medium text-slate-700 mb-1">Username</label>
             <input
               type="text"
-              value={user.username}
+              value={fan.username}
               disabled
               className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed"
             />
@@ -119,7 +173,7 @@ export default function AccountPage() {
             <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
             <input
               type="email"
-              value={user.email}
+              value={fan.email}
               disabled
               className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed"
             />
@@ -151,7 +205,7 @@ export default function AccountPage() {
           </form>
 
           {/* Mystery Code Section */}
-          {!user.is_admin && (
+          {!fan.is_admin && (
             <div className="mt-6 p-6 bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 rounded-lg">
               <h3 className="text-lg font-semibold text-slate-900 mb-2">Unlock Admin Access</h3>
               <p className="text-sm text-slate-600 mb-4">
@@ -172,7 +226,7 @@ export default function AccountPage() {
                       body: JSON.stringify({ code }),
                       credentials: "include",
                     });
-                    await refreshUser();
+                    await refreshFan();
                     notifySuccess("Admin privileges granted! Please refresh the page.");
                     e.currentTarget.reset();
                   } catch (err) {
@@ -202,7 +256,7 @@ export default function AccountPage() {
           )}
 
           {/* Admin Badge */}
-          {user.is_admin && (
+          {fan.is_admin && (
             <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
@@ -213,6 +267,66 @@ export default function AccountPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Session History */}
+      <div className="mt-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-slate-900 mb-6 flex items-center gap-2">
+          <span>📝</span> Your Session History
+        </h2>
+        {records.length === 0 ? (
+          <p className="text-slate-600 text-center py-8">No session records yet. Keep exploring!</p>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Start Time</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">End Time</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Duration</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pagedRecords.map((record) => (
+                    <tr key={record.id} className="border-b border-slate-100 hover:bg-slate-50/70">
+                      <td className="py-3 px-4 text-sm text-slate-700">{formatDate(record.start_time)}</td>
+                      <td className="py-3 px-4 text-sm text-slate-700">
+                        {record.end_time ? formatDate(record.end_time) : "Active"}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-slate-700">{formatDuration(record.duration)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-4 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setPageIndex((prev) => Math.max(0, prev - 1))}
+                disabled={!hasPrevPage}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                aria-label="Previous page"
+              >
+                <span aria-hidden="true">←</span>
+                Prev
+              </button>
+              <span className="text-sm font-medium text-slate-500">
+                Page {pageIndex + 1} of {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPageIndex((prev) => Math.min(totalPages - 1, prev + 1))}
+                disabled={!hasNextPage}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                aria-label="Next page"
+              >
+                Next
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

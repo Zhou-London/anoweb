@@ -1,7 +1,7 @@
 // src/components/ProjectPage/ProjectDetails.tsx
 
 import { useState, useContext, useEffect } from "react";
-import { UserContext } from "../../Contexts/user_context";
+import { FanContext } from "../../Contexts/fan_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
 import { apiFetch } from "../../lib/api";
 import { type Project } from "./types";
@@ -12,7 +12,7 @@ type ProjectDetailsProps = {
 };
 
 export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps) {
-  const { isAdmin } = useContext(UserContext);
+  const { isAdmin } = useContext(FanContext);
   const { editMode } = useEditMode();
   const showAdminFeatures = isAdmin && editMode;
   const [isEditing, setIsEditing] = useState(false);

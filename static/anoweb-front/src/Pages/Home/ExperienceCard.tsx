@@ -1,5 +1,5 @@
 import { useContext, useMemo, useState } from "react";
-import { UserContext } from "../../Contexts/user_context";
+import { FanContext } from "../../Contexts/fan_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
 import { apiFetch } from "../../lib/api";
@@ -11,7 +11,7 @@ type ExperienceCardProps = {
 };
 
 export default function ExperienceCard({ experience, setExperience }: ExperienceCardProps) {
-  const { isAdmin } = useContext(UserContext);
+  const { isAdmin } = useContext(FanContext);
   const { editMode } = useEditMode();
   const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();

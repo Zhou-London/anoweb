@@ -30,7 +30,7 @@ func setupTestDatabase(t *testing.T) {
 	}
 
 	if err := db.AutoMigrate(
-		&models.User{},
+		&models.Fan{},
 		&models.Session{},
 		&models.Profile{},
 		&models.Experience{},
@@ -38,7 +38,7 @@ func setupTestDatabase(t *testing.T) {
 		&models.Project{},
 		&models.Learning{},
 		&models.Post{},
-		&models.UserTracking{},
+		&models.FanTracking{},
 		&models.MysteryCode{},
 		&models.GuestPopupConfig{},
 		&models.CoreSkill{},
@@ -59,9 +59,9 @@ func setupRouter(t *testing.T) *gin.Engine {
 	educationsRepo := repositories.NewEducationRepository()
 	projectsRepo := repositories.NewProjectRepository()
 	postsRepo := repositories.NewPostRepository()
-	userRepo := repositories.NewUserRepository()
+	fanRepo := repositories.NewFanRepository()
 	sessionRepo := repositories.NewSessionRepository()
-	trackingRepo := repositories.NewUserTrackingRepository(repositories.DB)
+	trackingRepo := repositories.NewFanTrackingRepository(repositories.DB)
 	mysteryCodeRepo := repositories.NewMysteryCodeRepository(repositories.DB)
 	popupRepo := repositories.NewGuestPopupConfigRepository(repositories.DB)
 	statsRepo := repositories.NewStatisticsRepository(repositories.DB)
@@ -69,7 +69,7 @@ func setupRouter(t *testing.T) *gin.Engine {
 
 	r := gin.Default()
 	InitRoutes(r, testDomain, testAdmin, testKey, testImgDir, testImgURL,
-		profileRepo, experiencesRepo, educationsRepo, projectsRepo, postsRepo, userRepo, sessionRepo,
+		profileRepo, experiencesRepo, educationsRepo, projectsRepo, postsRepo, fanRepo, sessionRepo,
 		trackingRepo, mysteryCodeRepo, popupRepo, statsRepo, coreSkillRepo)
 
 	return r
