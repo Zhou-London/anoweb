@@ -32,7 +32,7 @@ Configure systemd
 
 ## API Docs
 
-Swagger UI is served at `/swagger/index.html` and reads the generated OpenAPI spec from `/swagger/doc.json`.
+Swagger UI is served at `/swagger/index.html` (direct to the Go app) and `/api/swagger/index.html` (behind Caddy, since only `/api*` is reverse-proxied).
 
 Regenerate docs after API changes:
 

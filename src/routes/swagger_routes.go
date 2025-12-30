@@ -9,4 +9,6 @@ import (
 
 func registerSwaggerRoutes(r *gin.Engine) {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// Caddy only reverse-proxies `/api*`, so expose Swagger under the API prefix as well.
+	r.GET(prefix+"/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
