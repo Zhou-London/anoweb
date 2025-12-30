@@ -1,12 +1,14 @@
 import { useContext, useState, useRef } from "react";
 import { UserContext } from "../../Contexts/user_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
+import { useSuccessNotifier } from "../../Contexts/success_context";
 import { apiFetch } from "../../lib/api";
 import { useNavigate } from "react-router";
 
 export default function AccountPage() {
   const { user, refreshUser } = useContext(UserContext);
   const notifyError = useErrorNotifier();
+  const notifySuccess = useSuccessNotifier();
   const navigate = useNavigate();
   const [bio, setBio] = useState(user?.bio || "");
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,7 @@ export default function AccountPage() {
         credentials: "include",
       });
       await refreshUser();
-      alert("Profile updated successfully!");
+      notifySuccess("Profile updated successfully!");
     } catch (err) {
       notifyError(err instanceof Error ? err.message : "Failed to update profile");
     } finally {
@@ -52,7 +54,7 @@ export default function AccountPage() {
         credentials: "include",
       });
       await refreshUser();
-      alert("Profile photo updated successfully!");
+      notifySuccess("Profile photo updated successfully!");
     } catch (err) {
       notifyError(err instanceof Error ? err.message : "Failed to upload photo");
     } finally {
@@ -171,7 +173,7 @@ export default function AccountPage() {
                       credentials: "include",
                     });
                     await refreshUser();
-                    alert("Admin privileges granted! Please refresh the page.");
+                    notifySuccess("Admin privileges granted! Please refresh the page.");
                     e.currentTarget.reset();
                   } catch (err) {
                     notifyError(err instanceof Error ? err.message : "Invalid mystery code");

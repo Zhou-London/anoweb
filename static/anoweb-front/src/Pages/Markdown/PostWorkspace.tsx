@@ -343,7 +343,7 @@ export default function PostWorkspace() {
             {tabButton("preview", "Preview")}
             {showAdminFeatures && tabButton("split", "Split")}
           </div>
-          <div className="flex items-center gap-3 text-[11px] text-slate-600">
+          <div className="flex items-center gap-3 text-sm text-slate-600">
             <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-1 border border-slate-200">{stats.words} words</span>
             <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-1 border border-slate-200">{stats.lines} lines</span>
             <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-1 border border-slate-200">{stats.chars} chars</span>
@@ -377,7 +377,7 @@ export default function PostWorkspace() {
                         <span className="hidden sm:inline">{action.label}</span>
                       </button>
                     ))}
-                    <span className="text-[11px] text-slate-500 ml-auto">Supports GitHub flavored markdown + math.</span>
+                    <span className="text-xs text-slate-600 ml-auto">Supports GitHub flavored markdown + math.</span>
                   </div>
                   <div className="overflow-hidden rounded-b-2xl">
                     <MDEditor

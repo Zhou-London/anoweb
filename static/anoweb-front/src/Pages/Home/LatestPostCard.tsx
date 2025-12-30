@@ -71,7 +71,7 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
         </div>
 
         <div className="pt-1.5">
-          <p className="text-[11px] sm:text-xs text-slate-600 inline-flex items-center gap-1">
+          <p className="text-xs sm:text-sm text-slate-600 inline-flex items-center gap-1">
             <span className="inline-block h-2 w-2 rounded-full bg-blue-500" aria-hidden />
             {updatedStr}
           </p>

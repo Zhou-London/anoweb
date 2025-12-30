@@ -27,7 +27,7 @@ function EducationRow({ edu }: { edu: Education }) {
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold text-slate-900 truncate">{edu.school}</p>
-            <span className="rounded-full bg-slate-50 border border-slate-200 text-[11px] px-2 py-0.5 text-slate-700">
+            <span className="rounded-full bg-slate-50 border border-slate-200 text-xs px-2 py-0.5 text-slate-700">
               {formatRange(edu.start_date, edu.end_date)}
             </span>
           </div>

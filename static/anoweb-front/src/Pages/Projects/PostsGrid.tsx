@@ -142,7 +142,7 @@ function PostGridCard({ post, onViewPost, onDeletePost, showAdminFeatures }: Pos
         </div>
 
         <div className="mt-auto pt-3 flex items-center justify-between border-t border-slate-100">
-          <span className="inline-flex items-center gap-1.5 text-[11px] text-slate-600">
+          <span className="inline-flex items-center gap-1.5 text-xs text-slate-600">
             <span className="h-2 w-2 rounded-full bg-blue-500" aria-hidden />
             {formatRelativeDate(post.updated_at)}
           </span>

@@ -30,7 +30,7 @@ export default function ProjectList({
           <h2 className="text-lg font-semibold text-slate-900">Navigation rail</h2>
         </div>
         {showAdminFeatures && (
-          <span className="rounded-full bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 text-[11px] font-semibold">
+          <span className="rounded-full bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 text-xs font-semibold">
             Admin tools
           </span>
         )}

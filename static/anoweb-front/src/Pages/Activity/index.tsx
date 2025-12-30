@@ -514,7 +514,7 @@ function StatCard({ icon, title, value, subtitle, color }: StatCardProps) {
       <div className="text-2xl mb-2">{icon}</div>
       <div className="text-xs font-medium text-slate-600 mb-1">{title}</div>
       <div className="text-2xl font-bold mb-1">{value}</div>
-      <div className="text-[11px] text-slate-500">{subtitle}</div>
+      <div className="text-xs text-slate-600">{subtitle}</div>
     </div>
   );
 }

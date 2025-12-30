@@ -148,7 +148,7 @@ export default function Navbar() {
               <div className="relative" ref={accountDropdownRef}>
                 <button
                   onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
-                  className="flex items-center gap-2 rounded-full hover:bg-slate-100 p-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
+                  className="flex items-center gap-2 rounded-full hover:bg-slate-100 p-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
                   aria-label="Account menu"
                 >
                   {isAuthenticated && user?.profile_photo ? (
@@ -212,7 +212,7 @@ export default function Navbar() {
 
             <div className="flex items-center gap-2 md:hidden">
               {isAdmin && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700">
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Admin
                 </span>
               )}
