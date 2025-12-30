@@ -264,11 +264,11 @@ export default function Navbar() {
                 Home
               </Link>
               <Link
-                to="/activity"
+                to="/community"
                 className="block rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-50"
                 onClick={() => setOpen(false)}
               >
-                Activity
+                Community
               </Link>
               <Link
                 to="/projects"

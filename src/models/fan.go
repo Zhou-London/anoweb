@@ -14,8 +14,8 @@ type Fan struct {
 	Bio               string    `gorm:"type:text" json:"bio"`
 	EmailVerified     bool      `gorm:"default:false" json:"email_verified"`
 	VerificationToken string    `gorm:"type:varchar(255)" json:"-"`
-	OAuthProvider     string    `gorm:"type:varchar(50)" json:"oauth_provider,omitempty"`
-	OAuthID           string    `gorm:"type:varchar(255)" json:"-"`
+	OAuthProvider     string    `gorm:"column:o_auth_provider;type:varchar(50)" json:"oauth_provider,omitempty"`
+	OAuthID           string    `gorm:"column:o_auth_id;type:varchar(255)" json:"-"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`
 }

@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func setupTrackingRepo(t *testing.T) *UserTrackingRepository {
+func setupTrackingRepo(t *testing.T) *FanTrackingRepository {
 	t.Helper()
 
 	dsn := fmt.Sprintf("file:tracking_%d?mode=memory&cache=shared", time.Now().UnixNano())
@@ -20,14 +20,14 @@ func setupTrackingRepo(t *testing.T) *UserTrackingRepository {
 		t.Fatalf("failed to open test database: %v", err)
 	}
 
-	if err := db.AutoMigrate(&models.UserTracking{}); err != nil {
+	if err := db.AutoMigrate(&models.FanTracking{}); err != nil {
 		t.Fatalf("failed to migrate: %v", err)
 	}
 
-	return NewUserTrackingRepository(db)
+	return NewFanTrackingRepository(db)
 }
 
-func forceTimestamps(repo *UserTrackingRepository, tracking *models.UserTracking) {
+func forceTimestamps(repo *FanTrackingRepository, tracking *models.FanTracking) {
 	repo.db.Exec(
 		"UPDATE user_trackings SET created_at = ?, updated_at = ?, start_time = ? WHERE id = ?",
 		tracking.CreatedAt, tracking.UpdatedAt, tracking.StartTime, tracking.ID,
@@ -49,7 +49,7 @@ func TestStartTrackingSkipsGuests(t *testing.T) {
 	}
 
 	var count int64
-	if err := repo.db.Model(&models.UserTracking{}).Count(&count).Error; err != nil {
+	if err := repo.db.Model(&models.FanTracking{}).Count(&count).Error; err != nil {
 		t.Fatalf("failed to count records: %v", err)
 	}
 	if count != 0 {
@@ -62,8 +62,8 @@ func TestStartTrackingFinalizesExistingSessions(t *testing.T) {
 	start := time.Now().Add(-10 * time.Minute)
 
 	userID := uint(1)
-	existing := &models.UserTracking{
-		UserID:    &userID,
+	existing := &models.FanTracking{
+		FanID:     &userID,
 		SessionID: "sess-1",
 		StartTime: start,
 		Duration:  120,
@@ -81,7 +81,7 @@ func TestStartTrackingFinalizesExistingSessions(t *testing.T) {
 	}
 
 	// The existing session should be finalized
-	var finalized models.UserTracking
+	var finalized models.FanTracking
 	if err := repo.db.First(&finalized, existing.ID).Error; err != nil {
 		t.Fatalf("failed to fetch existing session: %v", err)
 	}
@@ -94,7 +94,7 @@ func TestStartTrackingFinalizesExistingSessions(t *testing.T) {
 
 	// A new active session for the user should exist
 	var activeCount int64
-	if err := repo.db.Model(&models.UserTracking{}).
+	if err := repo.db.Model(&models.FanTracking{}).
 		Where("session_id = ? AND end_time IS NULL", "sess-1").
 		Count(&activeCount).Error; err != nil {
 		t.Fatalf("failed to count active sessions: %v", err)
@@ -109,8 +109,8 @@ func TestEndTrackingUsesRecordedDurationAfterInactivity(t *testing.T) {
 	start := time.Now().Add(-10 * time.Minute)
 	userID := uint(1)
 
-	tracking := &models.UserTracking{
-		UserID:    &userID,
+	tracking := &models.FanTracking{
+		FanID:     &userID,
 		SessionID: "sess-2",
 		StartTime: start,
 		Duration:  120,
@@ -127,7 +127,7 @@ func TestEndTrackingUsesRecordedDurationAfterInactivity(t *testing.T) {
 		t.Fatalf("failed to end tracking: %v", err)
 	}
 
-	var ended models.UserTracking
+	var ended models.FanTracking
 	if err := repo.db.First(&ended, tracking.ID).Error; err != nil {
 		t.Fatalf("failed to fetch ended session: %v", err)
 	}
@@ -149,8 +149,8 @@ func TestGetTotalHoursIgnoresGuestsAndStaleGrowth(t *testing.T) {
 	endedStart := now.Add(-2 * time.Hour)
 	endedDuration := int64(120)
 	endedTime := endedStart.Add(time.Duration(endedDuration) * time.Second)
-	ended := &models.UserTracking{
-		UserID:    &userID,
+	ended := &models.FanTracking{
+		FanID:     &userID,
 		SessionID: "ended",
 		StartTime: endedStart,
 		Duration:  endedDuration,
@@ -162,8 +162,8 @@ func TestGetTotalHoursIgnoresGuestsAndStaleGrowth(t *testing.T) {
 	// Active user session that hasn't been updated recently
 	activeStart := now.Add(-30 * time.Minute)
 	activeDuration := int64(60)
-	active := &models.UserTracking{
-		UserID:    &userID,
+	active := &models.FanTracking{
+		FanID:     &userID,
 		SessionID: "active",
 		StartTime: activeStart,
 		Duration:  activeDuration,
@@ -174,7 +174,7 @@ func TestGetTotalHoursIgnoresGuestsAndStaleGrowth(t *testing.T) {
 	// Active guest session that should not contribute
 	guestStart := now.Add(-1 * time.Hour)
 	guestDuration := int64(500)
-	guest := &models.UserTracking{
+	guest := &models.FanTracking{
 		SessionID: "guest",
 		StartTime: guestStart,
 		Duration:  guestDuration,
@@ -195,7 +195,7 @@ func TestGetTotalHoursIgnoresGuestsAndStaleGrowth(t *testing.T) {
 	}
 	forceTimestamps(repo, guest)
 
-	var storedActive models.UserTracking
+	var storedActive models.FanTracking
 	if err := repo.db.Where("session_id = ?", "active").First(&storedActive).Error; err != nil {
 		t.Fatalf("failed to fetch active session: %v", err)
 	}

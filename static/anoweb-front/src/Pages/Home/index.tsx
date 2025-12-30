@@ -212,7 +212,7 @@ export default function Home() {
           </div>
         ) : (
           <Link
-            to="/activity"
+            to="/community"
             className="group rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-red-500/10 border border-slate-200 shadow-lg p-6 md:p-8 relative overflow-hidden hover:shadow-xl transition-shadow"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden />
@@ -246,7 +246,7 @@ export default function Home() {
                 Join our vibrant community today and gain access to exclusive features, personalized tracking, and so much more. Your journey to greatness starts here!
               </p>
               <Link
-                to="/activity"
+                to="/community"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
               >
                 Sign Up Now

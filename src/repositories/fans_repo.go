@@ -67,7 +67,7 @@ func (r *FanRepository) FindByVerificationToken(token string) (*models.Fan, erro
 
 func (r *FanRepository) FindByOAuthID(provider, oauthID string) (*models.Fan, error) {
 	var fan models.Fan
-	err := r.db.Where("oauth_provider = ? AND oauth_id = ?", provider, oauthID).First(&fan).Error
+	err := r.db.Where("o_auth_provider = ? AND o_auth_id = ?", provider, oauthID).First(&fan).Error
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (r *FanRepository) FindByOAuthID(provider, oauthID string) (*models.Fan, er
 }
 
 func (r *FanRepository) MarkExistingFansAsVerified() error {
-	return r.db.Model(&models.Fan{}).Where("email_verified = ?", false).Where("oauth_provider = ? OR oauth_provider IS NULL", "").Update("email_verified", true).Error
+	return r.db.Model(&models.Fan{}).Where("email_verified = ?", false).Where("o_auth_provider = ? OR o_auth_provider IS NULL", "").Update("email_verified", true).Error
 }
 
 func (r *FanRepository) GetAll() ([]*models.Fan, error) {
