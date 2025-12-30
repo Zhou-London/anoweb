@@ -1,6 +1,5 @@
 // src/components/Home/index.tsx
 import { useContext, useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { UserContext } from "../../Contexts/user_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
@@ -31,7 +30,6 @@ export default function Home() {
   const [skillName, setSkillName] = useState("");
   const [skillBullets, setSkillBullets] = useState<string[]>([]);
   const [savingSkill, setSavingSkill] = useState(false);
-  const [isOverviewExpanded] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -176,8 +174,7 @@ export default function Home() {
     }
   };
 
-  const visiblePosts = isOverviewExpanded ? recentPosts : recentPosts.slice(0, 6);
-  const hasMorePosts = recentPosts.length > 6;
+  const visiblePosts = recentPosts.slice(0, 6);
 
   return (
     <div className="space-y-6">
@@ -285,29 +282,15 @@ export default function Home() {
             </div>
           </div>
           {recentPosts.length > 0 ? (
-            <div className="space-y-3">
-              <motion.div layout className="flex flex-col gap-4 md:flex-row md:overflow-x-auto md:pb-2 custom-scrollbar">
-                <AnimatePresence initial={false}>
-                  {visiblePosts.map((post) => (
-                    <motion.div
-                      key={post.id}
-                      layout
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden md:min-w-[320px] md:max-w-[320px] flex-shrink-0"
-                    >
-                      <LatestPostCard post={post} size="default" />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </motion.div>
-              {hasMorePosts && (
-                <div>
-                  
+            <div className="flex flex-col gap-4 md:flex-row md:overflow-x-auto md:pb-2 custom-scrollbar">
+              {visiblePosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="md:min-w-[320px] md:max-w-[320px] flex-shrink-0"
+                >
+                  <LatestPostCard post={post} size="default" />
                 </div>
-              )}
+              ))}
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-white/80 p-6 text-slate-600">
@@ -351,7 +334,7 @@ export default function Home() {
             </div>
 
             {coreSkills.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-start">
                 {coreSkills.map((skill) => (
                   <CoreSkillCard
                     key={skill.id}
