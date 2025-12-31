@@ -40,8 +40,8 @@ import (
     "log"
     "os"
 
-    "anonchihaya.co.uk/src/models"
-    "anonchihaya.co.uk/src/repositories"
+    "anonchihaya.co.uk/internal/mysterycode"
+    "anonchihaya.co.uk/internal/store"
     "github.com/joho/godotenv"
 )
 
@@ -63,14 +63,14 @@ func main() {
     DBPORT := os.Getenv("DBPORT")
     DBNAME := os.Getenv("DBNAME")
 
-    repositories.InitDatabase(DBUSER, DBPASS, DBHOST, DBPORT, DBNAME)
+    store.InitDatabase(DBUSER, DBPASS, DBHOST, DBPORT, DBNAME)
 
-    mysteryCode := &models.MysteryCode{
+    mysteryCode := &mysterycode.MysteryCode{
         Code:   code,
         IsUsed: false,
     }
 
-    if err := repositories.DB.Create(mysteryCode).Error; err != nil {
+    if err := store.DB.Create(mysteryCode).Error; err != nil {
         log.Fatal("Failed to create mystery code:", err)
     }
 
