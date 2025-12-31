@@ -40,3 +40,11 @@ Regenerate docs after API changes:
 $ go install github.com/swaggo/swag/cmd/swag@v1.16.6
 $ swag init -g src/main.go -d ./src -o ./docs
 ```
+
+## AI Coding
+
+Use codex-cli, claude code and Manus. My favourite models by far:
+
+-   GPT 5.2 Medium
+-   Sonnet 4.5
+-   Manus 1.6 Pro
