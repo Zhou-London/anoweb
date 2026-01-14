@@ -78,13 +78,44 @@ export default function ProjectPage() {
           </div>
         </section>
 
+        {/* Mobile Project Selector - horizontal scrollable chips */}
+        <div className="lg:hidden">
+          <div className="rounded-2xl bg-white/90 border border-slate-200 shadow-lg p-4">
+            <p className="text-sm font-semibold text-slate-700 mb-3">Select a project</p>
+            {isLoadingProjects ? (
+              <p className="text-slate-500 text-sm">Loading...</p>
+            ) : projects.length === 0 ? (
+              <p className="text-slate-500 text-sm">No projects yet.</p>
+            ) : (
+              <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 custom-scrollbar">
+                {projects.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => setSelectedProjectId(p.id)}
+                    className={`flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                      p.id === selectedProjectId
+                        ? "bg-blue-600 text-white shadow-md"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    }`}
+                  >
+                    {p.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="grid gap-6 lg:grid-cols-[320px_1fr] items-start">
-          <ProjectList
-            projects={projects}
-            selectedProjectId={selectedProjectId}
-            isLoading={isLoadingProjects}
-            onSelectProject={setSelectedProjectId}
-          />
+          {/* Sidebar - hidden on mobile, visible on lg+ */}
+          <div className="hidden lg:block">
+            <ProjectList
+              projects={projects}
+              selectedProjectId={selectedProjectId}
+              isLoading={isLoadingProjects}
+              onSelectProject={setSelectedProjectId}
+            />
+          </div>
 
           <div className="space-y-6">
             {selectedProject ? (
@@ -100,7 +131,7 @@ export default function ProjectPage() {
               </>
             ) : (
               <div className="rounded-3xl border border-dashed border-slate-300 bg-white/80 shadow-inner p-10 text-center text-slate-500">
-                {isLoadingProjects ? "Loading projects..." : "Select a project from the left to view details."}
+                {isLoadingProjects ? "Loading projects..." : "Select a project above to view details."}
               </div>
             )}
           </div>
