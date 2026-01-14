@@ -41,7 +41,6 @@ func InitRoutes(
 	registerFanRoutes(r, domain, imgPath, imgURLPrefix, fanRepo, sessionRepo)
 	registerAdminRoutes(r, domain, adminPass, key)
 	registerStaticRoutes(r, key, imgPath, imgURLPrefix, sessionRepo)
-	registerHomeRoutes(r, key, sessionRepo)
 	registerProfileRoutes(r, key, imgPath, imgURLPrefix, profileRepo, sessionRepo)
 	registerExperienceRoutes(r, key, imgPath, imgURLPrefix, experiencesRepo, sessionRepo)
 	registerProjectRoutes(r, key, projectsRepo, sessionRepo)
