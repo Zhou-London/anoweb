@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"anonchihaya.co.uk/internal/auth"
+	"anonchihaya.co.uk/internal/config"
 	"anonchihaya.co.uk/internal/coreskill"
 	"anonchihaya.co.uk/internal/education"
 	"anonchihaya.co.uk/internal/experience"
@@ -34,18 +34,12 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	// * DB
-	PORT := os.Getenv("PORT")
-	DBUSER := os.Getenv("DBUSER")
-	DBPASS := os.Getenv("DBPASS")
-	DBHOST := os.Getenv("DBHOST")
-	DBPORT := os.Getenv("DBPORT")
-	DBNAME := os.Getenv("DBNAME")
+	CONFIG := config.Load()
 
-	if PORT == "" || DBUSER == "" || DBPASS == "" || DBHOST == "" || DBPORT == "" || DBNAME == "" {
+	if CONFIG.SERVER_PORT == "" || CONFIG.DBUSER == "" || CONFIG.DBPASS == "" || CONFIG.DBHOST == "" || CONFIG.DBPORT == "" || CONFIG.DBNAME == "" {
 		log.Fatal("Error configuring database from .env file")
 	}
-	store.InitDatabase(DBUSER, DBPASS, DBHOST, DBPORT, DBNAME)
+	store.InitDatabase(CONFIG.DBUSER, CONFIG.DBPASS, CONFIG.DBHOST, CONFIG.DBPORT, CONFIG.DBNAME)
 	if err := store.DB.AutoMigrate(
 		&auth.Fan{},
 		&auth.Session{},
@@ -88,19 +82,20 @@ func main() {
 	stats_repo := statistics.NewStatisticsRepository(store.DB)
 	core_skill_repo := coreskill.NewCoreSkillRepository()
 
-	DOMAIN := os.Getenv("DOMAIN")
-	if DOMAIN == "" {
+	if CONFIG.DOMAIN == "" {
 		log.Fatal("Error configuring domain from .env file")
 	}
-	KEY := os.Getenv("KEY")
-	ADMIN_PASS := os.Getenv("ADMIN_PASS")
-	if KEY == "" || ADMIN_PASS == "" {
-		log.Fatal("Error configuring key from .env file")
+	if CONFIG.ADMIN_PASS == "" {
+		log.Fatal("Error configuring admin password from .env file")
 	}
-	IMG_PATH := os.Getenv("IMG_PATH")
-	IMG_URL_PREFIX := os.Getenv("IMG_URL_PREFIX")
+	if CONFIG.IMG_PATH == "" {
+		log.Fatal("Error configuring image path from .env file")
+	}
+	if CONFIG.IMG_URL_PREFIX == "" {
+		log.Fatal("Error configuring image url prefix from .env file")
+	}
 
-	routes.InitRoutes(r, DOMAIN, ADMIN_PASS, KEY, IMG_PATH, IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo)
+	routes.InitRoutes(r, CONFIG.DOMAIN, CONFIG.ADMIN_PASS, "", CONFIG.IMG_PATH, CONFIG.IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo)
 
-	r.Run("localhost:" + PORT)
+	r.Run("localhost:" + CONFIG.SERVER_PORT)
 }

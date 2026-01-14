@@ -5,6 +5,7 @@ import "os"
 type Config struct {
 	SERVER_PORT string
 	DOMAIN      string
+	ADMIN_PASS  string
 
 	DBUSER string
 	DBPASS string
@@ -27,6 +28,7 @@ func Load() Config {
 		return Config{
 			SERVER_PORT:          os.Getenv("PORT"),
 			DOMAIN:               os.Getenv("DOMAIN"),
+			ADMIN_PASS:           os.Getenv("ADMIN_PASS"),
 			DBUSER:               os.Getenv("DBUSER"),
 			DBPASS:               os.Getenv("DBPASS"),
 			DBHOST:               os.Getenv("DBHOST"),
@@ -44,11 +46,12 @@ func Load() Config {
 	return Config{
 		SERVER_PORT:          os.Getenv("PORT"),
 		DOMAIN:               os.Getenv("DOMAIN"),
+		ADMIN_PASS:           os.Getenv("ADMIN_PASS"),
 		DBUSER:               os.Getenv("DBUSER"),
 		DBPASS:               os.Getenv("DBPASS"),
 		DBHOST:               os.Getenv("DBHOST"),
 		DBPORT:               os.Getenv("DBPORT"),
-		DBNAME:               os.Getenv("DBNAME"),
+		DBNAME:               os.Getenv("DBNAME_TEST"),
 		IMG_PATH:             os.Getenv("IMG_PATH"),
 		IMG_URL_PREFIX:       os.Getenv("IMG_URL_PREFIX"),
 		FRONTEND_URL:         os.Getenv("FRONTEND_URL"),
