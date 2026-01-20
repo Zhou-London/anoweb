@@ -8,7 +8,7 @@ anonchihaya.co.uk, www.anonchihaya.co.uk, zhouzhouzhang.co.uk, www.zhouzhouzhang
 
     @images path /image/*
     handle @images {
-        root * /mnt/disks/nvme2/www
+        root * /var/www/anoweb
         file_server
     }
 
