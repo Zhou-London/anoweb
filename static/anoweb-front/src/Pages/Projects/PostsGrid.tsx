@@ -46,16 +46,16 @@ export function PostsGrid({
   }, [posts]);
 
   return (
-    <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-6 md:p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
+    <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-4 sm:p-6 md:p-8">
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="min-w-0">
           <p className="text-sm font-semibold text-slate-700">Posts</p>
-          <h3 className="text-lg font-semibold text-slate-900">Project updates</h3>
+          <h3 className="text-lg font-semibold text-slate-900 truncate">Project updates</h3>
         </div>
         {showAdminFeatures && (
           <button
             onClick={onOpenCreateModal}
-            className="rounded-full bg-blue-600 text-white px-3 py-1.5 text-xs font-semibold shadow-sm hover:bg-blue-700 transition-colors"
+            className="flex-shrink-0 rounded-full bg-blue-600 text-white px-3 py-1.5 text-xs font-semibold shadow-sm hover:bg-blue-700 transition-colors"
           >
             + New post
           </button>
@@ -70,7 +70,7 @@ export function PostsGrid({
         </div>
       ) : (
         <motion.div
-          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+          className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3"
           variants={containerVariants}
           initial="hidden"
           animate="show"
