@@ -5,7 +5,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/smtp"
-	"os"
+
+	"anonchihaya.co.uk/internal/config"
 )
 
 // GenerateVerificationToken generates a random verification token
@@ -17,14 +18,10 @@ func GenerateVerificationToken() string {
 
 // SendVerificationEmail sends an email verification link
 func SendVerificationEmail(toEmail, token, frontendURL string) error {
-	smtpHost := os.Getenv("SMTP_HOST")
-	smtpPort := os.Getenv("SMTP_PORT")
-	smtpUser := os.Getenv("SMTP_USER")
-	smtpPass := os.Getenv("SMTP_PASS")
-	fromEmail := os.Getenv("SMTP_FROM")
+	emailConfig := config.LoadEmailConfig()
 
 	// Skip sending email if SMTP not configured (development mode)
-	if smtpHost == "" || smtpPort == "" {
+	if emailConfig.SMTPHost == "" || emailConfig.SMTPPort == "" {
 		fmt.Printf("SMTP not configured, verification link: %s/verify-email?token=%s\n", frontendURL, token)
 		return nil
 	}
@@ -47,12 +44,12 @@ Best regards,
 The Team
 `, verificationLink)
 
-	message := []byte(fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s", fromEmail, toEmail, subject, body))
+	message := []byte(fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s", emailConfig.FromEmail, toEmail, subject, body))
 
-	auth := smtp.PlainAuth("", smtpUser, smtpPass, smtpHost)
-	addr := fmt.Sprintf("%s:%s", smtpHost, smtpPort)
+	auth := smtp.PlainAuth("", emailConfig.SMTPUser, emailConfig.SMTPPass, emailConfig.SMTPHost)
+	addr := fmt.Sprintf("%s:%s", emailConfig.SMTPHost, emailConfig.SMTPPort)
 
-	err := smtp.SendMail(addr, auth, fromEmail, []string{toEmail}, message)
+	err := smtp.SendMail(addr, auth, emailConfig.FromEmail, []string{toEmail}, message)
 	if err != nil {
 		// In development, just log and continue
 		fmt.Printf("Failed to send email (continuing anyway): %v\n", err)
