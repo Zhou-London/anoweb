@@ -301,7 +301,7 @@ func (h *FanHandler) UploadProfilePhoto(c *gin.Context, imgPath, imgURLPrefix st
 
 	// Generate unique filename
 	timestamp := time.Now().UnixMilli()
-	filename := "/profile-" + strconv.FormatInt(timestamp, 10) + "-" + file.Filename
+	filename := "/profile-img-" + strconv.FormatInt(timestamp, 10) + "-" + file.Filename
 
 	// Save file
 	if err := c.SaveUploadedFile(file, imgPath+filename); err != nil {
