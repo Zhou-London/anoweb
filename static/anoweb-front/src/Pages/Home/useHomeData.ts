@@ -29,5 +29,5 @@ export function useHomeData() {
     apiJson<CoreSkill[]>("/core-skill").then(setCoreSkills).catch(() => setCoreSkills([]));
   }, []);
 
-  return { profile, education, experience, setExperience, recentPosts, coreSkills, setCoreSkills };
+  return { profile, education, setEducation, experience, setExperience, recentPosts, coreSkills, setCoreSkills };
 }

@@ -20,7 +20,7 @@ export default function Home() {
   const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
   const notifySuccess = useSuccessNotifier();
-  const { profile, education, experience, setExperience, recentPosts, coreSkills, setCoreSkills } = useHomeData();
+  const { profile, education, setEducation, experience, setExperience, recentPosts, coreSkills, setCoreSkills } = useHomeData();
   const [totalHours, setTotalHours] = useState(0);
   const [userHours, setUserHours] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -391,7 +391,7 @@ export default function Home() {
 
       <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-start">
         <ProfileCard profile={profile} />
-        <EducationCard education={education} />
+        <EducationCard education={education} setEducation={setEducation} />
       </section>
 
       {/* Core Skills Section */}
