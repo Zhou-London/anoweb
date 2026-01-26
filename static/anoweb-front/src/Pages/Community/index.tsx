@@ -142,7 +142,7 @@ export default function Community() {
               icon: "👥",
               title: "Total Members",
               value: overallStats.total_users,
-              subtitle: "Registered fan?s",
+              subtitle: "Registered fans",
               color: "blue" as const,
             },
             {

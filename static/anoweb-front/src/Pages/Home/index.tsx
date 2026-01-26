@@ -208,7 +208,7 @@ export default function Home() {
               <h2 className="text-3xl font-bold text-slate-900">
                 {loadingStats ? "..." : `${totalHours.toFixed(1)}h`}
               </h2>
-              <p className="text-sm text-slate-700 mt-1">Spent by all fan?s on this web</p>
+              <p className="text-sm text-slate-700 mt-1">Spent by all fans on this web</p>
             </div>
           </div>
         </div>

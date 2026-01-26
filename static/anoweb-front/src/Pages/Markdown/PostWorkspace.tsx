@@ -66,7 +66,7 @@ export default function PostWorkspace() {
   const [name, setName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  // Default to "preview" for non-admin fan?s, "split" for admin fan?s
+  // Default to "preview" for non-admin fans, "split" for admin fans
   const [mode, setMode] = useState<EditorMode>("preview");
   const [error, setError] = useState<string | null>(null);
   const [copiedBlock, setCopiedBlock] = useState<string | null>(null);
