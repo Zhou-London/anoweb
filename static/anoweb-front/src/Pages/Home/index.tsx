@@ -478,7 +478,7 @@ export default function Home() {
           </div>
         </Link>
         <a
-          href="mailto:zhouzhouzhang@gmail.com"
+          href={profile?.email ? `mailto:${profile.email}` : "#"}
           className="group relative overflow-hidden rounded-3xl bg-white shadow-lg border border-slate-200/80 p-6 md:p-8 flex items-center gap-6"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden />

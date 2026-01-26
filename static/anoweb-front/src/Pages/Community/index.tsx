@@ -3,7 +3,6 @@ import type { CSSProperties } from "react";
 import { motion } from "framer-motion";
 import { FanContext } from "../../Contexts/fan_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
-import { useEditMode } from "../../Contexts/edit_mode_context";
 import { apiJson } from "../../lib/api";
 import AuthModal from "../../Components/auth_modal";
 
@@ -48,9 +47,7 @@ const itemVariants = {
 };
 
 export default function Community() {
-  const { fan, isAdmin } = useContext(FanContext);
-  const { editMode } = useEditMode();
-  const showAdminFeatures = isAdmin && editMode;
+  const { fan } = useContext(FanContext);
   const notifyError = useErrorNotifier();
 
   const [records, setRecords] = useState<TrackingRecord[]>([]);
@@ -331,8 +328,7 @@ export default function Community() {
       transition={{ duration: 0.25, ease: defaultEase }}
     >
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-slate-900 mb-2">{showAdminFeatures ? "Community Dashboard" : "Your Activity"}</h1>
-        {showAdminFeatures && <p className="text-lg text-slate-600">Complete overview of community engagement and statistics</p>}
+        <h1 className="text-4xl font-bold text-slate-900 mb-2">Community Dashboard</h1>
       </div>
 
       {loading ? (
