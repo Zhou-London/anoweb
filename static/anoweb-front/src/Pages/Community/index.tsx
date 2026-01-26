@@ -265,6 +265,8 @@ export default function Community() {
           variants={itemVariants}
           initial="hidden"
           animate="show"
+          whileHover={{ y: -4 }}
+          transition={{ duration: 0.2, ease: defaultEase }}
         >
           <div className="flex items-center justify-between gap-4 mb-5">
             <h2 className="text-xl font-bold text-slate-900">Fellow Fans</h2>
@@ -363,6 +365,8 @@ export default function Community() {
         variants={itemVariants}
         initial="hidden"
         animate="show"
+        whileHover={{ y: -4 }}
+        transition={{ duration: 0.2, ease: defaultEase }}
       >
         <div className="flex items-center justify-between gap-4 mb-5">
           <h2 className="text-xl font-bold text-slate-900">Fellow Fans</h2>
@@ -406,11 +410,19 @@ export default function Community() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
           {filteredFans.map((fanItem) => (
-            <div
+            <motion.div
               key={fanItem.id}
-              className="flex items-center gap-3 rounded-2xl bg-slate-50 border border-slate-100 p-3 hover:bg-slate-100 transition-colors"
+              className="flex items-center gap-3 rounded-2xl bg-slate-50 border border-slate-100 p-3 hover:bg-slate-100 hover:border-slate-200 transition-colors cursor-pointer"
+              variants={itemVariants}
+              whileHover={{ y: -2, scale: 1.01 }}
+              transition={{ duration: 0.15, ease: defaultEase }}
             >
               {fanItem.profile_photo ? (
                 <img src={fanItem.profile_photo} alt={fanItem.username} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
@@ -425,9 +437,9 @@ export default function Community() {
                   {fanItem.bio || `Joined ${new Date(fanItem.created_at).toLocaleDateString()}`}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {filteredFans.length === 0 && (
           <p className="text-slate-500 text-center py-6 text-sm">No fans found matching your search.</p>
