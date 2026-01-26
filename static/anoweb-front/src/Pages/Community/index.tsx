@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { FanContext } from "../../Contexts/fan_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { apiJson } from "../../lib/api";
@@ -61,7 +61,7 @@ export default function Community() {
   const [authModalMode, setAuthModalMode] = useState<"login" | "register">("login");
   const [communityFans, setCommunityFans] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("registration");
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const openAuthModal = (mode: "login" | "register") => {
     setAuthModalMode(mode);
@@ -259,6 +259,55 @@ export default function Community() {
           </div>
         </motion.div>
 
+        {/* Fellow Fans Preview for Guests */}
+        <motion.div
+          className="rounded-3xl bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-lg p-6 relative overflow-hidden"
+          variants={itemVariants}
+          initial="hidden"
+          animate="show"
+        >
+          <div className="flex items-center justify-between gap-4 mb-5">
+            <h2 className="text-xl font-bold text-slate-900">Fellow Fans</h2>
+            <div className="p-2 rounded-xl bg-slate-100 text-slate-400">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+          <div className="relative">
+            <div className="blur-sm select-none pointer-events-none">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                  <div key={i} className="flex items-center gap-3 rounded-2xl bg-slate-50 border border-slate-100 p-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="h-3.5 bg-slate-200 rounded w-20 mb-1.5" />
+                      <div className="h-3 bg-slate-100 rounded w-28" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center bg-white/95 backdrop-blur-sm rounded-2xl px-8 py-6 shadow-lg border border-slate-200">
+                <p className="text-base font-semibold text-slate-900 mb-1">Want to see who's here?</p>
+                <p className="text-sm text-slate-600 mb-4">Sign up to connect with fellow fans!</p>
+                <motion.button
+                  onClick={() => openAuthModal("register")}
+                  className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full text-sm font-semibold shadow-md"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Join Now
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </motion.button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -281,29 +330,6 @@ export default function Community() {
               <motion.div variants={itemVariants} whileHover={{ y: -4 }}>
                 <ChartCard title="Daily Active Users (14 days)" data={dailyActive} xKey="date" color="purple" />
               </motion.div>
-            </motion.div>
-
-            <motion.div
-              className="rounded-3xl border border-white/60 bg-white/70 backdrop-blur-md p-8 text-center shadow-xl"
-              variants={itemVariants}
-              initial="hidden"
-              animate="show"
-            >
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">Ready to Become a Fan? ✨</h2>
-              <p className="text-slate-700 mb-6 max-w-2xl mx-auto">
-                Join thousands of fans in our community! Create your account and start your adventure. It's free, fun, and takes just 30 seconds! 🎉
-              </p>
-              <motion.button
-                onClick={() => openAuthModal("register")}
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white shadow-lg"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Join the Fan Club Now! 🚀
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </motion.button>
             </motion.div>
           </>
         )}
@@ -330,6 +356,83 @@ export default function Community() {
       <div className="text-center">
         <h1 className="text-4xl font-bold text-slate-900 mb-2">Community Dashboard</h1>
       </div>
+
+      {/* Fellow Fans */}
+      <motion.div
+        className="rounded-3xl bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-lg p-6"
+        variants={itemVariants}
+        initial="hidden"
+        animate="show"
+      >
+        <div className="flex items-center justify-between gap-4 mb-5">
+          <h2 className="text-xl font-bold text-slate-900">Fellow Fans</h2>
+          <div className="flex items-center gap-2">
+            <AnimatePresence>
+              {searchOpen && (
+                <motion.input
+                  type="search"
+                  placeholder="Search fans..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-48 sm:w-64 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  initial={{ width: 0, opacity: 0, paddingLeft: 0, paddingRight: 0 }}
+                  animate={{ width: "auto", opacity: 1, paddingLeft: 16, paddingRight: 16 }}
+                  exit={{ width: 0, opacity: 0, paddingLeft: 0, paddingRight: 0 }}
+                  transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  autoFocus
+                />
+              )}
+            </AnimatePresence>
+            <motion.button
+              onClick={() => {
+                setSearchOpen(!searchOpen);
+                if (searchOpen) setSearchQuery("");
+              }}
+              className={`p-2 rounded-xl transition-colors ${searchOpen ? "bg-slate-200 text-slate-700" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label={searchOpen ? "Close search" : "Open search"}
+            >
+              {searchOpen ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              )}
+            </motion.button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          {filteredFans.map((fanItem) => (
+            <div
+              key={fanItem.id}
+              className="flex items-center gap-3 rounded-2xl bg-slate-50 border border-slate-100 p-3 hover:bg-slate-100 transition-colors"
+            >
+              {fanItem.profile_photo ? (
+                <img src={fanItem.profile_photo} alt={fanItem.username} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                  {fanItem.username.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-slate-900 truncate text-sm">{fanItem.username}</h3>
+                <p className="text-xs text-slate-500 truncate">
+                  {fanItem.bio || `Joined ${new Date(fanItem.created_at).toLocaleDateString()}`}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredFans.length === 0 && (
+          <p className="text-slate-500 text-center py-6 text-sm">No fans found matching your search.</p>
+        )}
+      </motion.div>
 
       {loading ? (
         <div className="text-center py-12">
@@ -432,72 +535,6 @@ export default function Community() {
             whileHover={{ y: -4 }}
           >
             <ChartCard title="Daily Active Users (14 days)" data={dailyActive} xKey="date" color="purple" />
-          </motion.div>
-
-          <motion.div
-            className="rounded-3xl bg-white/85 backdrop-blur-md shadow-xl border border-slate-200/90 p-6 md:p-8 md:col-span-6"
-            variants={itemVariants}
-            initial="hidden"
-            animate="show"
-            whileHover={{ y: -3 }}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <p className="text-sm font-semibold text-slate-700">Community</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Fellow Fans</h2>
-              </div>
-              <div className="flex items-center gap-3">
-                <select
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value)}
-                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="registration">Registration Time</option>
-                </select>
-              </div>
-            </div>
-
-            <input
-              type="search"
-              placeholder="Search fans by name or bio..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredFans.map((fan) => (
-                <motion.div
-                  key={fan.id}
-                  className="rounded-xl bg-white border border-slate-200 p-4 hover:shadow-md transition-shadow"
-                  whileHover={{ y: -2 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="flex items-center gap-3">
-                    {fan.profile_photo ? (
-                      <img src={fan.profile_photo} alt={fan.username} className="w-12 h-12 rounded-full object-cover" />
-                    ) : (
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-lg font-bold">
-                        {fan.username.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-slate-900 truncate">{fan.username}</h3>
-                      <p className="text-xs text-slate-600">
-                        Joined {new Date(fan.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                  {fan.bio && (
-                    <p className="mt-3 text-sm text-slate-700 line-clamp-2">{fan.bio}</p>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-
-            {filteredFans.length === 0 && (
-              <p className="text-slate-600 text-center py-8">No fans found matching your search.</p>
-            )}
           </motion.div>
         </div>
       )}
