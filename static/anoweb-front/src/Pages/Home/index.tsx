@@ -237,9 +237,7 @@ export default function Home() {
                 🚀
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-700">Start tracking</p>
-                <h2 className="text-2xl font-bold text-slate-900">Sign up to track your time</h2>
-                <p className="text-sm text-slate-700 mt-1">Join the community and see your impact</p>
+                <h2 className="text-2xl font-bold text-slate-900">Sign up for full access</h2>
               </div>
             </div>
           </Link>
@@ -307,16 +305,18 @@ export default function Home() {
       </section>
 
       {/* Recent Blogs Section */}
-      <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 overflow-hidden relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-rose-500/10" aria-hidden />
-        <div className="relative space-y-4 p-6 md:p-8">
+      <section className="rounded-3xl bg-white shadow-lg border border-slate-200/80 overflow-hidden">
+        <div className="space-y-4 p-6 md:p-8">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h2 className="text-2xl font-bold text-slate-900">Recent Blogs</h2>
             <Link
               to="/blogs"
-              className="inline-flex items-center gap-2 rounded-full bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-700"
+              className="group inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 transition-all duration-300 hover:shadow-lg hover:scale-105 hover:gap-3"
             >
-              See all blogs
+              <span>See All</span>
+              <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
             </Link>
           </div>
           {recentBlogs.length > 0 ? (
@@ -370,16 +370,18 @@ export default function Home() {
       </section>
 
       {/* Recent Projects Section */}
-      <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 overflow-hidden relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-[#e8f0fe]/60 to-green-100/60" aria-hidden />
-        <div className="relative space-y-4 p-6 md:p-8">
+      <section className="rounded-3xl bg-white shadow-lg border border-slate-200/80 overflow-hidden">
+        <div className="space-y-4 p-6 md:p-8">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h2 className="text-2xl font-bold text-slate-900">Recent Projects</h2>
             <Link
               to="/projects"
-              className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+              className="group inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 transition-all duration-300 hover:shadow-lg hover:scale-105 hover:gap-3"
             >
-              See all projects
+              <span>See All</span>
+              <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
             </Link>
           </div>
           {recentProjects.length > 0 ? (
@@ -423,10 +425,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5" aria-hidden />
           <div className="relative space-y-6">
             <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div>
-                <p className="text-sm font-semibold text-purple-700">Skills</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-slate-900">Core Skills</h2>
-              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Core Skills</h2>
               {showAdminFeatures && (
                 <div className="flex items-center gap-2">
                   <button
@@ -477,10 +476,7 @@ export default function Home() {
       {/* Career Path Section */}
       <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 p-6 md:p-8">
         <div className="flex items-center justify-between gap-4 mb-6">
-          <div>
-            <p className="text-sm font-semibold text-slate-700">Experience</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Career path</h2>
-          </div>
+          <h2 className="text-2xl font-bold text-slate-900">Career Path</h2>
           {showAdminFeatures && (
             <span className="rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-xs font-semibold border border-blue-100">Drag to reprioritise (admin)</span>
           )}

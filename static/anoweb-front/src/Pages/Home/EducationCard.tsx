@@ -132,12 +132,7 @@ export default function EducationCard({ education, setEducation }: EducationCard
 
   return (
     <article className="bg-white/90 rounded-3xl shadow-lg border border-slate-200 p-6 md:p-8 h-full flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-900">Education</h2>
-        <span className="rounded-full bg-indigo-50 text-indigo-700 px-3 py-1 text-xs font-semibold border border-indigo-100">
-          {education.length} {education.length === 1 ? "entry" : "entries"}
-        </span>
-      </div>
+      <h2 className="text-2xl font-bold text-slate-900">Education</h2>
       {education.length === 0 ? (
         <div className="flex-1 rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 text-slate-600 grid place-items-center text-sm px-4 py-10">
           No education added yet.

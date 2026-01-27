@@ -66,33 +66,21 @@ export default function BlogsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
-      <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg overflow-hidden relative">
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-rose-500/10"
-          aria-hidden
-        />
-        <div className="relative p-6 md:p-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold text-slate-900">Blogs</h1>
-            <p className="text-slate-700 mt-1">Read my thoughts and articles.</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-purple-50 text-purple-700 border border-purple-100 px-3 py-1 text-xs font-semibold">
-              {blogs.length} {blogs.length === 1 ? "blog" : "blogs"}
-            </span>
-            {showAdminFeatures && (
-              <button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="inline-flex items-center gap-2 rounded-full bg-purple-600 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-purple-700 transition-colors"
-              >
-                <span aria-hidden>+</span>
-                New blog
-              </button>
-            )}
-          </div>
-        </div>
-      </section>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-slate-900" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+          BLOGS
+        </h1>
+        {showAdminFeatures && (
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-slate-800 transition-colors"
+          >
+            <span aria-hidden>+</span>
+            New
+          </button>
+        )}
+      </div>
 
       {/* Blog Grid */}
       <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-4 sm:p-6 md:p-8">
