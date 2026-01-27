@@ -324,109 +324,90 @@ export default function PostWorkspace() {
   return (
     <div className="space-y-4">
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <div className="space-y-1">
-          <p className="text-sm font-semibold text-slate-700">Markdown</p>
-          <h1 className="text-2xl font-semibold text-slate-900">{name}</h1>
-          {updatedAt && <p className="text-xs text-slate-600">Updated {updatedAt}</p>}
+        <div className="flex items-center gap-4">
+          <Link
+            to="/projects"
+            className="group inline-flex items-center gap-1.5 rounded-full bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+          >
+            <svg className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+          </Link>
+          <div>
+            <h1 className="text-xl md:text-2xl font-semibold text-slate-900">{name}</h1>
+            {updatedAt && <p className="text-xs text-slate-500 mt-0.5">Updated {updatedAt}</p>}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Link to="/projects" className="chip-soft">Back</Link>
-          {showAdminFeatures && (
+        {showAdminFeatures && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500">{stats.chars.toLocaleString()} / {MAX_CONTENT_LENGTH.toLocaleString()}</span>
             <button
               type="button"
               onClick={handleSave}
               disabled={isSaving || isOverLimit}
-              className="inline-flex items-center gap-2 rounded-full bg-blue-600 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-blue-700 disabled:bg-blue-300"
+              className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-slate-800 disabled:bg-slate-400"
             >
               {isSaving ? "Saving…" : "Save"}
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </header>
 
-      <div className="rounded-3xl border border-slate-200 bg-white/90 shadow-lg overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-2">
-          <div className="flex items-center gap-2" role="tablist" aria-label="Editor view modes">
-            {showAdminFeatures && tabButton("write", "Write")}
+      {showAdminFeatures ? (
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="flex items-center gap-2 border-b border-slate-200 px-4 py-2" role="tablist">
+            {tabButton("write", "Write")}
             {tabButton("preview", "Preview")}
-            {showAdminFeatures && tabButton("split", "Split")}
+            {tabButton("split", "Split")}
           </div>
-          <div className="flex items-center gap-3 text-sm text-slate-600">
-            <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-1 border border-slate-200">{stats.words} words</span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-1 border border-slate-200">{stats.lines} lines</span>
-            <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-1 border ${
-                isOverLimit
-                  ? "bg-rose-50 text-rose-700 border-rose-200"
-                  : stats.chars > MAX_CONTENT_LENGTH * 0.9
-                  ? "bg-amber-50 text-amber-700 border-amber-200"
-                  : "bg-slate-50 text-slate-600 border-slate-200"
-              }`}
-            >
-              {stats.chars.toLocaleString()} / {MAX_CONTENT_LENGTH.toLocaleString()}
-            </span>
-          </div>
-        </div>
 
-        <div className={`grid ${mode === "split" ? "md:grid-cols-2" : "grid-cols-1"}`}>
-          {mode !== "preview" && isAdmin && (
-            <div className="border-b md:border-b-0 md:border-r border-slate-200">
-              <div className="p-4 space-y-4">
-                <label className="block text-sm font-medium text-slate-700">
-                  Title
-                  <input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="mt-1 w-full rounded-md border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </label>
-
-                <div className="rounded-2xl border border-slate-200 bg-slate-50/70 shadow-inner">
-                  <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 px-3 py-2">
-                    {toolbarActions.map((action) => (
-                      <button
-                        key={action.label}
-                        type="button"
-                        onClick={action.onClick}
-                        className="btn-sm"
-                        title={action.label}
-                      >
-                        <span>{action.icon}</span>
-                        <span className="hidden sm:inline">{action.label}</span>
-                      </button>
-                    ))}
-                    <span className="text-xs text-slate-600 ml-auto">Supports GitHub flavored markdown + math.</span>
-                  </div>
-                  <div className="overflow-hidden rounded-b-2xl">
-                    <MDEditor
-                      value={content}
-                      onChange={(value) => setContent(value || "")}
-                      preview="edit"
-                      height={mode === "split" ? 520 : 560}
-                      textareaProps={{
-                        id: "post-workspace-editor",
-                        onKeyDown: handleTabKey,
-                        placeholder: "Write Markdown with GitHub shortcuts. Use the toolbar or keyboard (Cmd/Ctrl + B/I).",
-                      }}
-                      previewOptions={{
-                        remarkPlugins: [remarkGfm, remarkMath],
-                        rehypePlugins: [rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]],
-                        components: markdownComponents,
-                      }}
-                      data-color-mode="light"
-                      className="bg-white/90"
-                    />
-                  </div>
+          <div className={`grid ${mode === "split" ? "md:grid-cols-2" : "grid-cols-1"}`}>
+            {mode !== "preview" && (
+              <div className="border-b md:border-b-0 md:border-r border-slate-200 p-4 space-y-3">
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Title"
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+                <div className="flex flex-wrap items-center gap-1 text-xs">
+                  {toolbarActions.map((action) => (
+                    <button
+                      key={action.label}
+                      type="button"
+                      onClick={action.onClick}
+                      className="btn-sm"
+                      title={action.label}
+                    >
+                      {action.icon}
+                    </button>
+                  ))}
                 </div>
+                <MDEditor
+                  value={content}
+                  onChange={(value) => setContent(value || "")}
+                  preview="edit"
+                  height={mode === "split" ? 480 : 520}
+                  textareaProps={{
+                    id: "post-workspace-editor",
+                    onKeyDown: handleTabKey,
+                    placeholder: "Write Markdown...",
+                  }}
+                  previewOptions={{
+                    remarkPlugins: [remarkGfm, remarkMath],
+                    rehypePlugins: [rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]],
+                    components: markdownComponents,
+                  }}
+                  data-color-mode="light"
+                />
               </div>
-            </div>
-          )}
+            )}
 
-          {mode !== "write" && (
-            <div className="bg-slate-50/60">
-              <div className="h-full max-h-[76vh] overflow-auto p-4 scrollbar-clear" ref={previewRef}>
+            {mode !== "write" && (
+              <div className="max-h-[70vh] overflow-auto p-4" ref={previewRef}>
                 <MDEditor.Markdown
-                  source={content || "_Nothing to preview yet. Start typing in the editor to see the GitHub-style preview here._"}
+                  source={content || "_Nothing to preview._"}
                   remarkPlugins={[remarkGfm, remarkMath]}
                   rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]]}
                   components={markdownComponents}
@@ -434,10 +415,21 @@ export default function PostWorkspace() {
                   data-color-mode="light"
                 />
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 max-h-[80vh] overflow-auto" ref={previewRef}>
+          <MDEditor.Markdown
+            source={content || "_No content._"}
+            remarkPlugins={[remarkGfm, remarkMath]}
+            rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]]}
+            components={markdownComponents}
+            className="markdown-body"
+            data-color-mode="light"
+          />
+        </div>
+      )}
       {error && <p className="text-sm text-rose-600">{error}</p>}
     </div>
   );

@@ -47,17 +47,14 @@ export function PostsGrid({
 
   return (
     <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-4 sm:p-6 md:p-8">
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-slate-700">Posts</p>
-          <h3 className="text-lg font-semibold text-slate-900 truncate">Project updates</h3>
-        </div>
+      <div className="flex items-center justify-between gap-4 mb-5">
+        <h3 className="text-lg font-bold text-slate-900">Posts</h3>
         {showAdminFeatures && (
           <button
             onClick={onOpenCreateModal}
-            className="flex-shrink-0 rounded-full bg-blue-600 text-white px-3 py-1.5 text-xs font-semibold shadow-sm hover:bg-blue-700 transition-colors"
+            className="flex-shrink-0 rounded-full bg-slate-900 text-white px-3 py-1.5 text-xs font-semibold shadow-sm hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all duration-200"
           >
-            + New post
+            + New
           </button>
         )}
       </div>
@@ -116,46 +113,32 @@ function PostGridCard({ post, onViewPost, onDeletePost, showAdminFeatures }: Pos
   return (
     <div
       onClick={handleClick}
-      className="relative overflow-hidden rounded-2xl bg-white/80 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group h-full"
+      className="group rounded-xl bg-white border border-slate-200 p-4 cursor-pointer hover:border-indigo-300 hover:shadow-lg transition-all duration-200"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10" aria-hidden />
-      <div className="relative p-4 flex flex-col h-full">
-        <div className="flex items-start gap-2 mb-3">
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white grid place-items-center text-sm font-semibold shrink-0">
-            MD
-          </div>
-          <div className="min-w-0 flex-1">
-            <p
-              className="text-sm font-semibold text-slate-900 leading-tight"
-              style={{
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-                wordBreak: "break-word",
-              }}
-              title={post.name}
-            >
-              {post.name}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-auto pt-3 flex items-center justify-between border-t border-slate-100">
-          <span className="inline-flex items-center gap-1.5 text-xs text-slate-600">
-            <span className="h-2 w-2 rounded-full bg-blue-500" aria-hidden />
-            {formatRelativeDate(post.updated_at)}
-          </span>
-          {showAdminFeatures && (
-            <button
-              onClick={handleDelete}
-              className="text-rose-600 hover:text-rose-700 font-semibold text-xs transition-colors"
-              aria-label="Delete post"
-            >
-              Delete
-            </button>
-          )}
-        </div>
+      <p
+        className="text-sm font-semibold text-slate-900 leading-snug group-hover:text-indigo-700 transition-colors"
+        style={{
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+          wordBreak: "break-word",
+        }}
+        title={post.name}
+      >
+        {post.name}
+      </p>
+      <div className="mt-3 flex items-center justify-between">
+        <span className="text-xs text-slate-500">{formatRelativeDate(post.updated_at)}</span>
+        {showAdminFeatures && (
+          <button
+            onClick={handleDelete}
+            className="text-rose-500 hover:text-rose-600 font-medium text-xs transition-colors opacity-0 group-hover:opacity-100"
+            aria-label="Delete post"
+          >
+            Delete
+          </button>
+        )}
       </div>
     </div>
   );

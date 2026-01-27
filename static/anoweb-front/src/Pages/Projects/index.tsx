@@ -51,32 +51,21 @@ export default function ProjectPage() {
     <>
       <style>{styles}</style>
       <div className="space-y-6">
-        <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#e8f0fe] via-white to-[#e6f4ea]" aria-hidden />
-          <div className="relative p-6 md:p-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-3xl font-semibold text-slate-900">Projects</h1>
-              <p className="text-slate-700 mt-1">Browse my works.</p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 text-xs font-semibold">
-                {projects.length} projects
-              </span>
-              <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 text-xs font-semibold">
-                {posts.length} posts
-              </span>
-              {showAdminFeatures && (
-                <button
-                  onClick={openCreateModal}
-                  className="inline-flex items-center gap-2 rounded-full bg-blue-600 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-blue-700"
-                >
-                  <span aria-hidden>＋</span>
-                  New project
-                </button>
-              )}
-            </div>
-          </div>
-        </section>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-slate-900" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+            PROJECTS
+          </h1>
+          {showAdminFeatures && (
+            <button
+              onClick={openCreateModal}
+              className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-slate-800 transition-colors"
+            >
+              <span aria-hidden>+</span>
+              New
+            </button>
+          )}
+        </div>
 
         {/* Mobile Project Selector - horizontal scrollable chips */}
         <div className="lg:hidden">

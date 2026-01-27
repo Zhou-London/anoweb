@@ -1,10 +1,12 @@
 // src/components/ProjectPage/useProjectData.ts
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiFetch, apiJson } from "../../lib/api";
 import { type Project, type PostShort } from "./types";
 
 export function useProjectData() {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [posts, setPosts] = useState<PostShort[]>([]);
 
@@ -59,7 +61,7 @@ export function useProjectData() {
   }, [refreshPosts, selectedProjectId]);
 
   const handleViewPost = (postId: number) => {
-    window.open(`/markdown/${postId}`, "_blank", "noopener,noreferrer");
+    navigate(`/markdown/${postId}`);
   };
 
   const handleDeletePost = useCallback(
