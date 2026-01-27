@@ -5,7 +5,7 @@ import { apiJson } from "../lib/api";
 interface PopupConfig {
   id: number;
   title: string;
-  benefits: string; // JSON string array
+  benefits: string;
   is_active: boolean;
 }
 
@@ -21,10 +21,8 @@ export default function GuestPopup({ onOpenAuth }: GuestPopupProps) {
   const [hasShown, setHasShown] = useState(false);
 
   useEffect(() => {
-    // Don't show if fan is logged in or popup has already been shown
     if (fan || hasShown) return;
 
-    // Check if fan has dismissed the popup in this session
     const dismissed = sessionStorage.getItem("guest_popup_dismissed");
     if (dismissed) return;
 
@@ -34,8 +32,7 @@ export default function GuestPopup({ onOpenAuth }: GuestPopupProps) {
           credentials: "include",
         });
         setConfig(data);
-        
-        // Parse benefits JSON
+
         try {
           const parsedBenefits = JSON.parse(data.benefits);
           setBenefits(Array.isArray(parsedBenefits) ? parsedBenefits : []);
@@ -43,13 +40,11 @@ export default function GuestPopup({ onOpenAuth }: GuestPopupProps) {
           setBenefits([]);
         }
 
-        // Show popup after a short delay
         setTimeout(() => {
           setIsVisible(true);
           setHasShown(true);
         }, 2000);
       } catch (err) {
-        // If no config found, don't show popup
         console.log("No active guest popup configuration");
       }
     };
@@ -73,17 +68,22 @@ export default function GuestPopup({ onOpenAuth }: GuestPopupProps) {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity"
+        className="fixed inset-0 backdrop-blur-sm z-40 transition-opacity"
+        style={{ background: 'var(--gb-overlay)' }}
         onClick={handleClose}
       />
 
       {/* Popup */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 md:p-10 animate-in fade-in zoom-in duration-300">
+        <div
+          className="relative rounded-3xl shadow-2xl max-w-lg w-full p-8 md:p-10 animate-in fade-in zoom-in duration-300"
+          style={{ background: 'var(--gb-bg)' }}
+        >
           {/* Close Button */}
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+            className="absolute top-4 right-4 transition-colors"
+            style={{ color: 'var(--gb-fg-muted)' }}
             aria-label="Close"
           >
             <svg
@@ -104,31 +104,40 @@ export default function GuestPopup({ onOpenAuth }: GuestPopupProps) {
           {/* Content */}
           <div className="text-center space-y-6">
             {/* Icon */}
-            <div className="inline-flex h-20 w-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white items-center justify-center text-4xl shadow-lg">
-              ✨
+            <div
+              className="inline-flex h-20 w-20 rounded-full items-center justify-center text-4xl shadow-lg"
+              style={{ background: 'var(--gb-yellow)', color: 'var(--gb-bg)' }}
+            >
+              *
             </div>
 
             {/* Title */}
             <div>
-              <h2 className="text-3xl font-bold text-slate-900">{config.title}</h2>
-              <p className="text-slate-600 mt-2">
+              <h2 className="text-3xl font-bold" style={{ color: 'var(--gb-fg)' }}>{config.title}</h2>
+              <p className="mt-2" style={{ color: 'var(--gb-fg-muted)' }}>
                 Join our community and unlock amazing features!
               </p>
             </div>
 
             {/* Benefits */}
             {benefits.length > 0 && (
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 text-left">
-                <p className="text-sm font-semibold text-indigo-600 mb-3">
+              <div
+                className="rounded-2xl p-6 text-left"
+                style={{ background: 'var(--gb-bg-soft)' }}
+              >
+                <p className="text-sm font-semibold mb-3" style={{ color: 'var(--gb-accent)' }}>
                   What you'll get
                 </p>
                 <ul className="space-y-2">
                   {benefits.map((benefit, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <span className="flex-shrink-0 h-6 w-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">
-                        ✓
+                      <span
+                        className="flex-shrink-0 h-6 w-6 rounded-full flex items-center justify-center text-sm font-bold"
+                        style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}
+                      >
+                        +
                       </span>
-                      <span className="text-slate-700 leading-relaxed">{benefit}</span>
+                      <span className="leading-relaxed" style={{ color: 'var(--gb-fg-soft)' }}>{benefit}</span>
                     </li>
                   ))}
                 </ul>
@@ -139,13 +148,15 @@ export default function GuestPopup({ onOpenAuth }: GuestPopupProps) {
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleSignUp}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                className="flex-1 px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
               >
                 Sign Up Now
               </button>
               <button
                 onClick={handleClose}
-                className="flex-1 px-6 py-3 bg-slate-100 text-slate-700 rounded-full font-semibold hover:bg-slate-200 transition-colors"
+                className="flex-1 px-6 py-3 rounded-full font-semibold transition-colors"
+                style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-soft)' }}
               >
                 Maybe Later
               </button>

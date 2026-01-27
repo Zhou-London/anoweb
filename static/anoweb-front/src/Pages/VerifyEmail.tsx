@@ -33,28 +33,29 @@ export default function VerifyEmail() {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--gb-bg)' }}>
+      <div className="rounded-2xl shadow-xl max-w-md w-full p-8" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}>
         {status === "verifying" && (
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-            <h2 className="text-2xl font-semibold text-slate-900 mb-2">Verifying Email...</h2>
-            <p className="text-slate-600">Please wait while we verify your email address.</p>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 mb-4" style={{ boxShadow: 'inset 0 0 0 4px var(--gb-primary)', borderTop: '4px solid transparent' }}></div>
+            <h2 className="text-2xl font-semibold mb-2" style={{ color: 'var(--gb-fg)' }}>Verifying Email...</h2>
+            <p style={{ color: 'var(--gb-fg-soft)' }}>Please wait while we verify your email address.</p>
           </div>
         )}
 
         {status === "success" && (
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}>
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-semibold text-slate-900 mb-2">Email Verified!</h2>
-            <p className="text-slate-600 mb-6">{message}</p>
+            <h2 className="text-2xl font-semibold mb-2" style={{ color: 'var(--gb-fg)' }}>Email Verified!</h2>
+            <p className="mb-6" style={{ color: 'var(--gb-fg-soft)' }}>{message}</p>
             <Link
               to="/"
-              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              className="inline-block px-6 py-3 rounded-lg font-medium transition-colors"
+              style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
             >
               Go to Home
             </Link>
@@ -63,16 +64,17 @@ export default function VerifyEmail() {
 
         {status === "error" && (
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ background: 'var(--gb-error)', color: 'var(--gb-bg)' }}>
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <h2 className="text-2xl font-semibold text-slate-900 mb-2">Verification Failed</h2>
-            <p className="text-slate-600 mb-6">{message}</p>
+            <h2 className="text-2xl font-semibold mb-2" style={{ color: 'var(--gb-fg)' }}>Verification Failed</h2>
+            <p className="mb-6" style={{ color: 'var(--gb-fg-soft)' }}>{message}</p>
             <Link
               to="/"
-              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              className="inline-block px-6 py-3 rounded-lg font-medium transition-colors"
+              style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
             >
               Go to Home
             </Link>

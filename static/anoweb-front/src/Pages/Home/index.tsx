@@ -63,7 +63,6 @@ export default function Home() {
           const fans = await apiJson<any[]>("/user/list", {
             credentials: "include",
           });
-          // Get the 3 most recent fans
           setNewFans(fans.slice(0, 3));
         } catch (err) {
           console.error("Failed to load new fans:", err);
@@ -196,48 +195,46 @@ export default function Home() {
     <div className="space-y-6">
       {/* Statistics Cards */}
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-3xl bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 border border-slate-200 shadow-lg p-6 md:p-8 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5" aria-hidden />
+        <div className="rounded-3xl shadow-lg p-6 md:p-8 relative overflow-hidden" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}>
           <div className="relative flex items-center gap-4">
-            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white grid place-items-center text-2xl font-bold shadow-lg">
-              🌍
+            <div className="h-16 w-16 rounded-2xl grid place-items-center text-2xl font-bold shadow-lg" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
+              ~
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-slate-900">
+              <h2 className="text-3xl font-bold" style={{ color: 'var(--gb-fg)' }}>
                 {loadingStats ? "..." : `${totalHours.toFixed(1)}h`}
               </h2>
-              <p className="text-sm text-slate-700 mt-1">Spent by all fans on this web</p>
+              <p className="text-sm mt-1" style={{ color: 'var(--gb-fg-soft)' }}>Spent by all fans on this web</p>
             </div>
           </div>
         </div>
 
         {fan ? (
-          <div className="rounded-3xl bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-green-500/10 border border-slate-200 shadow-lg p-6 md:p-8 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5" aria-hidden />
+          <div className="rounded-3xl shadow-lg p-6 md:p-8 relative overflow-hidden" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}>
             <div className="relative flex items-center gap-4">
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white grid place-items-center text-2xl font-bold shadow-lg">
-                ⏱️
+              <div className="h-16 w-16 rounded-2xl grid place-items-center text-2xl font-bold shadow-lg" style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}>
+                @
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-slate-900">
+                <h2 className="text-3xl font-bold" style={{ color: 'var(--gb-fg)' }}>
                   {loadingStats ? "..." : `${userHours.toFixed(1)}h`}
                 </h2>
-                <p className="text-sm text-slate-700 mt-1">Spent by you on this web</p>
+                <p className="text-sm mt-1" style={{ color: 'var(--gb-fg-soft)' }}>Spent by you on this web</p>
               </div>
             </div>
           </div>
         ) : (
           <Link
             to="/community"
-            className="group rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-red-500/10 border border-slate-200 shadow-lg p-6 md:p-8 relative overflow-hidden hover:shadow-xl transition-shadow"
+            className="group rounded-3xl shadow-lg p-6 md:p-8 relative overflow-hidden hover:shadow-xl transition-shadow"
+            style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden />
             <div className="relative flex items-center gap-4">
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-amber-600 to-orange-600 text-white grid place-items-center text-2xl font-bold shadow-lg">
-                🚀
+              <div className="h-16 w-16 rounded-2xl grid place-items-center text-2xl font-bold shadow-lg" style={{ background: 'var(--gb-warning)', color: 'var(--gb-bg)' }}>
+                !
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">Sign up for full access</h2>
+                <h2 className="text-2xl font-bold" style={{ color: 'var(--gb-fg)' }}>Sign up for full access</h2>
               </div>
             </div>
           </Link>
@@ -251,22 +248,21 @@ export default function Home() {
       </section>
 
       {/* New Fans Section */}
-      <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 p-6 md:p-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-purple-50/50" aria-hidden />
+      <section className="rounded-3xl shadow-lg p-6 md:p-8 relative overflow-hidden" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
         <div className="relative">
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <span>👋</span> New Fans
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 flex items-center gap-2" style={{ color: 'var(--gb-fg)' }}>
+            <span>~</span> New Fans
           </h2>
           {!fan ? (
             <div className="blur-sm select-none pointer-events-none">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="bg-white rounded-xl border border-slate-200 p-4">
+                  <div key={i} className="rounded-xl p-4" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}>
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600" />
+                      <div className="w-12 h-12 rounded-full" style={{ background: 'var(--gb-primary)' }} />
                       <div className="flex-1">
-                        <div className="h-4 bg-slate-300 rounded w-24 mb-1" />
-                        <div className="h-3 bg-slate-200 rounded w-32" />
+                        <div className="h-4 rounded w-24 mb-1" style={{ background: 'var(--gb-bg-muted)' }} />
+                        <div className="h-3 rounded w-32" style={{ background: 'var(--gb-bg-muted)' }} />
                       </div>
                     </div>
                   </div>
@@ -276,42 +272,43 @@ export default function Home() {
           ) : newFans.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {newFans.map((newFan) => (
-                <div key={newFan.id} className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-shadow">
+                <div key={newFan.id} className="rounded-xl p-4 hover:shadow-md transition-shadow" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}>
                   <div className="flex items-center gap-3">
                     {newFan.profile_photo ? (
-                      <img src={newFan.profile_photo} alt={newFan.username} className="w-12 h-12 rounded-full object-cover border-2 border-slate-200" />
+                      <img src={newFan.profile_photo} alt={newFan.username} className="w-12 h-12 rounded-full object-cover" style={{ boxShadow: 'var(--gb-shadow-card)' }} />
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-lg font-bold">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
                         {newFan.username.charAt(0).toUpperCase()}
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-slate-900 truncate">{newFan.username}</h3>
-                      <p className="text-xs text-slate-600">
+                      <h3 className="font-semibold truncate" style={{ color: 'var(--gb-fg)' }}>{newFan.username}</h3>
+                      <p className="text-xs" style={{ color: 'var(--gb-fg-muted)' }}>
                         Joined {new Date(newFan.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   {newFan.bio && (
-                    <p className="mt-3 text-sm text-slate-700 line-clamp-2">{newFan.bio}</p>
+                    <p className="mt-3 text-sm line-clamp-2" style={{ color: 'var(--gb-fg-soft)' }}>{newFan.bio}</p>
                   )}
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-slate-600 text-center py-8">No new fans yet. Be the first to join!</p>
+            <p className="text-center py-8" style={{ color: 'var(--gb-fg-muted)' }}>No new fans yet. Be the first to join!</p>
           )}
         </div>
       </section>
 
       {/* Recent Blogs Section */}
-      <section className="rounded-3xl bg-white shadow-lg border border-slate-200/80 overflow-hidden">
+      <section className="rounded-3xl shadow-lg overflow-hidden" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
         <div className="space-y-4 p-6 md:p-8">
           <div className="flex items-center justify-between gap-3 flex-wrap">
-            <h2 className="text-2xl font-bold text-slate-900">Recent Blogs</h2>
+            <h2 className="text-2xl font-bold" style={{ color: 'var(--gb-fg)' }}>Recent Blogs</h2>
             <Link
               to="/blogs"
-              className="group inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 transition-all duration-300 hover:shadow-lg hover:scale-105 hover:gap-3"
+              className="group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-105 hover:gap-3"
+              style={{ background: 'var(--gb-fg)', color: 'var(--gb-bg)' }}
             >
               <span>See All</span>
               <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -325,9 +322,10 @@ export default function Home() {
                 <Link
                   key={blog.id}
                   to={`/blogs/${blog.id}`}
-                  className="group rounded-2xl bg-white border border-slate-200 overflow-hidden hover:shadow-md transition-shadow"
+                  className="group rounded-2xl overflow-hidden hover:shadow-md transition-shadow"
+                  style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}
                 >
-                  <div className="aspect-video bg-slate-100 overflow-hidden">
+                  <div className="aspect-video overflow-hidden" style={{ background: 'var(--gb-bg-muted)' }}>
                     {blog.image_url ? (
                       <img
                         src={blog.image_url}
@@ -335,14 +333,14 @@ export default function Home() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-rose-500/20 flex items-center justify-center">
-                        <span className="text-4xl">📝</span>
+                      <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--gb-accent)' }}>
+                        <span className="text-4xl" style={{ color: 'var(--gb-bg)' }}>#</span>
                       </div>
                     )}
                   </div>
                   <div className="p-4">
-                    <h3 className="font-semibold text-slate-900 truncate">{blog.title}</h3>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-slate-600">
+                    <h3 className="font-semibold truncate" style={{ color: 'var(--gb-fg)' }}>{blog.title}</h3>
+                    <div className="flex items-center gap-3 mt-2 text-xs" style={{ color: 'var(--gb-fg-muted)' }}>
                       <span className="inline-flex items-center gap-1">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -362,7 +360,7 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-white/80 p-6 text-slate-600">
+            <div className="rounded-2xl p-6" style={{ boxShadow: 'var(--gb-shadow-inset)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-muted)' }}>
               No blogs found.
             </div>
           )}
@@ -370,13 +368,14 @@ export default function Home() {
       </section>
 
       {/* Recent Projects Section */}
-      <section className="rounded-3xl bg-white shadow-lg border border-slate-200/80 overflow-hidden">
+      <section className="rounded-3xl shadow-lg overflow-hidden" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
         <div className="space-y-4 p-6 md:p-8">
           <div className="flex items-center justify-between gap-3 flex-wrap">
-            <h2 className="text-2xl font-bold text-slate-900">Recent Projects</h2>
+            <h2 className="text-2xl font-bold" style={{ color: 'var(--gb-fg)' }}>Recent Projects</h2>
             <Link
               to="/projects"
-              className="group inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 transition-all duration-300 hover:shadow-lg hover:scale-105 hover:gap-3"
+              className="group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-105 hover:gap-3"
+              style={{ background: 'var(--gb-fg)', color: 'var(--gb-bg)' }}
             >
               <span>See All</span>
               <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -390,9 +389,10 @@ export default function Home() {
                 <Link
                   key={project.id}
                   to="/projects"
-                  className="group rounded-2xl bg-white border border-slate-200 overflow-hidden hover:shadow-md transition-shadow"
+                  className="group rounded-2xl overflow-hidden hover:shadow-md transition-shadow"
+                  style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}
                 >
-                  <div className="aspect-video bg-slate-100 overflow-hidden">
+                  <div className="aspect-video overflow-hidden" style={{ background: 'var(--gb-bg-muted)' }}>
                     {project.image_url ? (
                       <img
                         src={project.image_url}
@@ -400,19 +400,19 @@ export default function Home() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
-                        <span className="text-4xl">📁</span>
+                      <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--gb-primary)' }}>
+                        <span className="text-4xl" style={{ color: 'var(--gb-bg)' }}>=</span>
                       </div>
                     )}
                   </div>
                   <div className="p-4">
-                    <h3 className="font-semibold text-slate-900 truncate">{project.name}</h3>
+                    <h3 className="font-semibold truncate" style={{ color: 'var(--gb-fg)' }}>{project.name}</h3>
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-white/80 p-6 text-slate-600">
+            <div className="rounded-2xl p-6" style={{ boxShadow: 'var(--gb-shadow-inset)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-muted)' }}>
               No projects found.
             </div>
           )}
@@ -421,23 +421,23 @@ export default function Home() {
 
       {/* Core Skills Section */}
       {(coreSkills.length > 0 || showAdminFeatures) && (
-        <section className="rounded-3xl bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-rose-500/10 border border-purple-200 shadow-lg p-6 md:p-8 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5" aria-hidden />
+        <section className="rounded-3xl shadow-lg p-6 md:p-8 relative overflow-hidden" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-accent)' }}>
           <div className="relative space-y-6">
             <div className="flex items-center justify-between gap-4 flex-wrap">
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Core Skills</h2>
+              <h2 className="text-2xl md:text-3xl font-bold" style={{ color: 'var(--gb-fg)' }}>Core Skills</h2>
               {showAdminFeatures && (
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleAddSkill}
-                    className="inline-flex items-center gap-2 rounded-full bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-700 transition-colors"
+                    className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition-colors"
+                    style={{ background: 'var(--gb-accent)', color: 'var(--gb-bg)' }}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
                     Add Skill
                   </button>
-                  <span className="rounded-full bg-purple-50 text-purple-700 px-3 py-1 text-xs font-semibold border border-purple-100">
+                  <span className="rounded-full px-3 py-1 text-xs font-semibold" style={{ background: 'var(--gb-bg)', color: 'var(--gb-accent)', boxShadow: 'var(--gb-shadow-soft)' }}>
                     Drag to reorder
                   </span>
                 </div>
@@ -459,14 +459,14 @@ export default function Home() {
                 ))}
               </div>
             ) : (
-              <div className="rounded-2xl border-2 border-dashed border-purple-300 bg-purple-50/50 p-8 text-center">
-                <div className="mx-auto w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mb-4">
-                  <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="rounded-2xl p-8 text-center" style={{ boxShadow: 'var(--gb-shadow-inset), inset 0 0 0 2px var(--gb-accent)', background: 'var(--gb-bg)' }}>
+                <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--gb-accent)', color: 'var(--gb-bg)' }}>
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">No Core Skills Yet</h3>
-                <p className="text-slate-600 mb-4">Click "Add Skill" above to showcase your expertise!</p>
+                <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--gb-fg)' }}>No Core Skills Yet</h3>
+                <p style={{ color: 'var(--gb-fg-muted)' }}>Click "Add Skill" above to showcase your expertise!</p>
               </div>
             )}
           </div>
@@ -474,11 +474,11 @@ export default function Home() {
       )}
 
       {/* Career Path Section */}
-      <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 p-6 md:p-8">
+      <section className="rounded-3xl shadow-lg p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
         <div className="flex items-center justify-between gap-4 mb-6">
-          <h2 className="text-2xl font-bold text-slate-900">Career Path</h2>
+          <h2 className="text-2xl font-bold" style={{ color: 'var(--gb-fg)' }}>Career Path</h2>
           {showAdminFeatures && (
-            <span className="rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-xs font-semibold border border-blue-100">Drag to reprioritise (admin)</span>
+            <span className="rounded-full px-3 py-1 text-xs font-semibold" style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-primary)', boxShadow: 'var(--gb-shadow-soft)' }}>Drag to reprioritise (admin)</span>
           )}
         </div>
         <ExperienceCard experience={experience} setExperience={setExperience} />
@@ -486,15 +486,16 @@ export default function Home() {
 
       {/* Add/Edit Skill Modal */}
       {showSkillModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowSkillModal(false)}>
-          <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-6 md:p-8" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style={{ background: 'var(--gb-overlay)' }} onClick={() => setShowSkillModal(false)}>
+          <div className="relative w-full max-w-2xl rounded-2xl shadow-2xl p-6 md:p-8" style={{ background: 'var(--gb-bg)' }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-slate-900">{editingSkill ? "Edit Skill" : "Add New Skill"}</h3>
+              <h3 className="text-2xl font-bold" style={{ color: 'var(--gb-fg)' }}>{editingSkill ? "Edit Skill" : "Add New Skill"}</h3>
               <button
                 onClick={() => setShowSkillModal(false)}
-                className="rounded-full p-2 hover:bg-slate-100 transition-colors"
+                className="rounded-full p-2 transition-colors"
+                style={{ color: 'var(--gb-fg-muted)' }}
               >
-                <svg className="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -502,7 +503,7 @@ export default function Home() {
 
             <div className="space-y-4">
               <div>
-                <label htmlFor="skill-name" className="block text-sm font-semibold text-slate-700 mb-2">
+                <label htmlFor="skill-name" className="block text-sm font-semibold mb-2" style={{ color: 'var(--gb-fg-soft)' }}>
                   Skill Name *
                 </label>
                 <input
@@ -511,12 +512,13 @@ export default function Home() {
                   value={skillName}
                   onChange={(e) => setSkillName(e.target.value)}
                   placeholder="e.g., React, TypeScript, Leadership"
-                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-colors"
+                  className="w-full rounded-lg px-4 py-3 text-sm transition-colors"
+                  style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Bullet Points</label>
+                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--gb-fg-soft)' }}>Bullet Points</label>
                 <div className="space-y-2">
                   {skillBullets.map((bullet, index) => (
                     <div key={index} className="flex items-center gap-2">
@@ -529,11 +531,13 @@ export default function Home() {
                           setSkillBullets(newBullets);
                         }}
                         placeholder={`Point ${index + 1}`}
-                        className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-colors"
+                        className="flex-1 rounded-lg px-4 py-2 text-sm transition-colors"
+                        style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
                       />
                       <button
                         onClick={() => setSkillBullets(skillBullets.filter((_, i) => i !== index))}
-                        className="rounded-lg p-2 text-red-600 hover:bg-red-50 transition-colors"
+                        className="rounded-lg p-2 transition-colors"
+                        style={{ color: 'var(--gb-error)' }}
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -543,7 +547,8 @@ export default function Home() {
                   ))}
                   <button
                     onClick={() => setSkillBullets([...skillBullets, ""])}
-                    className="inline-flex items-center gap-2 rounded-lg bg-purple-50 px-4 py-2 text-sm font-semibold text-purple-700 hover:bg-purple-100 transition-colors"
+                    className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors"
+                    style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-accent)' }}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -554,17 +559,19 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-slate-200">
+            <div className="flex items-center justify-end gap-3 mt-8 pt-6" style={{ boxShadow: 'inset 0 1px 0 var(--gb-shadow)' }}>
               <button
                 onClick={() => setShowSkillModal(false)}
-                className="rounded-lg px-6 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
+                className="rounded-lg px-6 py-2.5 text-sm font-semibold transition-colors"
+                style={{ color: 'var(--gb-fg-soft)' }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveSkill}
                 disabled={savingSkill || !skillName.trim()}
-                className="rounded-lg bg-purple-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-purple-700 disabled:bg-purple-300 disabled:cursor-not-allowed transition-colors"
+                className="rounded-lg px-6 py-2.5 text-sm font-semibold shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: 'var(--gb-accent)', color: 'var(--gb-bg)' }}
               >
                 {savingSkill ? "Saving..." : editingSkill ? "Update Skill" : "Add Skill"}
               </button>

@@ -13,14 +13,14 @@ import { useEditMode } from "../../Contexts/edit_mode_context";
 const styles = `
   .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(0, 0, 0, 0.2); border-radius: 10px; }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: rgba(0, 0, 0, 0.4); }
-  .custom-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(0, 0, 0, 0.2) transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--gb-border); border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: var(--gb-fg-muted); }
+  .custom-scrollbar { scrollbar-width: thin; scrollbar-color: var(--gb-border) transparent; }
   .prose { max-width: 100%; }
-  .prose h1, .prose h2, .prose h3 { color: #334155; }
-  .prose a { color: #2563eb; }
-  .prose a:hover { color: #1d4ed8; }
-  .focused-card { box-shadow: 0 0 18px rgba(66, 133, 244, 0.35); }
+  .prose h1, .prose h2, .prose h3 { color: var(--gb-fg); }
+  .prose a { color: var(--gb-primary); }
+  .prose a:hover { color: var(--gb-primary-bright); }
+  .focused-card { box-shadow: 0 0 18px rgba(69, 133, 136, 0.35); }
 `;
 
 export default function ProjectPage() {
@@ -53,13 +53,14 @@ export default function ProjectPage() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-slate-900" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-wide" style={{ fontFamily: "'Bebas Neue', sans-serif", color: 'var(--gb-fg)' }}>
             PROJECTS
           </h1>
           {showAdminFeatures && (
             <button
               onClick={openCreateModal}
-              className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-slate-800 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition-colors"
+              style={{ background: 'var(--gb-fg)', color: 'var(--gb-bg)' }}
             >
               <span aria-hidden>+</span>
               New
@@ -69,23 +70,23 @@ export default function ProjectPage() {
 
         {/* Mobile Project Selector - horizontal scrollable chips */}
         <div className="lg:hidden">
-          <div className="rounded-2xl bg-white/90 border border-slate-200 shadow-lg p-4">
-            <p className="text-sm font-semibold text-slate-700 mb-3">Select a project</p>
+          <div className="rounded-2xl shadow-lg p-4" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
+            <p className="text-sm font-semibold mb-3" style={{ color: 'var(--gb-fg-soft)' }}>Select a project</p>
             {isLoadingProjects ? (
-              <p className="text-slate-500 text-sm">Loading...</p>
+              <p className="text-sm" style={{ color: 'var(--gb-fg-muted)' }}>Loading...</p>
             ) : projects.length === 0 ? (
-              <p className="text-slate-500 text-sm">No projects yet.</p>
+              <p className="text-sm" style={{ color: 'var(--gb-fg-muted)' }}>No projects yet.</p>
             ) : (
               <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 custom-scrollbar">
                 {projects.map((p) => (
                   <button
                     key={p.id}
                     onClick={() => setSelectedProjectId(p.id)}
-                    className={`flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all ${
-                      p.id === selectedProjectId
-                        ? "bg-blue-600 text-white shadow-md"
-                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                    }`}
+                    className="flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all"
+                    style={{
+                      background: p.id === selectedProjectId ? 'var(--gb-primary)' : 'var(--gb-bg-soft)',
+                      color: p.id === selectedProjectId ? 'var(--gb-bg)' : 'var(--gb-fg-soft)',
+                    }}
                   >
                     {p.name}
                   </button>
@@ -119,7 +120,7 @@ export default function ProjectPage() {
                 />
               </>
             ) : (
-              <div className="rounded-3xl border border-dashed border-slate-300 bg-white/80 shadow-inner p-10 text-center text-slate-500">
+              <div className="rounded-3xl shadow-inner p-10 text-center" style={{ boxShadow: 'var(--gb-shadow-inset)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-muted)' }}>
                 {isLoadingProjects ? "Loading projects..." : "Select a project above to view details."}
               </div>
             )}

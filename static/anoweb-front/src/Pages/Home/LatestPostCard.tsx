@@ -27,18 +27,26 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
   const updatedStr = formatRelativeDate(post.updated_at);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5 bg-white/90">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-fuchsia-500/10" aria-hidden />
+    <div
+      className="relative w-full overflow-hidden rounded-2xl shadow-lg"
+      style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
+    >
+      <div
+        className="absolute inset-0"
+        style={{ background: 'linear-gradient(to bottom right, var(--gb-primary-10), var(--gb-accent-10))' }}
+        aria-hidden
+      />
       <Link
         to={`/markdown/${post.id}`}
         target="_blank"
         rel="noreferrer"
-        className={`relative block w-full h-full ${pad} space-y-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-2xl`}
+        className={`relative block w-full h-full ${pad} space-y-3 focus:outline-none rounded-2xl`}
+        style={{ outlineColor: 'var(--gb-primary)' }}
         aria-label={`Open post: ${post.name}`}
       >
         <div className="relative z-10">
           <h3
-            className="text-[15px] sm:text-base font-semibold text-gray-900 leading-5 sm:leading-6 tracking-tight"
+            className="text-[15px] sm:text-base font-semibold leading-5 sm:leading-6 tracking-tight"
             style={{
               display: "-webkit-box",
               WebkitLineClamp: titleLines,
@@ -46,6 +54,7 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
               overflow: "hidden",
               wordBreak: "break-word",
               whiteSpace: "normal",
+              color: 'var(--gb-fg)',
             }}
             title={post.name}
           >
@@ -55,7 +64,7 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
 
         <div className="relative min-h-0 overflow-hidden">
           <p
-            className="text-[13px] sm:text-sm text-gray-700 leading-6"
+            className="text-[13px] sm:text-sm leading-6"
             style={{
               display: "-webkit-box",
               WebkitLineClamp: previewLines,
@@ -63,16 +72,20 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
               overflow: "hidden",
               wordBreak: "break-word",
               whiteSpace: "normal",
+              color: 'var(--gb-fg-soft)',
             }}
           >
             {previewText}
           </p>
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-white/90 to-transparent z-0" />
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-8 z-0"
+            style={{ background: 'linear-gradient(to top, var(--gb-bg), transparent)' }}
+          />
         </div>
 
         <div className="pt-1.5">
-          <p className="text-xs sm:text-sm text-slate-600 inline-flex items-center gap-1">
-            <span className="inline-block h-2 w-2 rounded-full bg-blue-500" aria-hidden />
+          <p className="text-xs sm:text-sm inline-flex items-center gap-1" style={{ color: 'var(--gb-fg-muted)' }}>
+            <span className="inline-block h-2 w-2 rounded-full" style={{ background: 'var(--gb-primary)' }} aria-hidden />
             {updatedStr}
           </p>
         </div>

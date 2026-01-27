@@ -119,15 +119,17 @@ export default function CreatePostModal({
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm p-4 flex items-center justify-center" onClick={onClose}>
       <div
-        className="w-full max-w-5xl bg-white rounded-2xl shadow-xl ring-1 ring-black/5 overflow-hidden"
+        className="w-full max-w-5xl rounded-2xl shadow-xl ring-1 ring-black/5 overflow-hidden"
+        style={{ background: 'var(--gb-bg)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-4 sm:px-6 py-3 border-b border-slate-200 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-800">Create Post</h2>
+        <div className="px-4 sm:px-6 py-3 flex items-center justify-between" style={{ boxShadow: 'inset 0 -1px 0 var(--gb-border)' }}>
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--gb-fg)' }}>Create Post</h2>
           <button
             onClick={onClose}
-            className="h-8 w-8 rounded-full bg-black/5 hover:bg-black/10 text-black/60"
+            className="h-8 w-8 rounded-full"
+            style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-muted)' }}
             aria-label="Close"
             title="Close"
           >
@@ -138,13 +140,14 @@ export default function CreatePostModal({
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-slate-700">Post Name</label>
+            <label htmlFor="name" className="block text-sm font-medium" style={{ color: 'var(--gb-fg-soft)' }}>Post Name</label>
             <input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="mt-1 w-full rounded-md border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 w-full rounded-md shadow-sm focus:outline-none p-2"
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
             />
           </div>
 
@@ -154,26 +157,36 @@ export default function CreatePostModal({
             <button type="button" className="btn-sm" onClick={() => insertAtLineStart("## ")}>H2</button>
             <button type="button" className="btn-sm" onClick={() => insertAround("`")}>Code</button>
             <label className="btn-sm cursor-pointer ml-auto">
-              📷 Image
+              Image
               <input type="file" accept="image/*" onChange={handleImageUpload} disabled={isUploading} className="hidden" />
             </label>
           </div>
 
           {/* Mobile tabs */}
-          <div className="md:hidden flex rounded-lg bg-slate-100 p-1">
+          <div className="md:hidden flex rounded-lg p-1" style={{ background: 'var(--gb-bg-soft)' }}>
             <button
               type="button"
               onClick={() => setTab("write")}
-              className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium ${tab === "write" ? "bg-white shadow text-slate-900" : "text-slate-600"}`}
+              className="flex-1 rounded-md px-3 py-1.5 text-sm font-medium"
+              style={{
+                background: tab === "write" ? 'var(--gb-bg)' : 'transparent',
+                color: tab === "write" ? 'var(--gb-fg)' : 'var(--gb-fg-muted)',
+                boxShadow: tab === "write" ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+              }}
             >
-              ✍️ Write
+              Write
             </button>
             <button
               type="button"
               onClick={() => setTab("preview")}
-              className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium ${tab === "preview" ? "bg-white shadow text-slate-900" : "text-slate-600"}`}
+              className="flex-1 rounded-md px-3 py-1.5 text-sm font-medium"
+              style={{
+                background: tab === "preview" ? 'var(--gb-bg)' : 'transparent',
+                color: tab === "preview" ? 'var(--gb-fg)' : 'var(--gb-fg-muted)',
+                boxShadow: tab === "preview" ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+              }}
             >
-              👀 Preview
+              Preview
             </button>
           </div>
 
@@ -194,20 +207,19 @@ export default function CreatePostModal({
                   remarkPlugins: [remarkGfm, remarkMath],
                   rehypePlugins: [rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]],
                 }}
-                data-color-mode="light"
-                className="rounded-xl border border-slate-200 shadow-inner"
+                className="rounded-xl shadow-inner"
+                style={{ boxShadow: 'var(--gb-shadow-card)' }}
               />
             </div>
 
             {/* Preview */}
             <div className={`${tab === "preview" ? "block" : "hidden"} md:block`}>
-              <div className="h-[55vh] overflow-auto rounded-xl border border-slate-200 bg-white p-3 sm:p-4 scrollbar-clear">
+              <div className="h-[55vh] overflow-auto rounded-xl p-3 sm:p-4 scrollbar-clear" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
                 <article className="markdown-body">
                   <MDEditor.Markdown
                     source={contentMD || "_Nothing to preview yet._"}
                     remarkPlugins={[remarkGfm, remarkMath]}
                     rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]]}
-                    data-color-mode="light"
                   />
                 </article>
               </div>
@@ -215,14 +227,14 @@ export default function CreatePostModal({
           </div>
 
           {/* Status + Actions */}
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          {isUploading && <p className="text-sm text-slate-500">Uploading image…</p>}
+          {error && <p className="text-sm" style={{ color: 'var(--gb-error)' }}>{error}</p>}
+          {isUploading && <p className="text-sm" style={{ color: 'var(--gb-fg-muted)' }}>Uploading image…</p>}
 
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded-md text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-md text-sm font-medium" style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-soft)' }}>
               Cancel
             </button>
-            <button type="submit" disabled={isSubmitting || isUploading} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300">
+            <button type="submit" disabled={isSubmitting || isUploading} className="px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
               {isSubmitting ? "Creating…" : "Create Post"}
             </button>
           </div>

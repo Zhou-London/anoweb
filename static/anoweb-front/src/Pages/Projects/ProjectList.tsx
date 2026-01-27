@@ -48,11 +48,15 @@ export default function ProjectList({
   }, [projects, searchQuery, sortBy]);
 
   return (
-    <aside className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-4 space-y-3">
+    <aside className="rounded-3xl shadow-lg p-4 space-y-3" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
       <div className="flex items-center gap-2">
         <button
           onClick={() => setShowSearch(!showSearch)}
-          className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 ${showSearch ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600"}`}
+          className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+          style={{
+            background: showSearch ? 'var(--gb-primary)' : 'var(--gb-bg-soft)',
+            color: showSearch ? 'var(--gb-bg)' : 'var(--gb-fg-soft)'
+          }}
           title="Search"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +66,11 @@ export default function ProjectList({
         <div className="relative">
           <button
             onClick={() => setShowSortMenu(!showSortMenu)}
-            className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 ${showSortMenu ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600"}`}
+            className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+            style={{
+              background: showSortMenu ? 'var(--gb-primary)' : 'var(--gb-bg-soft)',
+              color: showSortMenu ? 'var(--gb-bg)' : 'var(--gb-fg-soft)'
+            }}
             title="Sort"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,7 +78,7 @@ export default function ProjectList({
             </svg>
           </button>
           {showSortMenu && (
-            <div className="absolute top-full left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-10 py-1 min-w-[120px]">
+            <div className="absolute top-full left-0 mt-1 rounded-lg shadow-lg z-10 py-1 min-w-[120px]" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
               {[
                 { value: "newest" as SortOption, label: "Newest" },
                 { value: "oldest" as SortOption, label: "Oldest" },
@@ -79,7 +87,12 @@ export default function ProjectList({
                 <button
                   key={option.value}
                   onClick={() => { setSortBy(option.value); setShowSortMenu(false); }}
-                  className={`w-full text-left px-3 py-1.5 text-sm transition-colors hover:bg-indigo-50 ${sortBy === option.value ? "text-indigo-600 font-medium bg-indigo-50" : "text-slate-700"}`}
+                  className="w-full text-left px-3 py-1.5 text-sm transition-colors"
+                  style={{
+                    background: sortBy === option.value ? 'var(--gb-bg-soft)' : 'transparent',
+                    color: sortBy === option.value ? 'var(--gb-primary)' : 'var(--gb-fg-soft)',
+                    fontWeight: sortBy === option.value ? 500 : 400
+                  }}
                 >
                   {option.label}
                 </button>
@@ -88,7 +101,7 @@ export default function ProjectList({
           )}
         </div>
         {showAdminFeatures && (
-          <span className="ml-auto rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 px-2 py-0.5 text-xs font-semibold">
+          <span className="ml-auto rounded-full px-2 py-0.5 text-xs font-semibold" style={{ background: 'var(--gb-accent)', color: 'var(--gb-bg)' }}>
             Admin
           </span>
         )}
@@ -100,31 +113,35 @@ export default function ProjectList({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search projects..."
-          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+          style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
           autoFocus
         />
       )}
 
       <div className="space-y-2 max-h-[480px] overflow-auto custom-scrollbar pr-1">
         {isLoading ? (
-          <p className="text-center text-slate-500">Loading projects...</p>
+          <p className="text-center" style={{ color: 'var(--gb-fg-muted)' }}>Loading projects...</p>
         ) : filteredAndSortedProjects.length === 0 ? (
-          <p className="text-center text-slate-500 py-4">{searchQuery ? "No matching projects." : "No projects yet."}</p>
+          <p className="text-center py-4" style={{ color: 'var(--gb-fg-muted)' }}>{searchQuery ? "No matching projects." : "No projects yet."}</p>
         ) : (
           filteredAndSortedProjects.map((p) => (
             <button
               key={p.id}
               onClick={() => onSelectProject(p.id)}
-              className={`w-full text-left rounded-2xl border px-4 py-3 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] ${
-                p.id === selectedProjectId
-                  ? "border-indigo-300 bg-indigo-50 text-indigo-900 shadow-md"
-                  : "border-slate-200 bg-white text-slate-800 hover:border-indigo-200 hover:bg-indigo-50/50"
-              }`}
+              className="w-full text-left rounded-2xl px-4 py-3 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+              style={{
+                background: p.id === selectedProjectId ? 'var(--gb-primary)' : 'var(--gb-bg)',
+                color: p.id === selectedProjectId ? 'var(--gb-bg)' : 'var(--gb-fg)',
+                boxShadow: p.id === selectedProjectId ? 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-primary)' : 'var(--gb-shadow-card)'
+              }}
             >
               <p className="text-sm font-semibold leading-tight">{p.name}</p>
               <p
-                className={`text-[12px] mt-0.5 ${p.id === selectedProjectId ? "text-indigo-600" : "text-slate-500"}`}
+                className="text-[12px] mt-0.5"
                 style={{
+                  color: p.id === selectedProjectId ? 'var(--gb-bg)' : 'var(--gb-fg-muted)',
+                  opacity: p.id === selectedProjectId ? 0.8 : 1,
                   display: "-webkit-box",
                   WebkitLineClamp: 2,
                   WebkitBoxOrient: "vertical",

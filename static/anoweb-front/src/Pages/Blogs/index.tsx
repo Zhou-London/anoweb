@@ -68,13 +68,14 @@ export default function BlogsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-slate-900" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-wide" style={{ fontFamily: "'Bebas Neue', sans-serif", color: 'var(--gb-fg)' }}>
           BLOGS
         </h1>
         {showAdminFeatures && (
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-slate-800 transition-colors"
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition-colors"
+            style={{ background: 'var(--gb-fg)', color: 'var(--gb-bg)' }}
           >
             <span aria-hidden>+</span>
             New
@@ -83,26 +84,26 @@ export default function BlogsPage() {
       </div>
 
       {/* Blog Grid */}
-      <section className="rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-4 sm:p-6 md:p-8">
+      <section className="rounded-3xl shadow-lg p-4 sm:p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
         {isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="rounded-2xl bg-slate-100 animate-pulse">
-                <div className="aspect-video bg-slate-200 rounded-t-2xl" />
+              <div key={i} className="rounded-2xl animate-pulse" style={{ background: 'var(--gb-bg-soft)' }}>
+                <div className="aspect-video rounded-t-2xl" style={{ background: 'var(--gb-bg-muted)' }} />
                 <div className="p-4 space-y-3">
-                  <div className="h-4 bg-slate-200 rounded w-3/4" />
-                  <div className="h-3 bg-slate-200 rounded w-1/2" />
+                  <div className="h-4 rounded w-3/4" style={{ background: 'var(--gb-bg-muted)' }} />
+                  <div className="h-3 rounded w-1/2" style={{ background: 'var(--gb-bg-muted)' }} />
                 </div>
               </div>
             ))}
           </div>
         ) : blogs.length === 0 ? (
-          <div className="text-center py-16 rounded-2xl border border-dashed border-slate-300 bg-slate-50/50">
-            <div className="mx-auto w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mb-4">
-              <span className="text-3xl">📝</span>
+          <div className="text-center py-16 rounded-2xl" style={{ boxShadow: 'var(--gb-shadow-inset)', background: 'var(--gb-bg-soft)' }}>
+            <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--gb-accent)', color: 'var(--gb-bg)' }}>
+              <span className="text-3xl">#</span>
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No blogs yet</h3>
-            <p className="text-slate-600">
+            <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--gb-fg)' }}>No blogs yet</h3>
+            <p style={{ color: 'var(--gb-fg-muted)' }}>
               {showAdminFeatures
                 ? 'Click "New blog" above to create your first blog post!'
                 : "Check back later for new content."}

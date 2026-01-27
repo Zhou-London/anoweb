@@ -40,21 +40,27 @@ export function SuccessProvider({ children }: { children: ReactNode }) {
           <div
             key={success.id}
             role="alert"
-            className="flex w-[min(360px,calc(100vw-2rem))] items-start gap-3 rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm text-emerald-800 shadow-lg ring-1 ring-emerald-100 backdrop-blur"
+            className="flex w-[min(360px,calc(100vw-2rem))] items-start gap-3 rounded-xl px-4 py-3 text-sm backdrop-blur"
+            style={{
+              background: 'var(--gb-bg)',
+              boxShadow: 'var(--gb-shadow-card-hover), inset 0 0 0 2px var(--gb-success)',
+              color: 'var(--gb-success)',
+            }}
           >
             <span aria-hidden className="text-lg">
-              ✓
+              +
             </span>
             <div className="flex-1 space-y-0.5">
-              <p className="font-semibold text-emerald-700">Success</p>
-              <p className="leading-snug">{success.message}</p>
+              <p className="font-semibold" style={{ color: 'var(--gb-success)' }}>Success</p>
+              <p className="leading-snug" style={{ color: 'var(--gb-fg-soft)' }}>{success.message}</p>
             </div>
             <button
               type="button"
               onClick={() => dismissSuccess(success.id)}
-              className="rounded-full px-2 py-1 text-xs font-semibold text-emerald-600 transition hover:bg-emerald-50"
+              className="rounded-full px-2 py-1 text-xs font-semibold transition"
+              style={{ color: 'var(--gb-success)' }}
             >
-              ✕
+              x
             </button>
           </div>
         ))}

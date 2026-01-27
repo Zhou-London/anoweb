@@ -33,10 +33,11 @@ export default function BlogCard({ blog, onDelete, showAdminFeatures }: BlogCard
     >
       <Link
         to={`/blogs/${blog.id}`}
-        className="group block rounded-2xl bg-white border border-slate-200 overflow-hidden hover:shadow-lg transition-all duration-200"
+        className="group block rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200"
+        style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}
       >
         {/* Cover Image */}
-        <div className="aspect-video bg-slate-100 overflow-hidden relative">
+        <div className="aspect-video overflow-hidden relative" style={{ background: 'var(--gb-bg-muted)' }}>
           {blog.image_url ? (
             <img
               src={blog.image_url}
@@ -44,8 +45,8 @@ export default function BlogCard({ blog, onDelete, showAdminFeatures }: BlogCard
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-rose-500/20 flex items-center justify-center">
-              <span className="text-5xl">📝</span>
+            <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--gb-accent)' }}>
+              <span className="text-5xl" style={{ color: 'var(--gb-bg)' }}>#</span>
             </div>
           )}
           {/* Gradient overlay */}
@@ -55,13 +56,14 @@ export default function BlogCard({ blog, onDelete, showAdminFeatures }: BlogCard
         {/* Content */}
         <div className="p-4">
           <h3
-            className="font-semibold text-slate-900 leading-tight mb-2"
+            className="font-semibold leading-tight mb-2"
             style={{
               display: "-webkit-box",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
               overflow: "hidden",
               wordBreak: "break-word",
+              color: 'var(--gb-fg)',
             }}
             title={blog.title}
           >
@@ -69,7 +71,7 @@ export default function BlogCard({ blog, onDelete, showAdminFeatures }: BlogCard
           </h3>
 
           {/* Stats row */}
-          <div className="flex items-center justify-between text-xs text-slate-600">
+          <div className="flex items-center justify-between text-xs" style={{ color: 'var(--gb-fg-muted)' }}>
             <div className="flex items-center gap-3">
               <span className="inline-flex items-center gap-1">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,17 +88,18 @@ export default function BlogCard({ blog, onDelete, showAdminFeatures }: BlogCard
               </span>
             </div>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-purple-500" aria-hidden />
+              <span className="h-2 w-2 rounded-full" aria-hidden style={{ background: 'var(--gb-accent)' }} />
               {formatRelativeDate(blog.updated_at)}
             </span>
           </div>
 
           {/* Admin delete button */}
           {showAdminFeatures && (
-            <div className="mt-3 pt-3 border-t border-slate-100 flex justify-end">
+            <div className="mt-3 pt-3 flex justify-end" style={{ boxShadow: 'inset 0 1px 0 var(--gb-shadow)' }}>
               <button
                 onClick={handleDelete}
-                className="text-rose-600 hover:text-rose-700 font-semibold text-xs transition-colors"
+                className="font-semibold text-xs transition-colors"
+                style={{ color: 'var(--gb-error)' }}
                 aria-label="Delete blog"
               >
                 Delete

@@ -33,9 +33,13 @@ export default function CoreSkillCard({
 
   return (
     <motion.div
-      className={`group relative rounded-3xl bg-white/90 border-2 shadow-md transition-all ${
+      className={`group relative rounded-3xl shadow-md transition-all ${
         showAdminFeatures ? "cursor-move" : "cursor-pointer"
-      } ${isExpanded ? "border-blue-300 shadow-xl" : "border-slate-200 hover:border-blue-200 hover:shadow-lg"}`}
+      }`}
+      style={{
+        background: 'var(--gb-bg)',
+        boxShadow: isExpanded ? 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-primary)' : 'var(--gb-shadow-card)',
+      }}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.995 }}
       draggable={showAdminFeatures}
@@ -56,10 +60,10 @@ export default function CoreSkillCard({
       <div className="p-6 flex items-start justify-between gap-6">
         <div className="flex-1">
           <div className="flex items-center justify-between gap-4">
-            <h3 className="text-xl font-bold text-slate-900">{skill.name}</h3>
+            <h3 className="text-xl font-bold" style={{ color: 'var(--gb-fg)' }}>{skill.name}</h3>
             {bulletPoints.length > 0 && (
               <motion.span
-                className="text-slate-500"
+                style={{ color: 'var(--gb-fg-muted)' }}
                 animate={{ rotate: isExpanded ? 180 : 0 }}
                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] as const }}
               >
@@ -82,8 +86,8 @@ export default function CoreSkillCard({
               >
                 <ul className="mt-4 list-none space-y-3">
                   {bulletPoints.map((point, index) => (
-                    <li key={index} className="flex items-start gap-3 text-slate-700">
-                      <span className="text-blue-600 font-bold mt-1">•</span>
+                    <li key={index} className="flex items-start gap-3" style={{ color: 'var(--gb-fg-soft)' }}>
+                      <span className="font-bold mt-1" style={{ color: 'var(--gb-primary)' }}>*</span>
                       <span className="flex-1 text-sm leading-relaxed">{point}</span>
                     </li>
                   ))}
@@ -98,7 +102,8 @@ export default function CoreSkillCard({
             {onEdit && (
               <button
                 onClick={() => onEdit(skill)}
-                className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                className="p-2 rounded-lg transition-colors"
+                style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-primary)' }}
                 title="Edit skill"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,7 +119,8 @@ export default function CoreSkillCard({
             {onDelete && (
               <button
                 onClick={() => onDelete(skill.id)}
-                className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                className="p-2 rounded-lg transition-colors"
+                style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-error)' }}
                 title="Delete skill"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
