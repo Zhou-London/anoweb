@@ -20,6 +20,7 @@ export default function Navbar() {
     () => [
       { label: "Home", to: "/" },
       { label: "Community", to: "/community" },
+      { label: "Blogs", to: "/blogs" },
       { label: "Projects", to: "/projects" },
     ],
     []
@@ -263,6 +264,13 @@ export default function Navbar() {
                 onClick={() => setOpen(false)}
               >
                 Community
+              </Link>
+              <Link
+                to="/blogs"
+                className="block rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-50"
+                onClick={() => setOpen(false)}
+              >
+                Blogs
               </Link>
               <Link
                 to="/projects"
