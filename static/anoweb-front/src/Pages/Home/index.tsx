@@ -19,7 +19,7 @@ export default function Home() {
   const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
   const notifySuccess = useSuccessNotifier();
-  const { profile, education, setEducation, experience, setExperience, recentProjects, coreSkills, setCoreSkills } = useHomeData();
+  const { profile, education, setEducation, experience, setExperience, recentProjects, coreSkills, setCoreSkills, recentBlogs } = useHomeData();
   const [totalHours, setTotalHours] = useState(0);
   const [userHours, setUserHours] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -302,6 +302,69 @@ export default function Home() {
             </div>
           ) : (
             <p className="text-slate-600 text-center py-8">No new fans yet. Be the first to join!</p>
+          )}
+        </div>
+      </section>
+
+      {/* Recent Blogs Section */}
+      <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 overflow-hidden relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-rose-500/10" aria-hidden />
+        <div className="relative space-y-4 p-6 md:p-8">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <h2 className="text-2xl font-bold text-slate-900">Recent Blogs</h2>
+            <Link
+              to="/blogs"
+              className="inline-flex items-center gap-2 rounded-full bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-700"
+            >
+              See all blogs
+            </Link>
+          </div>
+          {recentBlogs.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {recentBlogs.map((blog) => (
+                <Link
+                  key={blog.id}
+                  to={`/blogs/${blog.id}`}
+                  className="group rounded-2xl bg-white border border-slate-200 overflow-hidden hover:shadow-md transition-shadow"
+                >
+                  <div className="aspect-video bg-slate-100 overflow-hidden">
+                    {blog.image_url ? (
+                      <img
+                        src={blog.image_url}
+                        alt={blog.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-rose-500/20 flex items-center justify-center">
+                        <span className="text-4xl">📝</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-slate-900 truncate">{blog.title}</h3>
+                    <div className="flex items-center gap-3 mt-2 text-xs text-slate-600">
+                      <span className="inline-flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        {blog.views}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                        </svg>
+                        {blog.likes_count}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white/80 p-6 text-slate-600">
+              No blogs found.
+            </div>
           )}
         </div>
       </section>

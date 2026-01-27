@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const MaxContentLength = 7500
+
 // GetPostLatest godoc
 // @Summary Get latest post
 // @Tags post
@@ -118,6 +120,12 @@ func PostPost(c *gin.Context, post_repo PostRepository) {
 		return
 	}
 
+	// Validate content length
+	if len(postReq.ContentMD) > MaxContentLength {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 7,500 character limit"})
+		return
+	}
+
 	post := Post{
 		ParentID:   postReq.ParentID,
 		ParentType: "project",
@@ -155,6 +163,12 @@ func PutPost(c *gin.Context, post_repo PostRepository) {
 	var putPostReq PutPostReq
 	if err := c.ShouldBindJSON(&putPostReq); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Validate content length
+	if len(putPostReq.ContentMD) > MaxContentLength {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 7,500 character limit"})
 		return
 	}
 

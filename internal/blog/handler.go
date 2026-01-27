@@ -1,0 +1,339 @@
+package blog
+
+import (
+	"net/http"
+	"strconv"
+
+	"anonchihaya.co.uk/internal/auth"
+	"anonchihaya.co.uk/internal/util"
+	"github.com/gin-gonic/gin"
+)
+
+const MaxContentLength = 7500
+
+// GetBlogs godoc
+// @Summary List all blogs
+// @Tags blog
+// @Produce json
+// @Success 200 {array} BlogShort
+// @Failure 500 {object} ErrorResponse
+// @Router /blog [get]
+func GetBlogs(c *gin.Context, blogRepo BlogRepository) {
+	blogs, err := blogRepo.GetAll()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, blogs)
+}
+
+// GetRecentBlogs godoc
+// @Summary Get recent blogs for home page
+// @Tags blog
+// @Produce json
+// @Success 200 {array} BlogShort
+// @Failure 500 {object} ErrorResponse
+// @Router /blog/recent [get]
+func GetRecentBlogs(c *gin.Context, blogRepo BlogRepository) {
+	blogs, err := blogRepo.GetRecent(3)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, blogs)
+}
+
+// GetBlog godoc
+// @Summary Get single blog with content
+// @Tags blog
+// @Produce json
+// @Param id path int true "Blog ID"
+// @Success 200 {object} BlogWithLikeStatus
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /blog/{id} [get]
+func GetBlog(c *gin.Context, blogRepo BlogRepository, blogLikeRepo BlogLikeRepository) {
+	id := c.Param("id")
+	blogID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid blog ID"})
+		return
+	}
+
+	blog, err := blogRepo.GetByID(blogID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Check if authenticated user has liked the blog
+	hasLiked := false
+	if user, exists := c.Get("user"); exists {
+		if fan, ok := user.(*auth.Fan); ok && fan != nil {
+			hasLiked, _ = blogLikeRepo.HasLiked(blogID, fan.ID)
+		}
+	}
+
+	response := BlogWithLikeStatus{
+		Blog:     *blog,
+		HasLiked: hasLiked,
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+// CreateBlog godoc
+// @Summary Create new blog
+// @Tags blog
+// @Accept json
+// @Produce json
+// @Param body body CreateBlogRequest true "Blog data"
+// @Success 201 {object} Blog
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /blog [post]
+func CreateBlog(c *gin.Context, blogRepo BlogRepository) {
+	type CreateBlogReq struct {
+		Title     string `json:"title" binding:"required"`
+		ContentMD string `json:"content_md"`
+		ImageURL  string `json:"image_url"`
+	}
+
+	var req CreateBlogReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Validate content length
+	if len(req.ContentMD) > MaxContentLength {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 7,500 character limit"})
+		return
+	}
+
+	blog := Blog{
+		Title:     req.Title,
+		ContentMD: req.ContentMD,
+		ImageURL:  req.ImageURL,
+	}
+
+	id, err := blogRepo.Create(&blog)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	blog.ID = id
+	c.JSON(http.StatusCreated, blog)
+}
+
+// UpdateBlog godoc
+// @Summary Update blog
+// @Tags blog
+// @Accept json
+// @Produce json
+// @Param body body UpdateBlogRequest true "Blog fields"
+// @Success 200 {object} Blog
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /blog [put]
+func UpdateBlog(c *gin.Context, blogRepo BlogRepository) {
+	type UpdateBlogReq struct {
+		ID        int    `json:"id" binding:"required"`
+		Title     string `json:"title"`
+		ContentMD string `json:"content_md"`
+		ImageURL  string `json:"image_url"`
+	}
+
+	var req UpdateBlogReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Validate content length
+	if len(req.ContentMD) > MaxContentLength {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 7,500 character limit"})
+		return
+	}
+
+	oldBlog, err := blogRepo.GetByID(req.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if oldBlog == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Blog not found"})
+		return
+	}
+
+	var newBlog Blog
+	newBlog.ID = req.ID
+	newBlog.Title = util.PickOrDefault(req.Title, oldBlog.Title)
+	newBlog.ContentMD = util.PickOrDefault(req.ContentMD, oldBlog.ContentMD)
+	newBlog.ImageURL = util.PickOrDefault(req.ImageURL, oldBlog.ImageURL)
+	newBlog.Views = oldBlog.Views
+	newBlog.LikesCount = oldBlog.LikesCount
+	newBlog.CreatedAt = oldBlog.CreatedAt
+
+	updatedBlog, err := blogRepo.Update(newBlog.ID, &newBlog)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, updatedBlog)
+}
+
+// DeleteBlog godoc
+// @Summary Delete blog
+// @Tags blog
+// @Produce json
+// @Param id path int true "Blog ID"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /blog/{id} [delete]
+func DeleteBlog(c *gin.Context, blogRepo BlogRepository) {
+	id := c.Param("id")
+	blogID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid blog ID"})
+		return
+	}
+
+	if err := blogRepo.Delete(blogID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Blog deleted successfully"})
+}
+
+// UpdateBlogImage godoc
+// @Summary Update blog cover image
+// @Tags blog
+// @Accept json
+// @Produce json
+// @Param body body UpdateBlogImageRequest true "Image URL"
+// @Success 200 {object} Blog
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /blog/update-image-url [post]
+func UpdateBlogImage(c *gin.Context, blogRepo BlogRepository) {
+	type UpdateImageReq struct {
+		ID       int    `json:"id" binding:"required"`
+		ImageURL string `json:"image_url" binding:"required"`
+	}
+
+	var req UpdateImageReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	blog, err := blogRepo.UpdateImageUrl(req.ID, req.ImageURL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, blog)
+}
+
+// IncrementView godoc
+// @Summary Increment blog view count
+// @Tags blog
+// @Produce json
+// @Param id path int true "Blog ID"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /blog/{id}/view [post]
+func IncrementView(c *gin.Context, blogRepo BlogRepository) {
+	id := c.Param("id")
+	blogID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid blog ID"})
+		return
+	}
+
+	if err := blogRepo.IncrementViews(blogID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "View incremented"})
+}
+
+// ToggleLike godoc
+// @Summary Toggle like on blog
+// @Tags blog
+// @Produce json
+// @Param id path int true "Blog ID"
+// @Success 200 {object} ToggleLikeResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /blog/{id}/like [post]
+func ToggleLike(c *gin.Context, blogRepo BlogRepository, blogLikeRepo BlogLikeRepository) {
+	id := c.Param("id")
+	blogID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid blog ID"})
+		return
+	}
+
+	user, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+
+	fan, ok := user.(*auth.Fan)
+	if !ok || fan == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user"})
+		return
+	}
+
+	hasLiked, err := blogLikeRepo.HasLiked(blogID, fan.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if hasLiked {
+		// Unlike
+		if err := blogLikeRepo.Unlike(blogID, fan.ID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		if err := blogRepo.DecrementLikesCount(blogID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	} else {
+		// Like
+		if err := blogLikeRepo.Like(blogID, fan.ID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		if err := blogRepo.IncrementLikesCount(blogID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
+	// Get updated blog for response
+	blog, err := blogRepo.GetByID(blogID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"has_liked":   !hasLiked,
+		"likes_count": blog.LikesCount,
+	})
+}

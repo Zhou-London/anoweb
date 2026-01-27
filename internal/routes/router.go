@@ -2,6 +2,7 @@ package routes
 
 import (
 	"anonchihaya.co.uk/internal/auth"
+	"anonchihaya.co.uk/internal/blog"
 	"anonchihaya.co.uk/internal/coreskill"
 	"anonchihaya.co.uk/internal/education"
 	"anonchihaya.co.uk/internal/experience"
@@ -36,6 +37,8 @@ func InitRoutes(
 	popupRepo *guestpopup.GuestPopupConfigRepository,
 	statsRepo *statistics.StatisticsRepository,
 	coreSkillRepo coreskill.CoreSkillRepository,
+	blogRepo blog.BlogRepository,
+	blogLikeRepo blog.BlogLikeRepository,
 ) {
 	registerSwaggerRoutes(r)
 	registerFanRoutes(r, domain, imgPath, imgURLPrefix, fanRepo, sessionRepo)
@@ -51,4 +54,5 @@ func InitRoutes(
 	registerGuestPopupRoutes(r, key, popupRepo, sessionRepo)
 	registerStatisticsRoutes(r, statsRepo, trackingRepo, sessionRepo)
 	registerCoreSkillRoutes(r, key, coreSkillRepo, sessionRepo)
+	registerBlogRoutes(r, blogRepo, blogLikeRepo, sessionRepo)
 }

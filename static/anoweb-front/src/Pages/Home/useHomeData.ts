@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { apiJson } from "../../lib/api";
 import type { Profile, Education, Experience, CoreSkill, Post } from "./types";
 import type { Project } from "../Projects/types";
+import type { BlogShort } from "../Blogs/types";
 
 export function useHomeData() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -9,6 +10,7 @@ export function useHomeData() {
   const [experience, setExperience] = useState<Experience[]>([]);
   const [recentProjects, setRecentProjects] = useState<Project[]>([]);
   const [coreSkills, setCoreSkills] = useState<CoreSkill[]>([]);
+  const [recentBlogs, setRecentBlogs] = useState<BlogShort[]>([]);
 
   useEffect(() => {
     apiJson<Profile>("/profile").then(setProfile).catch(() => setProfile(null));
@@ -57,7 +59,12 @@ export function useHomeData() {
       .catch(() => setRecentProjects([]));
 
     apiJson<CoreSkill[]>("/core-skill").then(setCoreSkills).catch(() => setCoreSkills([]));
+
+    // Fetch recent blogs
+    apiJson<BlogShort[]>("/blog/recent")
+      .then(setRecentBlogs)
+      .catch(() => setRecentBlogs([]));
   }, []);
 
-  return { profile, education, setEducation, experience, setExperience, recentProjects, coreSkills, setCoreSkills };
+  return { profile, education, setEducation, experience, setExperience, recentProjects, coreSkills, setCoreSkills, recentBlogs };
 }
