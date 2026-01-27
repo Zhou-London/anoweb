@@ -118,23 +118,24 @@ export default function AccountPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
-        <h1 className="text-3xl font-bold text-slate-900 mb-6">Account Settings</h1>
+      <div className="rounded-2xl shadow-sm p-6 md:p-8" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+        <h1 className="text-3xl font-bold mb-6" style={{ color: 'var(--gb-fg)' }}>Account Settings</h1>
 
         <div className="space-y-6">
           {/* Profile Photo Section */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-3">Profile Photo</label>
+            <label className="block text-sm font-medium mb-3" style={{ color: 'var(--gb-fg-soft)' }}>Profile Photo</label>
             <div className="flex items-center gap-4">
               <div className="relative">
                 {fan.profile_photo ? (
                   <img
                     src={fan.profile_photo}
                     alt={fan.username}
-                    className="w-20 h-20 rounded-full object-cover border-2 border-slate-200"
+                    className="w-20 h-20 rounded-full object-cover"
+                    style={{ border: '2px solid var(--gb-border)' }}
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
                     {fan.username.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -150,7 +151,8 @@ export default function AccountPage() {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={loading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
                 >
                   Upload Photo
                 </button>
@@ -160,29 +162,31 @@ export default function AccountPage() {
 
           {/* User Info */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Username</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--gb-fg-soft)' }}>Username</label>
             <input
               type="text"
               value={fan.username}
               disabled
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed"
+              className="w-full px-3 py-2 rounded-lg cursor-not-allowed"
+              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg-muted)' }}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--gb-fg-soft)' }}>Email</label>
             <input
               type="email"
               value={fan.email}
               disabled
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed"
+              className="w-full px-3 py-2 rounded-lg cursor-not-allowed"
+              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg-muted)' }}
             />
           </div>
 
           {/* Bio Section */}
           <form onSubmit={handleUpdateProfile}>
             <div>
-              <label htmlFor="bio" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="bio" className="block text-sm font-medium mb-1" style={{ color: 'var(--gb-fg-soft)' }}>
                 Bio
               </label>
               <textarea
@@ -190,7 +194,8 @@ export default function AccountPage() {
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 rounded-lg resize-none focus:outline-none"
+                style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
                 placeholder="Tell us about yourself..."
               />
             </div>
@@ -198,7 +203,8 @@ export default function AccountPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="mt-4 px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>
@@ -206,9 +212,9 @@ export default function AccountPage() {
 
           {/* Mystery Code Section */}
           {!fan.is_admin && (
-            <div className="mt-6 p-6 bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 rounded-lg">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Unlock Admin Access</h3>
-              <p className="text-sm text-slate-600 mb-4">
+            <div className="mt-6 p-6 rounded-lg" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-accent)' }}>
+              <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--gb-fg)' }}>Unlock Admin Access</h3>
+              <p className="text-sm mb-4" style={{ color: 'var(--gb-fg-soft)' }}>
                 Have a mystery code? Enter it below to gain administrator privileges.
               </p>
               <form
@@ -241,13 +247,15 @@ export default function AccountPage() {
                   type="text"
                   name="mystery_code"
                   placeholder="Enter mystery code"
-                  className="flex-1 px-3 py-2 border border-violet-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  className="flex-1 px-3 py-2 rounded-lg focus:outline-none"
+                  style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-accent)', color: 'var(--gb-fg)' }}
                   required
                 />
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg font-medium hover:from-violet-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-6 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: 'var(--gb-accent)', color: 'var(--gb-bg)' }}
                 >
                   {loading ? "Verifying..." : "Verify"}
                 </button>
@@ -257,12 +265,12 @@ export default function AccountPage() {
 
           {/* Admin Badge */}
           {fan.is_admin && (
-            <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <div className="mt-6 p-4 rounded-lg" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-success)' }}>
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" /> Admin
+                <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-semibold" style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}>
+                  <span className="h-2 w-2 rounded-full" style={{ background: 'var(--gb-bg)' }} /> Admin
                 </span>
-                <span className="text-sm text-slate-600">You have administrator privileges</span>
+                <span className="text-sm" style={{ color: 'var(--gb-fg-soft)' }}>You have administrator privileges</span>
               </div>
             </div>
           )}
@@ -270,31 +278,31 @@ export default function AccountPage() {
       </div>
 
       {/* Session History */}
-      <div className="mt-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-slate-900 mb-6 flex items-center gap-2">
-          <span>📝</span> Your Session History
+      <div className="mt-6 rounded-2xl shadow-sm p-6 md:p-8" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+        <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2" style={{ color: 'var(--gb-fg)' }}>
+          Your Session History
         </h2>
         {records.length === 0 ? (
-          <p className="text-slate-600 text-center py-8">No session records yet. Keep exploring!</p>
+          <p className="text-center py-8" style={{ color: 'var(--gb-fg-soft)' }}>No session records yet. Keep exploring!</p>
         ) : (
           <>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-200">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Start Time</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">End Time</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Duration</th>
+                  <tr style={{ borderBottom: '1px solid var(--gb-border)' }}>
+                    <th className="text-left py-3 px-4 text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>Start Time</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>End Time</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>Duration</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pagedRecords.map((record) => (
-                    <tr key={record.id} className="border-b border-slate-100 hover:bg-slate-50/70">
-                      <td className="py-3 px-4 text-sm text-slate-700">{formatDate(record.start_time)}</td>
-                      <td className="py-3 px-4 text-sm text-slate-700">
+                    <tr key={record.id} className="hover:opacity-80" style={{ borderBottom: '1px solid var(--gb-bg-soft)' }}>
+                      <td className="py-3 px-4 text-sm" style={{ color: 'var(--gb-fg-soft)' }}>{formatDate(record.start_time)}</td>
+                      <td className="py-3 px-4 text-sm" style={{ color: 'var(--gb-fg-soft)' }}>
                         {record.end_time ? formatDate(record.end_time) : "Active"}
                       </td>
-                      <td className="py-3 px-4 text-sm text-slate-700">{formatDuration(record.duration)}</td>
+                      <td className="py-3 px-4 text-sm" style={{ color: 'var(--gb-fg-soft)' }}>{formatDuration(record.duration)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -305,20 +313,22 @@ export default function AccountPage() {
                 type="button"
                 onClick={() => setPageIndex((prev) => Math.max(0, prev - 1))}
                 disabled={!hasPrevPage}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
+                style={{ border: '1px solid var(--gb-border)', color: 'var(--gb-fg-soft)' }}
                 aria-label="Previous page"
               >
                 <span aria-hidden="true">←</span>
                 Prev
               </button>
-              <span className="text-sm font-medium text-slate-500">
+              <span className="text-sm font-medium" style={{ color: 'var(--gb-fg-muted)' }}>
                 Page {pageIndex + 1} of {totalPages}
               </span>
               <button
                 type="button"
                 onClick={() => setPageIndex((prev) => Math.min(totalPages - 1, prev + 1))}
                 disabled={!hasNextPage}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
+                style={{ border: '1px solid var(--gb-border)', color: 'var(--gb-fg-soft)' }}
                 aria-label="Next page"
               >
                 Next

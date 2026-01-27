@@ -176,7 +176,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
 
   if (!Array.isArray(experience) || experience.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-6 text-sm text-slate-600">
+      <div className="rounded-2xl p-6 text-sm" style={{ border: '1px dashed var(--gb-border)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-soft)' }}>
         No career entries yet.
       </div>
     );
@@ -199,24 +199,26 @@ export default function ExperienceCard({ experience, setExperience }: Experience
               const fromIndex = Number(e.dataTransfer.getData("text/plain"));
               handleDrop(fromIndex, index);
             }}
-            className={`group relative overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-4 transition-all duration-200 shadow-sm hover:shadow-md ${
+            className={`group relative overflow-hidden rounded-2xl p-4 transition-all duration-200 shadow-sm hover:shadow-md ${
               showAdminFeatures ? "cursor-grab" : "cursor-default"
             }`}
+            style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}
           >
-            <div className="hidden sm:absolute sm:left-4 sm:top-4 sm:bottom-4 sm:w-px sm:bg-slate-200/80" aria-hidden />
+            <div className="hidden sm:absolute sm:left-4 sm:top-4 sm:bottom-4 sm:w-px" style={{ background: 'var(--gb-border)' }} aria-hidden />
             <div className="flex flex-col gap-4 sm:grid sm:grid-cols-[auto_1fr_auto] sm:items-start sm:gap-4">
-              <div className="flex items-center gap-3 text-sm text-slate-600 sm:flex-col sm:items-center sm:gap-2">
-                <span className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 border border-blue-100 grid place-items-center font-semibold shadow-sm">
+              <div className="flex items-center gap-3 text-sm sm:flex-col sm:items-center sm:gap-2" style={{ color: 'var(--gb-fg-soft)' }}>
+                <span className="h-8 w-8 rounded-full grid place-items-center font-semibold shadow-sm" style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-primary)', border: '1px solid var(--gb-primary)' }}>
                   {index + 1}
                 </span>
-                {exp.present && <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-1">Current</span>}
+                {exp.present && <span className="rounded-full px-2 py-1" style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}>Current</span>}
               </div>
               <div className="flex items-start gap-4 sm:col-auto">
                 <div className="relative group/img">
                   <img
                     src={exp.image_url}
                     alt={exp.company}
-                    className="w-14 h-14 rounded-xl object-cover shadow-sm border border-slate-200"
+                    className="w-14 h-14 rounded-xl object-cover shadow-sm"
+                    style={{ border: '1px solid var(--gb-border)' }}
                   />
                   {showAdminFeatures && (
                     <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer">
@@ -231,29 +233,30 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                     </label>
                   )}
                   {imageErrors[exp.id] && (
-                    <span className="absolute -bottom-5 left-0 text-xs text-rose-600 whitespace-nowrap">{imageErrors[exp.id]}</span>
+                    <span className="absolute -bottom-5 left-0 text-xs whitespace-nowrap" style={{ color: 'var(--gb-error)' }}>{imageErrors[exp.id]}</span>
                   )}
                 </div>
                 <div className="min-w-0 flex-1 space-y-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-base font-semibold text-slate-900 truncate">{exp.company}</p>
-                    {showAdminFeatures && <span className="text-xs font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">Drag</span>}
+                    <p className="text-base font-semibold truncate" style={{ color: 'var(--gb-fg)' }}>{exp.company}</p>
+                    {showAdminFeatures && <span className="text-xs font-medium rounded-full px-2 py-0.5" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>Drag</span>}
                   </div>
-                  <p className="text-xs text-slate-600 truncate">{exp.position}</p>
-                  {!showAdminFeatures && exp.description && <p className="text-sm text-slate-700 leading-snug">{exp.description}</p>}
+                  <p className="text-xs truncate" style={{ color: 'var(--gb-fg-soft)' }}>{exp.position}</p>
+                  {!showAdminFeatures && exp.description && <p className="text-sm leading-snug" style={{ color: 'var(--gb-fg-soft)' }}>{exp.description}</p>}
                   {showAdminFeatures && (
-                    <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50/70 p-3">
+                    <div className="space-y-2 rounded-lg p-3" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}>
                       <div className="flex items-center justify-between gap-2">
-                        <label className="text-xs font-medium text-slate-700" htmlFor={`description-${exp.id}`}>
+                        <label className="text-xs font-medium" style={{ color: 'var(--gb-fg-soft)' }} htmlFor={`description-${exp.id}`}>
                           Description
                         </label>
-                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700 border border-amber-100">
+                        <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ background: 'var(--gb-warning)', color: 'var(--gb-bg)' }}>
                           Admin edit
                         </span>
                       </div>
                       <textarea
                         id={`description-${exp.id}`}
-                        className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                        className="w-full rounded-md px-3 py-2 text-sm focus:outline-none"
+                        style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
                         rows={3}
                         value={getDescriptionDraft(exp)}
                         onChange={(e) => handleDescriptionChange(exp, e.target.value)}
@@ -264,45 +267,48 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                           type="button"
                           onClick={() => handleSaveDescription(exp)}
                           disabled={savingDescription[exp.id]}
-                          className="rounded-full bg-blue-600 text-white px-3 py-1.5 text-xs font-semibold shadow-sm hover:bg-blue-700 disabled:bg-blue-300"
+                          className="rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm disabled:opacity-50"
+                          style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
                         >
                           {savingDescription[exp.id] ? "Saving…" : "Save description"}
                         </button>
-                        {descriptionErrors[exp.id] && <span className="text-xs text-rose-600">{descriptionErrors[exp.id]}</span>}
+                        {descriptionErrors[exp.id] && <span className="text-xs" style={{ color: 'var(--gb-error)' }}>{descriptionErrors[exp.id]}</span>}
                       </div>
                     </div>
                   )}
                   {Array.isArray(exp.bullet_points) && exp.bullet_points.length > 0 && (
-                    <ul className="mt-2 space-y-1 text-sm text-slate-800 list-disc list-inside">
+                    <ul className="mt-2 space-y-1 text-sm list-disc list-inside" style={{ color: 'var(--gb-fg)' }}>
                       {exp.bullet_points.map((point, idx) => (
                         <li key={idx} className="leading-snug">{point}</li>
                       ))}
                     </ul>
                   )}
                   {showAdminFeatures && (
-                    <div className="mt-3 space-y-3 rounded-lg border border-slate-200 bg-slate-50/70 p-3">
+                    <div className="mt-3 space-y-3 rounded-lg p-3" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}>
                       <div className="flex items-center justify-between gap-2">
-                        <label className="text-xs font-medium text-slate-700" htmlFor={`bullets-${exp.id}`}>
+                        <label className="text-xs font-medium" style={{ color: 'var(--gb-fg-soft)' }} htmlFor={`bullets-${exp.id}`}>
                           Bullet points
                         </label>
-                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700 border border-blue-100">
+                        <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
                           Editable
                         </span>
                       </div>
                       <div className="space-y-2">
-                        {draftBullets.length === 0 && <p className="text-xs text-slate-500">No bullet points yet.</p>}
+                        {draftBullets.length === 0 && <p className="text-xs" style={{ color: 'var(--gb-fg-muted)' }}>No bullet points yet.</p>}
                         {draftBullets.map((point, idx) => (
                           <div key={`${exp.id}-bullet-${idx}`} className="flex items-center gap-2">
                             <input
                               id={`bullets-${exp.id}-${idx}`}
-                              className="w-full rounded-md border border-slate-200 px-2 py-1.5 text-sm focus:border-blue-500 focus:ring-blue-500"
+                              className="w-full rounded-md px-2 py-1.5 text-sm focus:outline-none"
+                              style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
                               value={point}
                               onChange={(e) => handleBulletChange(exp, idx, e.target.value)}
                             />
                             <button
                               type="button"
                               onClick={() => handleRemoveBullet(exp, idx)}
-                              className="rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-100"
+                              className="rounded-md px-2 py-1 text-xs font-semibold"
+                              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-error)', color: 'var(--gb-error)' }}
                             >
                               Delete
                             </button>
@@ -310,7 +316,8 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                         ))}
                         <div className="flex flex-col gap-2 sm:flex-row">
                           <input
-                            className="w-full rounded-md border border-slate-200 px-2 py-1.5 text-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="w-full rounded-md px-2 py-1.5 text-sm focus:outline-none"
+                            style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
                             value={newBulletText[exp.id] ?? ""}
                             placeholder="Add bullet point"
                             onChange={(e) => setNewBulletText((prev) => ({ ...prev, [exp.id]: e.target.value }))}
@@ -318,7 +325,8 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                           <button
                             type="button"
                             onClick={() => handleAddBullet(exp)}
-                            className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700"
+                            className="rounded-md px-3 py-1.5 text-xs font-semibold shadow-sm"
+                            style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}
                           >
                             Add
                           </button>
@@ -329,22 +337,23 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                           type="button"
                           onClick={() => handleSaveBullets(exp)}
                           disabled={savingBullets[exp.id]}
-                          className="rounded-full bg-blue-600 text-white px-3 py-1.5 text-xs font-semibold shadow-sm hover:bg-blue-700 disabled:bg-blue-300"
+                          className="rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm disabled:opacity-50"
+                          style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
                         >
                           {savingBullets[exp.id] ? "Saving…" : "Save bullets"}
                         </button>
-                        {bulletErrors[exp.id] && <span className="text-xs text-rose-600">{bulletErrors[exp.id]}</span>}
+                        {bulletErrors[exp.id] && <span className="text-xs" style={{ color: 'var(--gb-error)' }}>{bulletErrors[exp.id]}</span>}
                       </div>
                     </div>
                   )}
                 </div>
               </div>
               <div className="flex flex-col items-start gap-2 text-left sm:items-end sm:text-right sm:min-w-[140px]">
-                <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-                  <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
-                  <span className="rounded-full bg-slate-50 border border-slate-200 px-2 py-1">{range}</span>
+                <div className="flex flex-wrap items-center gap-2 text-sm" style={{ color: 'var(--gb-fg-soft)' }}>
+                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'var(--gb-primary)' }} />
+                  <span className="rounded-full px-2 py-1" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}>{range}</span>
                 </div>
-                {exp.present && <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-1 text-xs">Active</span>}
+                {exp.present && <span className="rounded-full px-2 py-1 text-xs" style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}>Active</span>}
               </div>
             </div>
           </li>

@@ -39,7 +39,6 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
       });
 
       if (!res.ok) throw new Error("Image upload failed");
-      // Force image refresh by updating the key (image URL stays the same)
       setImageKey(Date.now());
     } catch (err) {
       notifyError(err instanceof Error ? err.message : "Upload failed");
@@ -50,22 +49,23 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
   if (!profile) {
     return (
-      <div className="bg-white/80 rounded-3xl shadow-lg p-6 w-full border border-slate-200 animate-pulse h-[420px]" />
+      <div className="rounded-3xl shadow-lg p-6 w-full animate-pulse h-[420px]" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }} />
     );
   }
 
   return (
-    <article className="relative overflow-hidden rounded-3xl bg-white/90 border border-slate-200 shadow-lg p-6 md:p-8">
+    <article className="relative overflow-hidden rounded-3xl shadow-lg p-6 md:p-8" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
       <div className="flex items-start gap-6">
         <div className="shrink-0 relative group/img">
           <img
             src={`/image/profile-img.png?v=${imageKey}`}
             alt="Profile"
-            className="w-36 h-36 md:w-40 md:h-40 rounded-2xl object-cover border border-slate-200 shadow-sm"
+            className="w-36 h-36 md:w-40 md:h-40 rounded-2xl object-cover shadow-sm"
+            style={{ border: '1px solid var(--gb-border)' }}
           />
           {showAdminFeatures && (
-            <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-2xl opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer">
-              <span className="text-white text-sm font-medium">{uploading ? "Uploading..." : "Edit"}</span>
+            <label className="absolute inset-0 flex items-center justify-center rounded-2xl opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer" style={{ background: 'var(--gb-overlay)' }}>
+              <span className="text-sm font-medium" style={{ color: 'var(--gb-bg)' }}>{uploading ? "Uploading..." : "Edit"}</span>
               <input
                 type="file"
                 accept="image/*"
@@ -78,8 +78,8 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         </div>
         <div className="min-w-0 space-y-4 flex-1">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-slate-900">{profile.name}</h2>
-            <p className="text-slate-600 leading-relaxed whitespace-pre-line">{profile.bio}</p>
+            <h2 className="text-2xl font-bold" style={{ color: 'var(--gb-fg)' }}>{profile.name}</h2>
+            <p className="leading-relaxed whitespace-pre-line" style={{ color: 'var(--gb-fg-soft)' }}>{profile.bio}</p>
           </div>
 
           <div className="flex items-center gap-2 pt-2">
@@ -92,11 +92,12 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
                 <button
                   key={field.key}
                   type="button"
-                  className={`inline-flex items-center justify-center px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                    isDisabled
-                      ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                      : "bg-slate-100 text-slate-700 hover:bg-indigo-600 hover:text-white hover:scale-105 active:scale-95"
-                  }`}
+                  className="inline-flex items-center justify-center px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200"
+                  style={{
+                    background: isDisabled ? 'var(--gb-bg-muted)' : 'var(--gb-bg-soft)',
+                    color: isDisabled ? 'var(--gb-fg-faint)' : 'var(--gb-fg-soft)',
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                  }}
                   onClick={() => href && window.open(href, "_blank", "noopener,noreferrer")}
                   disabled={isDisabled}
                 >

@@ -64,7 +64,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
         body: JSON.stringify({ ...formData }),
       });
       if (!response.ok) throw new Error("Failed to update project");
-      
+
       onProjectUpdate(); // Refresh the main project list to show changes
       setIsEditing(false); // Exit edit mode
     } catch (err) {
@@ -73,11 +73,11 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
       setIsSubmitting(false);
     }
   };
-  
+
   // Render the editable form when in edit mode
   if (isEditing) {
     return (
-      <section className="flex-1 rounded-3xl bg-white/80 backdrop-blur-lg overflow-hidden border border-blue-200/50 flex flex-col p-4 sm:p-6 md:p-8 mb-6 min-h-0 shadow-lg">
+      <section className="flex-1 rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col p-4 sm:p-6 md:p-8 mb-6 min-h-0 shadow-lg" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-primary)' }}>
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6 md:gap-8 h-full">
           {/* Left side: Image Upload */}
           <div className="w-full md:w-1/3 flex flex-col items-center gap-4">
@@ -87,47 +87,51 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
               accept="image/*"
               onChange={handleImageUpload}
               disabled={isUploading}
-              className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 w-full"
+              className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold w-full"
+              style={{ color: 'var(--gb-fg-muted)' }}
             />
-            {isUploading && <p className="text-sm text-slate-500">Uploading...</p>}
+            {isUploading && <p className="text-sm" style={{ color: 'var(--gb-fg-muted)' }}>Uploading...</p>}
           </div>
 
           {/* Right side: Text Fields and Buttons */}
           <div className="flex-1 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-slate-700">Name</label>
+              <label htmlFor="name" className="block text-sm font-medium" style={{ color: 'var(--gb-fg-soft)' }}>Name</label>
               <input
                 type="text"
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="mt-1 block w-full rounded-md border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                className="mt-1 block w-full rounded-md shadow-sm p-2 focus:outline-none"
+                style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
               />
             </div>
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-slate-700">Description</label>
+              <label htmlFor="description" className="block text-sm font-medium" style={{ color: 'var(--gb-fg-soft)' }}>Description</label>
               <textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={5}
-                className="mt-1 block w-full rounded-md border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                className="mt-1 block w-full rounded-md shadow-sm p-2 focus:outline-none"
+                style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
               />
             </div>
             <div>
-              <label htmlFor="link" className="block text-sm font-medium text-slate-700">Link</label>
+              <label htmlFor="link" className="block text-sm font-medium" style={{ color: 'var(--gb-fg-soft)' }}>Link</label>
               <input
                 type="url"
                 id="link"
                 value={formData.link}
                 onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                className="mt-1 block w-full rounded-md border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                className="mt-1 block w-full rounded-md shadow-sm p-2 focus:outline-none"
+                style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
               />
             </div>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm" style={{ color: 'var(--gb-error)' }}>{error}</p>}
             <div className="flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-3 sm:gap-4 mt-auto pt-4">
-              <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 rounded-md text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200">Cancel</button>
-              <button type="submit" disabled={isSubmitting || isUploading} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300">
+              <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 rounded-md text-sm font-medium" style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-soft)' }}>Cancel</button>
+              <button type="submit" disabled={isSubmitting || isUploading} className="px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
                 {isSubmitting ? "Saving..." : "Save Changes"}
               </button>
             </div>
@@ -142,12 +146,13 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
   const descriptionNeedsExpansion = project.description.length > 400; // rough character count
 
   return (
-    <section className="flex-1 rounded-3xl bg-white/70 backdrop-blur-lg overflow-hidden border border-blue-200/50 flex flex-col md:flex-row gap-6 md:gap-8 p-4 sm:p-6 md:p-8 mb-6 min-h-0 shadow-lg relative">
+    <section className="flex-1 rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col md:flex-row gap-6 md:gap-8 p-4 sm:p-6 md:p-8 mb-6 min-h-0 shadow-lg relative" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
       {/* Edit button for admins */}
       {showAdminFeatures && (
         <button
           onClick={() => setIsEditing(true)}
-          className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white/80 hover:bg-white text-slate-600 font-semibold py-1.5 px-3 sm:py-2 sm:px-4 rounded-lg shadow text-xs sm:text-sm transition-colors z-10"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 font-semibold py-1.5 px-3 sm:py-2 sm:px-4 rounded-lg shadow text-xs sm:text-sm transition-colors z-10"
+          style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-soft)' }}
         >
           Edit
         </button>
@@ -160,13 +165,14 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
         />
       </div>
       <div className="overflow-y-auto custom-scrollbar flex-1 min-w-0">
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-4 pr-16 md:pr-0">{project.name}</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-4 pr-16 md:pr-0" style={{ color: 'var(--gb-fg)' }}>{project.name}</h2>
         <div className="relative mb-4">
           <div
-            className={`text-slate-700 whitespace-pre-wrap leading-relaxed overflow-hidden transition-all duration-300 ${
+            className={`whitespace-pre-wrap leading-relaxed overflow-hidden transition-all duration-300 ${
               isDescriptionExpanded ? 'max-h-none' : 'max-h-[300px]'
             }`}
             style={{
+              color: 'var(--gb-fg-soft)',
               maskImage: !isDescriptionExpanded && descriptionNeedsExpansion
                 ? 'linear-gradient(to bottom, black 60%, transparent 100%)'
                 : 'none',
@@ -180,7 +186,8 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
           {descriptionNeedsExpansion && (
             <button
               onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-              className="mt-2 text-blue-600 hover:text-blue-800 font-semibold text-sm transition-colors flex items-center gap-1"
+              className="mt-2 font-semibold text-sm transition-colors flex items-center gap-1"
+              style={{ color: 'var(--gb-primary)' }}
             >
               {isDescriptionExpanded ? (
                 <>
@@ -200,7 +207,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
             </button>
           )}
         </div>
-        <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
+        <a href={project.link} target="_blank" rel="noopener noreferrer" className="font-semibold transition-colors" style={{ color: 'var(--gb-primary)' }}>
           Visit Project →
         </a>
       </div>

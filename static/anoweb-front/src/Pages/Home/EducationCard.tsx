@@ -26,7 +26,7 @@ type EducationRowProps = {
 
 function EducationRow({ edu, showAdminFeatures, onImageUpload, uploadingImage, imageError }: EducationRowProps) {
   return (
-    <li className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-r from-white to-slate-50 hover:from-indigo-50/50 hover:to-white p-4 transition-all duration-200 shadow-sm">
+    <li className="group relative overflow-hidden rounded-2xl p-4 transition-all duration-200 shadow-sm" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}>
       <div className="flex items-start gap-4">
         <div className="shrink-0 relative group/img">
           <img
@@ -35,11 +35,12 @@ function EducationRow({ edu, showAdminFeatures, onImageUpload, uploadingImage, i
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/64?text=Edu";
             }}
-            className="w-12 h-12 rounded-lg object-cover shadow-sm border border-slate-200 bg-white"
+            className="w-12 h-12 rounded-lg object-cover shadow-sm"
+            style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}
           />
           {showAdminFeatures && (
-            <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer">
-              <span className="text-white text-xs font-medium">{uploadingImage ? "..." : "Edit"}</span>
+            <label className="absolute inset-0 flex items-center justify-center rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer" style={{ background: 'var(--gb-overlay)' }}>
+              <span className="text-xs font-medium" style={{ color: 'var(--gb-bg)' }}>{uploadingImage ? "..." : "Edit"}</span>
               <input
                 type="file"
                 accept="image/*"
@@ -50,31 +51,32 @@ function EducationRow({ edu, showAdminFeatures, onImageUpload, uploadingImage, i
             </label>
           )}
           {imageError && (
-            <span className="absolute -bottom-5 left-0 text-xs text-rose-600 whitespace-nowrap">{imageError}</span>
+            <span className="absolute -bottom-5 left-0 text-xs whitespace-nowrap" style={{ color: 'var(--gb-error)' }}>{imageError}</span>
           )}
         </div>
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-slate-900 truncate">{edu.school}</p>
-            <span className="rounded-full bg-slate-50 border border-slate-200 text-xs px-2 py-0.5 text-slate-700">
+            <p className="text-sm font-semibold truncate" style={{ color: 'var(--gb-fg)' }}>{edu.school}</p>
+            <span className="rounded-full text-xs px-2 py-0.5" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg-soft)' }}>
               {formatRange(edu.start_date, edu.end_date)}
             </span>
           </div>
-          <p className="text-xs text-slate-600 truncate">{edu.degree}</p>
-          <div className="flex items-center gap-3 text-xs text-slate-600">
+          <p className="text-xs truncate" style={{ color: 'var(--gb-fg-muted)' }}>{edu.degree}</p>
+          <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--gb-fg-muted)' }}>
             {edu.link ? (
               <a
                 href={edu.link}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 text-indigo-700 hover:text-indigo-800 font-semibold"
+                className="inline-flex items-center gap-1 font-semibold"
+                style={{ color: 'var(--gb-primary)' }}
               >
                 View credential
                 <span aria-hidden>↗</span>
               </a>
             ) : (
-              <span className="inline-flex items-center gap-1 text-slate-500">
-                <span className="h-2 w-2 rounded-full bg-slate-300" aria-hidden />
+              <span className="inline-flex items-center gap-1" style={{ color: 'var(--gb-fg-faint)' }}>
+                <span className="h-2 w-2 rounded-full" aria-hidden style={{ background: 'var(--gb-bg-muted)' }} />
                 No link provided
               </span>
             )}
@@ -131,10 +133,10 @@ export default function EducationCard({ education, setEducation }: EducationCard
   };
 
   return (
-    <article className="bg-white/90 rounded-3xl shadow-lg border border-slate-200 p-6 md:p-8 h-full flex flex-col gap-4">
-      <h2 className="text-2xl font-bold text-slate-900">Education</h2>
+    <article className="rounded-3xl shadow-lg p-6 md:p-8 h-full flex flex-col gap-4" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+      <h2 className="text-2xl font-bold" style={{ color: 'var(--gb-fg)' }}>Education</h2>
       {education.length === 0 ? (
-        <div className="flex-1 rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 text-slate-600 grid place-items-center text-sm px-4 py-10">
+        <div className="flex-1 rounded-2xl grid place-items-center text-sm px-4 py-10" style={{ border: '1px dashed var(--gb-border)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-muted)' }}>
           No education added yet.
         </div>
       ) : (

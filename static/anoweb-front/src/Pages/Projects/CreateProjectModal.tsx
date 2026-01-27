@@ -13,7 +13,7 @@ export default function CreateProjectModal({ onClose, onSuccess }: CreateProject
   const [description, setDescription] = useState("");
   const [link, setLink] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  
+
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +66,7 @@ export default function CreateProjectModal({ onClose, onSuccess }: CreateProject
       if (!response.ok) {
         throw new Error("Failed to create project");
       }
-      
+
       onSuccess(); // Trigger project list refresh
       onClose();   // Close modal
     } catch (err) {
@@ -78,55 +78,58 @@ export default function CreateProjectModal({ onClose, onSuccess }: CreateProject
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl p-8 max-w-2xl w-full shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-2xl font-bold text-slate-800 mb-6">Create New Project</h2>
-        
+      <div className="rounded-2xl p-8 max-w-2xl w-full shadow-xl" style={{ background: 'var(--gb-bg)' }} onClick={(e) => e.stopPropagation()}>
+        <h2 className="text-2xl font-bold mb-6" style={{ color: 'var(--gb-fg)' }}>Create New Project</h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-slate-700">Project Name</label>
+            <label htmlFor="name" className="block text-sm font-medium" style={{ color: 'var(--gb-fg-soft)' }}>Project Name</label>
             <input
               type="text"
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="mt-1 block w-full rounded-md border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md shadow-sm focus:outline-none p-2"
+              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
             />
           </div>
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-slate-700">Description</label>
+            <label htmlFor="description" className="block text-sm font-medium" style={{ color: 'var(--gb-fg-soft)' }}>Description</label>
             <textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              className="mt-1 block w-full rounded-md border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md shadow-sm focus:outline-none p-2"
+              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
             />
           </div>
           <div>
-            <label htmlFor="link" className="block text-sm font-medium text-slate-700">Project Link</label>
+            <label htmlFor="link" className="block text-sm font-medium" style={{ color: 'var(--gb-fg-soft)' }}>Project Link</label>
             <input
               type="url"
               id="link"
               value={link}
               onChange={(e) => setLink(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md shadow-sm focus:outline-none p-2"
+              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700">Cover Image</label>
+            <label className="block text-sm font-medium" style={{ color: 'var(--gb-fg-soft)' }}>Cover Image</label>
             <div className="mt-1 flex items-center gap-4">
-              <input type="file" accept="image/*" onChange={handleImageUpload} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
-              {isUploading && <p className="text-sm text-slate-500">Uploading...</p>}
+              <input type="file" accept="image/*" onChange={handleImageUpload} className="block w-full text-sm" style={{ color: 'var(--gb-fg-muted)' }} />
+              {isUploading && <p className="text-sm" style={{ color: 'var(--gb-fg-muted)' }}>Uploading...</p>}
             </div>
             {imageUrl && <img src={imageUrl} alt="Preview" className="mt-4 rounded-lg h-32 w-auto object-cover" />}
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm" style={{ color: 'var(--gb-error)' }}>{error}</p>}
 
           <div className="flex justify-end gap-4 pt-4">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded-md text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200">Cancel</button>
-            <button type="submit" disabled={isUploading || isSubmitting} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-md text-sm font-medium" style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-soft)' }}>Cancel</button>
+            <button type="submit" disabled={isUploading || isSubmitting} className="px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
               {isSubmitting ? "Creating..." : "Create Project"}
             </button>
           </div>

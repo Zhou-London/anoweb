@@ -40,21 +40,27 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
           <div
             key={error.id}
             role="alert"
-            className="flex w-[min(360px,calc(100vw-2rem))] items-start gap-3 rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm text-rose-800 shadow-lg ring-1 ring-rose-100 backdrop-blur"
+            className="flex w-[min(360px,calc(100vw-2rem))] items-start gap-3 rounded-xl px-4 py-3 text-sm shadow-lg backdrop-blur"
+            style={{
+              background: 'var(--gb-bg)',
+              border: '1px solid var(--gb-error)',
+              color: 'var(--gb-error)',
+            }}
           >
             <span aria-hidden className="text-lg">
-              ⚠️
+              !
             </span>
             <div className="flex-1 space-y-0.5">
-              <p className="font-semibold text-rose-700">Error</p>
-              <p className="leading-snug">{error.message}</p>
+              <p className="font-semibold" style={{ color: 'var(--gb-error)' }}>Error</p>
+              <p className="leading-snug" style={{ color: 'var(--gb-fg-soft)' }}>{error.message}</p>
             </div>
             <button
               type="button"
               onClick={() => dismissError(error.id)}
-              className="rounded-full px-2 py-1 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+              className="rounded-full px-2 py-1 text-xs font-semibold transition"
+              style={{ color: 'var(--gb-error)' }}
             >
-              ✕
+              x
             </button>
           </div>
         ))}

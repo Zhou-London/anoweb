@@ -214,20 +214,21 @@ export default function BlogWorkspace() {
   const markdownComponents = useMemo(
     () => ({
       a: ({ children, ...props }: any) => (
-        <a {...props} target="_blank" rel="noreferrer" className="text-blue-700 hover:underline">
+        <a {...props} target="_blank" rel="noreferrer" style={{ color: 'var(--gb-primary)' }} className="hover:underline">
           {children}
         </a>
       ),
       table: (props: any) => (
-        <div className="overflow-auto rounded-xl border border-slate-200 bg-white/70 shadow-sm">
+        <div className="overflow-auto rounded-xl shadow-sm" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
           <table
-            className="min-w-full text-sm text-slate-800 [&_th]:bg-slate-50/80 [&_th]:text-left [&_th]:font-semibold [&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-2"
+            className="min-w-full text-sm [&_th]:text-left [&_th]:font-semibold [&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-2"
+            style={{ color: 'var(--gb-fg)' }}
             {...props}
           />
         </div>
       ),
       img: ({ alt, ...props }: any) => (
-        <img alt={alt} className="rounded-xl border border-slate-200 shadow-sm" loading="lazy" {...props} />
+        <img alt={alt} className="rounded-xl shadow-sm" style={{ border: '1px solid var(--gb-border)' }} loading="lazy" {...props} />
       ),
       pre: ({ children }: any) => <div className="relative group markdown-pre">{children}</div>,
       code: ({ node, inline, className, children, ...props }: any) => {
@@ -235,7 +236,7 @@ export default function BlogWorkspace() {
         const blockId = `${language}-${String(children).length}-${String(children).slice(0, 8)}`;
         if (inline) {
           return (
-            <code className={`${className || ""} rounded-md bg-slate-100 px-1.5 py-0.5`} {...props}>
+            <code className={`${className || ""} rounded-md px-1.5 py-0.5`} style={{ background: 'var(--gb-bg-soft)' }} {...props}>
               {children}
             </code>
           );
@@ -271,20 +272,20 @@ export default function BlogWorkspace() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="h-10 w-48 bg-white/80 rounded-xl border border-slate-200 animate-pulse" />
-        <div className="h-96 bg-white/80 rounded-3xl border border-slate-200 animate-pulse" />
+        <div className="h-10 w-48 rounded-xl animate-pulse" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }} />
+        <div className="h-96 rounded-3xl animate-pulse" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }} />
       </div>
     );
   }
 
   if (!blog) {
     return (
-      <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 text-slate-700 space-y-3">
+      <div className="rounded-3xl p-6 space-y-3" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg-soft)' }}>
         <p className="font-semibold">Blog not found.</p>
-        <Link to="/blogs" className="text-purple-600 hover:text-purple-700 underline text-sm">
+        <Link to="/blogs" className="underline text-sm" style={{ color: 'var(--gb-accent)' }}>
           Back to blogs
         </Link>
-        {error && <p className="text-sm text-rose-600">{error}</p>}
+        {error && <p className="text-sm" style={{ color: 'var(--gb-error)' }}>{error}</p>}
       </div>
     );
   }
@@ -293,9 +294,11 @@ export default function BlogWorkspace() {
     <button
       type="button"
       onClick={() => setMode(value)}
-      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-        mode === value ? "bg-purple-50 text-purple-700 shadow-inner" : "text-slate-700 hover:bg-slate-100"
-      }`}
+      className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+      style={{
+        background: mode === value ? 'var(--gb-accent)' : 'transparent',
+        color: mode === value ? 'var(--gb-bg)' : 'var(--gb-fg-soft)'
+      }}
     >
       {label}
     </button>
@@ -320,7 +323,8 @@ export default function BlogWorkspace() {
         <div className="flex items-center gap-4">
           <Link
             to="/blogs"
-            className="group inline-flex items-center gap-1.5 rounded-full bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+            className="group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+            style={{ background: 'var(--gb-accent)', color: 'var(--gb-bg)' }}
           >
             <svg className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -328,8 +332,8 @@ export default function BlogWorkspace() {
             Back
           </Link>
           <div>
-            <h1 className="text-xl md:text-2xl font-semibold text-slate-900">{title}</h1>
-            <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5">
+            <h1 className="text-xl md:text-2xl font-semibold" style={{ color: 'var(--gb-fg)' }}>{title}</h1>
+            <div className="flex items-center gap-3 text-xs mt-0.5" style={{ color: 'var(--gb-fg-muted)' }}>
               {updatedAt && <span>{updatedAt}</span>}
               <span>{blog.views} views</span>
               <span>{likesCount} likes</span>
@@ -341,11 +345,11 @@ export default function BlogWorkspace() {
             type="button"
             onClick={handleLikeToggle}
             disabled={isLiking}
-            className={`group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 ${
-              hasLiked
-                ? "bg-rose-500 text-white hover:bg-rose-600"
-                : "bg-amber-500 text-white hover:bg-amber-600"
-            } disabled:opacity-50`}
+            className="group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50"
+            style={{
+              background: hasLiked ? 'var(--gb-error)' : 'var(--gb-warning)',
+              color: 'var(--gb-bg)'
+            }}
           >
             <svg className={`w-4 h-4 transition-transform duration-200 ${hasLiked ? "" : "group-hover:scale-125"}`} fill={hasLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -354,12 +358,13 @@ export default function BlogWorkspace() {
           </button>
           {showAdminFeatures && (
             <>
-              <span className="text-xs text-slate-500">{stats.chars.toLocaleString()} / {MAX_CONTENT_LENGTH.toLocaleString()}</span>
+              <span className="text-xs" style={{ color: 'var(--gb-fg-muted)' }}>{stats.chars.toLocaleString()} / {MAX_CONTENT_LENGTH.toLocaleString()}</span>
               <button
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving || isOverLimit}
-                className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-slate-800 disabled:bg-slate-400 transition-colors"
+                className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition-colors disabled:opacity-50"
+                style={{ background: 'var(--gb-fg)', color: 'var(--gb-bg)' }}
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>
@@ -369,8 +374,8 @@ export default function BlogWorkspace() {
       </header>
 
       {showAdminFeatures ? (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="flex items-center gap-2 border-b border-slate-200 px-4 py-2" role="tablist">
+        <div className="rounded-2xl shadow-sm overflow-hidden" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+          <div className="flex items-center gap-2 px-4 py-2" style={{ borderBottom: '1px solid var(--gb-border)' }} role="tablist">
             {tabButton("write", "Write")}
             {tabButton("preview", "Preview")}
             {tabButton("split", "Split")}
@@ -378,12 +383,13 @@ export default function BlogWorkspace() {
 
           <div className={`grid ${mode === "split" ? "md:grid-cols-2" : "grid-cols-1"}`}>
             {mode !== "preview" && (
-              <div className="border-b md:border-b-0 md:border-r border-slate-200 p-4 space-y-3">
+              <div className="p-4 space-y-3" style={{ borderBottom: mode === "split" ? 'none' : '1px solid var(--gb-border)', borderRight: mode === "split" ? '1px solid var(--gb-border)' : 'none' }}>
                 <input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Title"
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full rounded-md px-3 py-2 text-sm focus:outline-none"
+                  style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
                 />
                 <div className="flex flex-wrap items-center gap-1 text-xs">
                   {toolbarActions.map((action) => (
@@ -413,7 +419,6 @@ export default function BlogWorkspace() {
                     rehypePlugins: [rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]],
                     components: markdownComponents,
                   }}
-                  data-color-mode="light"
                 />
               </div>
             )}
@@ -426,25 +431,23 @@ export default function BlogWorkspace() {
                   rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]]}
                   components={markdownComponents}
                   className="markdown-body"
-                  data-color-mode="light"
                 />
               </div>
             )}
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 max-h-[80vh] overflow-auto" ref={previewRef}>
+        <div className="rounded-2xl shadow-sm p-6 max-h-[80vh] overflow-auto" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }} ref={previewRef}>
           <MDEditor.Markdown
             source={content || "_No content._"}
             remarkPlugins={[remarkGfm, remarkMath]}
             rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]]}
             components={markdownComponents}
             className="markdown-body"
-            data-color-mode="light"
           />
         </div>
       )}
-      {error && <p className="text-sm text-rose-600">{error}</p>}
+      {error && <p className="text-sm" style={{ color: 'var(--gb-error)' }}>{error}</p>}
     </div>
   );
 }
