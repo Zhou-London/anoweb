@@ -125,16 +125,10 @@ export default function Navbar() {
           <div className="h-14 md:h-16 flex items-center justify-between gap-3">
             <a
               href="https://zhouzhouzhang.co.uk/"
-              className="flex items-center gap-3 rounded-full px-3 py-1 text-base md:text-lg font-semibold text-slate-900 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
+              className="rounded-lg px-3 py-1.5 text-base font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
               rel="noopener noreferrer"
             >
-              <span className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white font-bold grid place-items-center shadow-sm">
-                Z
-              </span>
-              <div className="flex flex-col leading-tight">
-                <span className="text-sm font-semibold text-slate-700">Portfolio</span>
-                <span className="-mt-0.5">zhouzhouzhang.co.uk</span>
-              </div>
+              zhouzhouzhang.co.uk
             </a>
 
             <div className="hidden md:flex items-center gap-3">
