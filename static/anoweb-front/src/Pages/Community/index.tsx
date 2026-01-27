@@ -350,8 +350,11 @@ export default function Community() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: defaultEase }}
     >
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-2" style={{ color: 'var(--gb-fg)' }}>Community Dashboard</h1>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-4xl md:text-5xl font-bold tracking-wide" style={{ fontFamily: "'Bebas Neue', sans-serif", color: 'var(--gb-fg)' }}>
+          COMMUNITY
+        </h1>
       </div>
 
       {/* Fellow Fans */}
