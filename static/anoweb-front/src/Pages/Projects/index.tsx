@@ -70,7 +70,7 @@ export default function ProjectPage() {
 
         {/* Mobile Project Selector - horizontal scrollable chips */}
         <div className="lg:hidden">
-          <div className="rounded-2xl shadow-lg p-4" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+          <div className="rounded-2xl shadow-lg p-4" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
             <p className="text-sm font-semibold mb-3" style={{ color: 'var(--gb-fg-soft)' }}>Select a project</p>
             {isLoadingProjects ? (
               <p className="text-sm" style={{ color: 'var(--gb-fg-muted)' }}>Loading...</p>
@@ -120,7 +120,7 @@ export default function ProjectPage() {
                 />
               </>
             ) : (
-              <div className="rounded-3xl shadow-inner p-10 text-center" style={{ border: '1px dashed var(--gb-border)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-muted)' }}>
+              <div className="rounded-3xl shadow-inner p-10 text-center" style={{ boxShadow: 'var(--gb-shadow-inset)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-muted)' }}>
                 {isLoadingProjects ? "Loading projects..." : "Select a project above to view details."}
               </div>
             )}

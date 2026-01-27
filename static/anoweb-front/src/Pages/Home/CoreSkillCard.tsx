@@ -33,12 +33,12 @@ export default function CoreSkillCard({
 
   return (
     <motion.div
-      className={`group relative rounded-3xl border-2 shadow-md transition-all ${
+      className={`group relative rounded-3xl shadow-md transition-all ${
         showAdminFeatures ? "cursor-move" : "cursor-pointer"
       }`}
       style={{
         background: 'var(--gb-bg)',
-        borderColor: isExpanded ? 'var(--gb-primary)' : 'var(--gb-border)',
+        boxShadow: isExpanded ? 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-primary)' : 'var(--gb-shadow-card)',
       }}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.995 }}

@@ -176,7 +176,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
 
   if (!Array.isArray(experience) || experience.length === 0) {
     return (
-      <div className="rounded-2xl p-6 text-sm" style={{ border: '1px dashed var(--gb-border)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-soft)' }}>
+      <div className="rounded-2xl p-6 text-sm" style={{ boxShadow: 'var(--gb-shadow-inset)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-soft)' }}>
         No career entries yet.
       </div>
     );
@@ -202,12 +202,12 @@ export default function ExperienceCard({ experience, setExperience }: Experience
             className={`group relative overflow-hidden rounded-2xl p-4 transition-all duration-200 shadow-sm hover:shadow-md ${
               showAdminFeatures ? "cursor-grab" : "cursor-default"
             }`}
-            style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}
+            style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
           >
             <div className="hidden sm:absolute sm:left-4 sm:top-4 sm:bottom-4 sm:w-px" style={{ background: 'var(--gb-border)' }} aria-hidden />
             <div className="flex flex-col gap-4 sm:grid sm:grid-cols-[auto_1fr_auto] sm:items-start sm:gap-4">
               <div className="flex items-center gap-3 text-sm sm:flex-col sm:items-center sm:gap-2" style={{ color: 'var(--gb-fg-soft)' }}>
-                <span className="h-8 w-8 rounded-full grid place-items-center font-semibold shadow-sm" style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-primary)', border: '1px solid var(--gb-primary)' }}>
+                <span className="h-8 w-8 rounded-full grid place-items-center font-semibold shadow-sm" style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-primary)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-primary)' }}>
                   {index + 1}
                 </span>
                 {exp.present && <span className="rounded-full px-2 py-1" style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}>Current</span>}
@@ -218,7 +218,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                     src={exp.image_url}
                     alt={exp.company}
                     className="w-14 h-14 rounded-xl object-cover shadow-sm"
-                    style={{ border: '1px solid var(--gb-border)' }}
+                    style={{ boxShadow: 'var(--gb-shadow-card)' }}
                   />
                   {showAdminFeatures && (
                     <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer">
@@ -244,7 +244,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                   <p className="text-xs truncate" style={{ color: 'var(--gb-fg-soft)' }}>{exp.position}</p>
                   {!showAdminFeatures && exp.description && <p className="text-sm leading-snug" style={{ color: 'var(--gb-fg-soft)' }}>{exp.description}</p>}
                   {showAdminFeatures && (
-                    <div className="space-y-2 rounded-lg p-3" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}>
+                    <div className="space-y-2 rounded-lg p-3" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>
                       <div className="flex items-center justify-between gap-2">
                         <label className="text-xs font-medium" style={{ color: 'var(--gb-fg-soft)' }} htmlFor={`description-${exp.id}`}>
                           Description
@@ -256,7 +256,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                       <textarea
                         id={`description-${exp.id}`}
                         className="w-full rounded-md px-3 py-2 text-sm focus:outline-none"
-                        style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+                        style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
                         rows={3}
                         value={getDescriptionDraft(exp)}
                         onChange={(e) => handleDescriptionChange(exp, e.target.value)}
@@ -284,7 +284,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                     </ul>
                   )}
                   {showAdminFeatures && (
-                    <div className="mt-3 space-y-3 rounded-lg p-3" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}>
+                    <div className="mt-3 space-y-3 rounded-lg p-3" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>
                       <div className="flex items-center justify-between gap-2">
                         <label className="text-xs font-medium" style={{ color: 'var(--gb-fg-soft)' }} htmlFor={`bullets-${exp.id}`}>
                           Bullet points
@@ -300,7 +300,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                             <input
                               id={`bullets-${exp.id}-${idx}`}
                               className="w-full rounded-md px-2 py-1.5 text-sm focus:outline-none"
-                              style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+                              style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
                               value={point}
                               onChange={(e) => handleBulletChange(exp, idx, e.target.value)}
                             />
@@ -308,7 +308,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                               type="button"
                               onClick={() => handleRemoveBullet(exp, idx)}
                               className="rounded-md px-2 py-1 text-xs font-semibold"
-                              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-error)', color: 'var(--gb-error)' }}
+                              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-error)', color: 'var(--gb-error)' }}
                             >
                               Delete
                             </button>
@@ -317,7 +317,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                         <div className="flex flex-col gap-2 sm:flex-row">
                           <input
                             className="w-full rounded-md px-2 py-1.5 text-sm focus:outline-none"
-                            style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+                            style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
                             value={newBulletText[exp.id] ?? ""}
                             placeholder="Add bullet point"
                             onChange={(e) => setNewBulletText((prev) => ({ ...prev, [exp.id]: e.target.value }))}
@@ -351,7 +351,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
               <div className="flex flex-col items-start gap-2 text-left sm:items-end sm:text-right sm:min-w-[140px]">
                 <div className="flex flex-wrap items-center gap-2 text-sm" style={{ color: 'var(--gb-fg-soft)' }}>
                   <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'var(--gb-primary)' }} />
-                  <span className="rounded-full px-2 py-1" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}>{range}</span>
+                  <span className="rounded-full px-2 py-1" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>{range}</span>
                 </div>
                 {exp.present && <span className="rounded-full px-2 py-1 text-xs" style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}>Active</span>}
               </div>

@@ -231,12 +231,12 @@ export default function PostWorkspace() {
         </a>
       ),
       table: (props: any) => (
-        <div className="overflow-auto rounded-xl shadow-sm" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+        <div className="overflow-auto rounded-xl shadow-sm" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
           <table className="min-w-full text-sm [&_th]:text-left [&_th]:font-semibold [&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-2" style={{ color: 'var(--gb-fg)' }} {...props} />
         </div>
       ),
       img: ({ alt, ...props }: any) => (
-        <img alt={alt} className="rounded-xl shadow-sm" style={{ border: '1px solid var(--gb-border)' }} loading="lazy" {...props} />
+        <img alt={alt} className="rounded-xl shadow-sm" style={{ boxShadow: 'var(--gb-shadow-soft)' }} loading="lazy" {...props} />
       ),
       pre: ({ children }: any) => <div className="relative group markdown-pre">{children}</div>,
       code: ({ node, inline, className, children, ...props }: any) => {
@@ -280,15 +280,15 @@ export default function PostWorkspace() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="h-10 w-48 rounded-xl animate-pulse" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }} />
-        <div className="h-96 rounded-3xl animate-pulse" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }} />
+        <div className="h-10 w-48 rounded-xl animate-pulse" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }} />
+        <div className="h-96 rounded-3xl animate-pulse" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }} />
       </div>
     );
   }
 
   if (!post) {
     return (
-      <div className="rounded-3xl p-6 space-y-3" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg-soft)' }}>
+      <div className="rounded-3xl p-6 space-y-3" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)', color: 'var(--gb-fg-soft)' }}>
         <p className="font-semibold">Post not found.</p>
         <Link to="/projects" className="underline text-sm" style={{ color: 'var(--gb-primary)' }}>Back to projects</Link>
         {error && <p className="text-sm" style={{ color: 'var(--gb-error)' }}>{error}</p>}
@@ -359,8 +359,8 @@ export default function PostWorkspace() {
       </header>
 
       {showAdminFeatures ? (
-        <div className="rounded-2xl shadow-sm overflow-hidden" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
-          <div className="flex items-center gap-2 px-4 py-2" style={{ borderBottom: '1px solid var(--gb-border)' }} role="tablist">
+        <div className="rounded-2xl shadow-sm overflow-hidden" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
+          <div className="flex items-center gap-2 px-4 py-2" style={{ boxShadow: 'inset 0 -1px 0 var(--gb-shadow)' }} role="tablist">
             {tabButton("write", "Write")}
             {tabButton("preview", "Preview")}
             {tabButton("split", "Split")}
@@ -368,13 +368,13 @@ export default function PostWorkspace() {
 
           <div className={`grid ${mode === "split" ? "md:grid-cols-2" : "grid-cols-1"}`}>
             {mode !== "preview" && (
-              <div className="p-4 space-y-3" style={{ borderBottom: mode === "split" ? 'none' : '1px solid var(--gb-border)', borderRight: mode === "split" ? '1px solid var(--gb-border)' : 'none' }}>
+              <div className="p-4 space-y-3" style={{ boxShadow: mode === "split" ? 'inset -1px 0 0 var(--gb-shadow)' : 'inset 0 -1px 0 var(--gb-shadow)' }}>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Title"
                   className="w-full rounded-md px-3 py-2 text-sm focus:outline-none"
-                  style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+                  style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
                 />
                 <div className="flex flex-wrap items-center gap-1 text-xs">
                   {toolbarActions.map((action) => (
@@ -422,7 +422,7 @@ export default function PostWorkspace() {
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl shadow-sm p-6 max-h-[80vh] overflow-auto" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }} ref={previewRef}>
+        <div className="rounded-2xl shadow-sm p-6 max-h-[80vh] overflow-auto" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }} ref={previewRef}>
           <MDEditor.Markdown
             source={content || "_No content._"}
             remarkPlugins={[remarkGfm, remarkMath]}

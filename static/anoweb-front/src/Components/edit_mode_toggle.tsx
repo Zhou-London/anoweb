@@ -12,11 +12,11 @@ export default function EditModeToggle() {
     <div className="fixed bottom-6 right-6 z-50">
       <button
         onClick={toggleEditMode}
-        className="flex items-center gap-3 px-6 py-3 rounded-full shadow-2xl font-semibold transition-all hover:scale-105"
+        className="flex items-center gap-3 px-6 py-3 rounded-full font-semibold transition-all hover:scale-105"
         style={{
           background: editMode ? 'var(--gb-success)' : 'var(--gb-bg)',
           color: editMode ? 'var(--gb-bg)' : 'var(--gb-fg-soft)',
-          border: editMode ? 'none' : '2px solid var(--gb-border)',
+          boxShadow: editMode ? 'var(--gb-shadow-card-hover)' : 'var(--gb-shadow-card)',
         }}
         aria-label={editMode ? "Disable edit mode" : "Enable edit mode"}
       >
@@ -26,10 +26,11 @@ export default function EditModeToggle() {
             style={{ background: editMode ? 'var(--gb-success-bright)' : 'var(--gb-bg-muted)' }}
           >
             <div
-              className="absolute top-0.5 left-0.5 w-5 h-5 rounded-full shadow-md transition-transform"
+              className="absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-transform"
               style={{
                 background: 'var(--gb-bg)',
                 transform: editMode ? 'translateX(1.5rem)' : 'translateX(0)',
+                boxShadow: 'var(--gb-shadow-soft)',
               }}
             />
           </div>

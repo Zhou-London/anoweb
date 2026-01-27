@@ -118,7 +118,7 @@ export default function AccountPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="rounded-2xl shadow-sm p-6 md:p-8" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+      <div className="rounded-2xl shadow-sm p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
         <h1 className="text-3xl font-bold mb-6" style={{ color: 'var(--gb-fg)' }}>Account Settings</h1>
 
         <div className="space-y-6">
@@ -132,7 +132,7 @@ export default function AccountPage() {
                     src={fan.profile_photo}
                     alt={fan.username}
                     className="w-20 h-20 rounded-full object-cover"
-                    style={{ border: '2px solid var(--gb-border)' }}
+                    style={{ boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-border)' }}
                   />
                 ) : (
                   <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
@@ -168,7 +168,7 @@ export default function AccountPage() {
               value={fan.username}
               disabled
               className="w-full px-3 py-2 rounded-lg cursor-not-allowed"
-              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg-muted)' }}
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg-muted)' }}
             />
           </div>
 
@@ -179,7 +179,7 @@ export default function AccountPage() {
               value={fan.email}
               disabled
               className="w-full px-3 py-2 rounded-lg cursor-not-allowed"
-              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg-muted)' }}
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg-muted)' }}
             />
           </div>
 
@@ -195,7 +195,7 @@ export default function AccountPage() {
                 onChange={(e) => setBio(e.target.value)}
                 rows={4}
                 className="w-full px-3 py-2 rounded-lg resize-none focus:outline-none"
-                style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+                style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
                 placeholder="Tell us about yourself..."
               />
             </div>
@@ -212,7 +212,7 @@ export default function AccountPage() {
 
           {/* Mystery Code Section */}
           {!fan.is_admin && (
-            <div className="mt-6 p-6 rounded-lg" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-accent)' }}>
+            <div className="mt-6 p-6 rounded-lg" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-accent)' }}>
               <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--gb-fg)' }}>Unlock Admin Access</h3>
               <p className="text-sm mb-4" style={{ color: 'var(--gb-fg-soft)' }}>
                 Have a mystery code? Enter it below to gain administrator privileges.
@@ -248,7 +248,7 @@ export default function AccountPage() {
                   name="mystery_code"
                   placeholder="Enter mystery code"
                   className="flex-1 px-3 py-2 rounded-lg focus:outline-none"
-                  style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-accent)', color: 'var(--gb-fg)' }}
+                  style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-inset), inset 0 0 0 2px var(--gb-accent)', color: 'var(--gb-fg)' }}
                   required
                 />
                 <button
@@ -265,7 +265,7 @@ export default function AccountPage() {
 
           {/* Admin Badge */}
           {fan.is_admin && (
-            <div className="mt-6 p-4 rounded-lg" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-success)' }}>
+            <div className="mt-6 p-4 rounded-lg" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-success)' }}>
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-semibold" style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}>
                   <span className="h-2 w-2 rounded-full" style={{ background: 'var(--gb-bg)' }} /> Admin
@@ -278,7 +278,7 @@ export default function AccountPage() {
       </div>
 
       {/* Session History */}
-      <div className="mt-6 rounded-2xl shadow-sm p-6 md:p-8" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+      <div className="mt-6 rounded-2xl shadow-sm p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
         <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2" style={{ color: 'var(--gb-fg)' }}>
           Your Session History
         </h2>
@@ -289,7 +289,7 @@ export default function AccountPage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid var(--gb-border)' }}>
+                  <tr style={{ boxShadow: 'inset 0 -1px 0 var(--gb-shadow)' }}>
                     <th className="text-left py-3 px-4 text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>Start Time</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>End Time</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>Duration</th>
@@ -297,7 +297,7 @@ export default function AccountPage() {
                 </thead>
                 <tbody>
                   {pagedRecords.map((record) => (
-                    <tr key={record.id} className="hover:opacity-80" style={{ borderBottom: '1px solid var(--gb-bg-soft)' }}>
+                    <tr key={record.id} className="hover:opacity-80" style={{ boxShadow: 'inset 0 -1px 0 var(--gb-shadow-soft)' }}>
                       <td className="py-3 px-4 text-sm" style={{ color: 'var(--gb-fg-soft)' }}>{formatDate(record.start_time)}</td>
                       <td className="py-3 px-4 text-sm" style={{ color: 'var(--gb-fg-soft)' }}>
                         {record.end_time ? formatDate(record.end_time) : "Active"}
@@ -314,7 +314,7 @@ export default function AccountPage() {
                 onClick={() => setPageIndex((prev) => Math.max(0, prev - 1))}
                 disabled={!hasPrevPage}
                 className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
-                style={{ border: '1px solid var(--gb-border)', color: 'var(--gb-fg-soft)' }}
+                style={{ boxShadow: 'var(--gb-shadow-soft)', color: 'var(--gb-fg-soft)' }}
                 aria-label="Previous page"
               >
                 <span aria-hidden="true">←</span>
@@ -328,7 +328,7 @@ export default function AccountPage() {
                 onClick={() => setPageIndex((prev) => Math.min(totalPages - 1, prev + 1))}
                 disabled={!hasNextPage}
                 className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
-                style={{ border: '1px solid var(--gb-border)', color: 'var(--gb-fg-soft)' }}
+                style={{ boxShadow: 'var(--gb-shadow-soft)', color: 'var(--gb-fg-soft)' }}
                 aria-label="Next page"
               >
                 Next

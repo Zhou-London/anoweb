@@ -110,7 +110,7 @@ export default function CreateBlogModal({ onClose, onSuccess }: CreateBlogModalP
               required
               placeholder="Enter your blog title"
               className="mt-1 block w-full rounded-lg px-4 py-2 shadow-sm transition-colors focus:outline-none"
-              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
             />
           </div>
 
@@ -133,7 +133,7 @@ export default function CreateBlogModal({ onClose, onSuccess }: CreateBlogModalP
 
           {error && <p className="text-sm" style={{ color: 'var(--gb-error)' }}>{error}</p>}
 
-          <div className="flex justify-end gap-3 pt-4" style={{ borderTop: '1px solid var(--gb-border)' }}>
+          <div className="flex justify-end gap-3 pt-4" style={{ boxShadow: 'inset 0 1px 0 var(--gb-shadow)' }}>
             <button
               type="button"
               onClick={onClose}

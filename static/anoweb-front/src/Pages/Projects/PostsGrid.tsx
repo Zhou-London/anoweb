@@ -46,7 +46,7 @@ export function PostsGrid({
   }, [posts]);
 
   return (
-    <section className="rounded-3xl shadow-lg p-4 sm:p-6 md:p-8" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+    <section className="rounded-3xl shadow-lg p-4 sm:p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
       <div className="flex items-center justify-between gap-4 mb-5">
         <h3 className="text-lg font-bold" style={{ color: 'var(--gb-fg)' }}>Posts</h3>
         {showAdminFeatures && (
@@ -63,7 +63,7 @@ export function PostsGrid({
       {isLoading ? (
         <p className="text-center py-12" style={{ color: 'var(--gb-fg-muted)' }}>Loading posts...</p>
       ) : posts.length === 0 ? (
-        <div className="text-center py-12 rounded-2xl" style={{ border: '1px dashed var(--gb-border)', background: 'var(--gb-bg-soft)' }}>
+        <div className="text-center py-12 rounded-2xl" style={{ boxShadow: 'var(--gb-shadow-inset)', background: 'var(--gb-bg-soft)' }}>
           <p style={{ color: 'var(--gb-fg-muted)' }}>No posts found for this project.</p>
         </div>
       ) : (
@@ -115,7 +115,7 @@ function PostGridCard({ post, onViewPost, onDeletePost, showAdminFeatures }: Pos
     <div
       onClick={handleClick}
       className="group rounded-xl p-4 cursor-pointer hover:shadow-lg transition-all duration-200"
-      style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}
+      style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}
     >
       <p
         className="text-sm font-semibold leading-snug transition-colors"

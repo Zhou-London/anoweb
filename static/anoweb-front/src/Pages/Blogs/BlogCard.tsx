@@ -34,7 +34,7 @@ export default function BlogCard({ blog, onDelete, showAdminFeatures }: BlogCard
       <Link
         to={`/blogs/${blog.id}`}
         className="group block rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200"
-        style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}
+        style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}
       >
         {/* Cover Image */}
         <div className="aspect-video overflow-hidden relative" style={{ background: 'var(--gb-bg-muted)' }}>
@@ -95,7 +95,7 @@ export default function BlogCard({ blog, onDelete, showAdminFeatures }: BlogCard
 
           {/* Admin delete button */}
           {showAdminFeatures && (
-            <div className="mt-3 pt-3 flex justify-end" style={{ borderTop: '1px solid var(--gb-border)' }}>
+            <div className="mt-3 pt-3 flex justify-end" style={{ boxShadow: 'inset 0 1px 0 var(--gb-shadow)' }}>
               <button
                 onClick={handleDelete}
                 className="font-semibold text-xs transition-colors"

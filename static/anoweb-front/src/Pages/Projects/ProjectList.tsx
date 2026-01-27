@@ -48,7 +48,7 @@ export default function ProjectList({
   }, [projects, searchQuery, sortBy]);
 
   return (
-    <aside className="rounded-3xl shadow-lg p-4 space-y-3" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+    <aside className="rounded-3xl shadow-lg p-4 space-y-3" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
       <div className="flex items-center gap-2">
         <button
           onClick={() => setShowSearch(!showSearch)}
@@ -78,7 +78,7 @@ export default function ProjectList({
             </svg>
           </button>
           {showSortMenu && (
-            <div className="absolute top-full left-0 mt-1 rounded-lg shadow-lg z-10 py-1 min-w-[120px]" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+            <div className="absolute top-full left-0 mt-1 rounded-lg shadow-lg z-10 py-1 min-w-[120px]" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
               {[
                 { value: "newest" as SortOption, label: "Newest" },
                 { value: "oldest" as SortOption, label: "Oldest" },
@@ -114,7 +114,7 @@ export default function ProjectList({
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search projects..."
           className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
-          style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+          style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
           autoFocus
         />
       )}
@@ -133,8 +133,7 @@ export default function ProjectList({
               style={{
                 background: p.id === selectedProjectId ? 'var(--gb-primary)' : 'var(--gb-bg)',
                 color: p.id === selectedProjectId ? 'var(--gb-bg)' : 'var(--gb-fg)',
-                border: `1px solid ${p.id === selectedProjectId ? 'var(--gb-primary)' : 'var(--gb-border)'}`,
-                boxShadow: p.id === selectedProjectId ? '0 4px 12px rgba(69, 133, 136, 0.3)' : 'none'
+                boxShadow: p.id === selectedProjectId ? 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-primary)' : 'var(--gb-shadow-card)'
               }}
             >
               <p className="text-sm font-semibold leading-tight">{p.name}</p>

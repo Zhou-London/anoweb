@@ -100,8 +100,8 @@ export default function Navbar() {
         {active && (
           <motion.span
             layoutId="nav-pill"
-            className="absolute inset-0 rounded-full shadow-sm"
-            style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}
+            className="absolute inset-0 rounded-full"
+            style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
             transition={{ type: "spring", stiffness: 450, damping: 32 }}
           />
         )}
@@ -119,10 +119,10 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className="sticky top-0 z-50 backdrop-blur border-b transition-colors duration-200"
+        className="sticky top-0 z-50 backdrop-blur transition-colors duration-200"
         style={{
           background: theme === 'dark' ? 'rgba(40, 40, 40, 0.85)' : 'rgba(251, 241, 199, 0.85)',
-          borderColor: 'var(--gb-border)'
+          boxShadow: 'var(--gb-shadow-soft)'
         }}
       >
         <div className="mx-auto max-w-6xl px-4 md:px-6" ref={menuWrapRef}>
@@ -138,8 +138,8 @@ export default function Navbar() {
 
             <div className="hidden md:flex items-center gap-3">
               <div
-                className="relative flex items-center gap-2 rounded-full px-2 py-1 shadow-inner"
-                style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border-soft)' }}
+                className="relative flex items-center gap-2 rounded-full px-2 py-1"
+                style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)' }}
               >
                 {navLinks.map((link) => (
                   <NavLinkItem key={link.to} to={link.to} label={link.label} />
@@ -176,7 +176,7 @@ export default function Navbar() {
                       src={fan.profile_photo}
                       alt={fan.username}
                       className="w-8 h-8 rounded-full object-cover"
-                      style={{ border: '2px solid var(--gb-border)' }}
+                      style={{ boxShadow: 'var(--gb-shadow-card)' }}
                     />
                   ) : (
                     <div
@@ -198,8 +198,8 @@ export default function Navbar() {
 
                 {accountDropdownOpen && (
                   <div
-                    className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-1"
-                    style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}
+                    className="absolute right-0 mt-2 w-48 rounded-lg py-1"
+                    style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card-hover)' }}
                   >
                     {isAuthenticated ? (
                       <>
@@ -298,8 +298,8 @@ export default function Navbar() {
         >
           <div className="mx-auto max-w-6xl px-4 pb-3">
             <div
-              className="rounded-2xl shadow-sm"
-              style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}
+              className="rounded-2xl"
+              style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
             >
               <div className="flex items-center justify-between px-3 py-2">
                 <span className="text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>Quick links</span>
@@ -348,7 +348,7 @@ export default function Navbar() {
                 Projects
               </Link>
 
-              <div style={{ borderTop: '1px solid var(--gb-border)' }} className="mt-2 pt-2">
+              <div className="mt-2 pt-2" style={{ boxShadow: 'inset 0 1px 0 var(--gb-shadow)' }}>
                 {isAuthenticated ? (
                   <>
                     <Link

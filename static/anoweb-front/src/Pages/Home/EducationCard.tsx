@@ -26,7 +26,7 @@ type EducationRowProps = {
 
 function EducationRow({ edu, showAdminFeatures, onImageUpload, uploadingImage, imageError }: EducationRowProps) {
   return (
-    <li className="group relative overflow-hidden rounded-2xl p-4 transition-all duration-200 shadow-sm" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}>
+    <li className="group relative overflow-hidden rounded-2xl p-4 transition-all duration-200 shadow-sm" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>
       <div className="flex items-start gap-4">
         <div className="shrink-0 relative group/img">
           <img
@@ -36,7 +36,7 @@ function EducationRow({ edu, showAdminFeatures, onImageUpload, uploadingImage, i
               (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/64?text=Edu";
             }}
             className="w-12 h-12 rounded-lg object-cover shadow-sm"
-            style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}
+            style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
           />
           {showAdminFeatures && (
             <label className="absolute inset-0 flex items-center justify-center rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer" style={{ background: 'var(--gb-overlay)' }}>
@@ -57,7 +57,7 @@ function EducationRow({ edu, showAdminFeatures, onImageUpload, uploadingImage, i
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold truncate" style={{ color: 'var(--gb-fg)' }}>{edu.school}</p>
-            <span className="rounded-full text-xs px-2 py-0.5" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg-soft)' }}>
+            <span className="rounded-full text-xs px-2 py-0.5" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-soft)', color: 'var(--gb-fg-soft)' }}>
               {formatRange(edu.start_date, edu.end_date)}
             </span>
           </div>
@@ -133,10 +133,10 @@ export default function EducationCard({ education, setEducation }: EducationCard
   };
 
   return (
-    <article className="rounded-3xl shadow-lg p-6 md:p-8 h-full flex flex-col gap-4" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+    <article className="rounded-3xl shadow-lg p-6 md:p-8 h-full flex flex-col gap-4" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
       <h2 className="text-2xl font-bold" style={{ color: 'var(--gb-fg)' }}>Education</h2>
       {education.length === 0 ? (
-        <div className="flex-1 rounded-2xl grid place-items-center text-sm px-4 py-10" style={{ border: '1px dashed var(--gb-border)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-muted)' }}>
+        <div className="flex-1 rounded-2xl grid place-items-center text-sm px-4 py-10" style={{ boxShadow: 'var(--gb-shadow-inset)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-muted)' }}>
           No education added yet.
         </div>
       ) : (

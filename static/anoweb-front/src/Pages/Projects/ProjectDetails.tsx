@@ -77,7 +77,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
   // Render the editable form when in edit mode
   if (isEditing) {
     return (
-      <section className="flex-1 rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col p-4 sm:p-6 md:p-8 mb-6 min-h-0 shadow-lg" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-primary)' }}>
+      <section className="flex-1 rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col p-4 sm:p-6 md:p-8 mb-6 min-h-0 shadow-lg" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-primary)' }}>
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6 md:gap-8 h-full">
           {/* Left side: Image Upload */}
           <div className="w-full md:w-1/3 flex flex-col items-center gap-4">
@@ -103,7 +103,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="mt-1 block w-full rounded-md shadow-sm p-2 focus:outline-none"
-                style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+                style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
               />
             </div>
             <div>
@@ -114,7 +114,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={5}
                 className="mt-1 block w-full rounded-md shadow-sm p-2 focus:outline-none"
-                style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+                style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
               />
             </div>
             <div>
@@ -125,7 +125,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
                 value={formData.link}
                 onChange={(e) => setFormData({ ...formData, link: e.target.value })}
                 className="mt-1 block w-full rounded-md shadow-sm p-2 focus:outline-none"
-                style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+                style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
               />
             </div>
             {error && <p className="text-sm" style={{ color: 'var(--gb-error)' }}>{error}</p>}
@@ -146,7 +146,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
   const descriptionNeedsExpansion = project.description.length > 400; // rough character count
 
   return (
-    <section className="flex-1 rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col md:flex-row gap-6 md:gap-8 p-4 sm:p-6 md:p-8 mb-6 min-h-0 shadow-lg relative" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+    <section className="flex-1 rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col md:flex-row gap-6 md:gap-8 p-4 sm:p-6 md:p-8 mb-6 min-h-0 shadow-lg relative" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
       {/* Edit button for admins */}
       {showAdminFeatures && (
         <button

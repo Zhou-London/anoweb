@@ -91,7 +91,7 @@ export default function CreateProjectModal({ onClose, onSuccess }: CreateProject
               onChange={(e) => setName(e.target.value)}
               required
               className="mt-1 block w-full rounded-md shadow-sm focus:outline-none p-2"
-              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
             />
           </div>
           <div>
@@ -102,7 +102,7 @@ export default function CreateProjectModal({ onClose, onSuccess }: CreateProject
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
               className="mt-1 block w-full rounded-md shadow-sm focus:outline-none p-2"
-              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
             />
           </div>
           <div>
@@ -113,7 +113,7 @@ export default function CreateProjectModal({ onClose, onSuccess }: CreateProject
               value={link}
               onChange={(e) => setLink(e.target.value)}
               className="mt-1 block w-full rounded-md shadow-sm focus:outline-none p-2"
-              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
             />
           </div>
           <div>

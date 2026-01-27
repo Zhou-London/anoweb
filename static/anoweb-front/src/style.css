@@ -97,6 +97,12 @@
   /* Semi-transparent accent colors for overlays */
   --gb-primary-10: rgba(69, 133, 136, 0.1);
   --gb-accent-10: rgba(177, 98, 134, 0.1);
+
+  /* Soft shadows for card edges */
+  --gb-shadow-card: 0 2px 8px rgba(60, 56, 54, 0.08), 0 1px 3px rgba(60, 56, 54, 0.06);
+  --gb-shadow-card-hover: 0 4px 16px rgba(60, 56, 54, 0.12), 0 2px 6px rgba(60, 56, 54, 0.08);
+  --gb-shadow-soft: 0 1px 4px rgba(60, 56, 54, 0.06);
+  --gb-shadow-inset: inset 0 1px 3px rgba(60, 56, 54, 0.08);
 }
 
 /* Dark Mode */
@@ -143,6 +149,12 @@
   /* Semi-transparent accent colors for overlays */
   --gb-primary-10: rgba(131, 165, 152, 0.1);
   --gb-accent-10: rgba(211, 134, 155, 0.1);
+
+  /* Soft shadows for card edges */
+  --gb-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+  --gb-shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.12);
+  --gb-shadow-soft: 0 1px 4px rgba(0, 0, 0, 0.1);
+  --gb-shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 /* MD Editor - Light Mode */
@@ -190,8 +202,8 @@
 }
 
 .chip-soft {
-  @apply inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold shadow-sm;
-  border: 1px solid var(--gb-border-soft);
+  @apply inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold;
+  box-shadow: var(--gb-shadow-soft);
   background: var(--gb-bg);
   color: var(--gb-fg);
 }
@@ -205,7 +217,7 @@
   align-items: center;
   gap: 0.25rem;
   border-radius: 0.375rem;
-  border: 1px solid var(--gb-border);
+  box-shadow: var(--gb-shadow-soft);
   background: var(--gb-bg);
   padding: 0.375rem 0.625rem;
   font-size: 0.875rem;
@@ -254,14 +266,14 @@
   background: var(--gb-bg);
   padding: 1.25rem;
   border-radius: 16px;
-  border: 1px solid var(--gb-border);
+  box-shadow: var(--gb-shadow-card);
 }
 .markdown-body h1,
 .markdown-body h2,
 .markdown-body h3 {
   color: var(--gb-fg);
   padding-bottom: 0.3em;
-  border-bottom: 1px solid var(--gb-border);
+  box-shadow: inset 0 -1px 0 var(--gb-shadow);
   margin-top: 1.4em;
   margin-bottom: 0.75em;
 }
@@ -311,23 +323,39 @@
   background: var(--gb-bg-soft);
   border-radius: 12px;
   padding: 14px;
-  border: 1px solid var(--gb-border);
+  box-shadow: var(--gb-shadow-inset);
   overflow: auto;
 }
 .markdown-body hr {
   border: 0;
-  border-top: 1px solid var(--gb-border);
+  height: 1px;
+  background: transparent;
+  box-shadow: inset 0 1px 0 var(--gb-shadow);
   margin: 1.5em 0;
 }
 .markdown-body table {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   width: 100%;
   margin: 1em 0;
+  box-shadow: var(--gb-shadow-card);
+  border-radius: 8px;
+  overflow: hidden;
 }
 .markdown-body th,
 .markdown-body td {
-  border: 1px solid var(--gb-border);
   padding: 8px 10px;
+  box-shadow: inset 0 -1px 0 var(--gb-shadow), inset -1px 0 0 var(--gb-shadow);
+}
+.markdown-body th:last-child,
+.markdown-body td:last-child {
+  box-shadow: inset 0 -1px 0 var(--gb-shadow);
+}
+.markdown-body tr:last-child td {
+  box-shadow: inset -1px 0 0 var(--gb-shadow);
+}
+.markdown-body tr:last-child td:last-child {
+  box-shadow: none;
 }
 .markdown-body tr:nth-child(2n) {
   background: var(--gb-bg-soft);
@@ -348,7 +376,7 @@
   background: var(--gb-bg-soft);
   border-radius: 12px;
   overflow: auto;
-  border: 1px solid var(--gb-border);
+  box-shadow: var(--gb-shadow-inset);
 }
 
 .copy-chip {

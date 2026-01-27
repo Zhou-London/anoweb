@@ -40,10 +40,10 @@ export function SuccessProvider({ children }: { children: ReactNode }) {
           <div
             key={success.id}
             role="alert"
-            className="flex w-[min(360px,calc(100vw-2rem))] items-start gap-3 rounded-xl px-4 py-3 text-sm shadow-lg backdrop-blur"
+            className="flex w-[min(360px,calc(100vw-2rem))] items-start gap-3 rounded-xl px-4 py-3 text-sm backdrop-blur"
             style={{
               background: 'var(--gb-bg)',
-              border: '1px solid var(--gb-success)',
+              boxShadow: 'var(--gb-shadow-card-hover), inset 0 0 0 2px var(--gb-success)',
               color: 'var(--gb-success)',
             }}
           >

@@ -92,8 +92,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = "login" }: Au
       onClick={onClose}
     >
       <div
-        className="rounded-2xl shadow-xl max-w-md w-full mx-4 p-6"
-        style={{ background: 'var(--gb-bg)' }}
+        className="rounded-2xl max-w-md w-full mx-4 p-6"
+        style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card-hover)' }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
@@ -119,7 +119,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "login" }: Au
           <div className="space-y-4">
             <div
               className="rounded-lg p-4"
-              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-primary)' }}
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'inset 0 0 0 2px var(--gb-primary)' }}
             >
               <div className="flex items-start gap-3">
                 <svg className="w-6 h-6 flex-shrink-0 mt-0.5" style={{ color: 'var(--gb-primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,7 +174,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "login" }: Au
                   className="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2"
                   style={{
                     background: 'var(--gb-bg-soft)',
-                    border: '1px solid var(--gb-border)',
+                    boxShadow: 'var(--gb-shadow-inset)',
                     color: 'var(--gb-fg)',
                   }}
                 />
@@ -194,7 +194,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "login" }: Au
                     className="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2"
                     style={{
                       background: 'var(--gb-bg-soft)',
-                      border: '1px solid var(--gb-border)',
+                      boxShadow: 'var(--gb-shadow-inset)',
                       color: 'var(--gb-fg)',
                     }}
                   />
@@ -215,7 +215,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "login" }: Au
                   className="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2"
                   style={{
                     background: 'var(--gb-bg-soft)',
-                    border: '1px solid var(--gb-border)',
+                    boxShadow: 'var(--gb-shadow-inset)',
                     color: 'var(--gb-fg)',
                   }}
                 />
@@ -234,7 +234,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "login" }: Au
             <div className="mt-4 space-y-3">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full" style={{ borderTop: '1px solid var(--gb-border)' }}></div>
+                  <div className="w-full h-px" style={{ background: 'var(--gb-bg-muted)' }}></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-2" style={{ background: 'var(--gb-bg)', color: 'var(--gb-fg-muted)' }}>Or continue with</span>
@@ -247,7 +247,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "login" }: Au
                 className="w-full flex items-center justify-center gap-3 py-2 rounded-lg font-medium transition-colors"
                 style={{
                   background: 'var(--gb-bg)',
-                  border: '1px solid var(--gb-border)',
+                  boxShadow: 'var(--gb-shadow-card)',
                   color: 'var(--gb-fg-soft)',
                 }}
               >

@@ -34,10 +34,10 @@ export default function VerifyEmail() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--gb-bg)' }}>
-      <div className="rounded-2xl shadow-xl max-w-md w-full p-8" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}>
+      <div className="rounded-2xl shadow-xl max-w-md w-full p-8" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}>
         {status === "verifying" && (
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 mb-4" style={{ border: '4px solid var(--gb-primary)', borderTopColor: 'transparent' }}></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 mb-4" style={{ boxShadow: 'inset 0 0 0 4px var(--gb-primary)', borderTop: '4px solid transparent' }}></div>
             <h2 className="text-2xl font-semibold mb-2" style={{ color: 'var(--gb-fg)' }}>Verifying Email...</h2>
             <p style={{ color: 'var(--gb-fg-soft)' }}>Please wait while we verify your email address.</p>
           </div>

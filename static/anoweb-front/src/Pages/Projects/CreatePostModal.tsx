@@ -124,7 +124,7 @@ export default function CreatePostModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-4 sm:px-6 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid var(--gb-border)' }}>
+        <div className="px-4 sm:px-6 py-3 flex items-center justify-between" style={{ boxShadow: 'inset 0 -1px 0 var(--gb-border)' }}>
           <h2 className="text-lg font-semibold" style={{ color: 'var(--gb-fg)' }}>Create Post</h2>
           <button
             onClick={onClose}
@@ -147,7 +147,7 @@ export default function CreatePostModal({
               onChange={(e) => setName(e.target.value)}
               required
               className="mt-1 w-full rounded-md shadow-sm focus:outline-none p-2"
-              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
             />
           </div>
 
@@ -208,13 +208,13 @@ export default function CreatePostModal({
                   rehypePlugins: [rehypeKatex, [rehypeHighlight, { ignoreMissing: true }]],
                 }}
                 className="rounded-xl shadow-inner"
-                style={{ border: '1px solid var(--gb-border)' }}
+                style={{ boxShadow: 'var(--gb-shadow-card)' }}
               />
             </div>
 
             {/* Preview */}
             <div className={`${tab === "preview" ? "block" : "hidden"} md:block`}>
-              <div className="h-[55vh] overflow-auto rounded-xl p-3 sm:p-4 scrollbar-clear" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+              <div className="h-[55vh] overflow-auto rounded-xl p-3 sm:p-4 scrollbar-clear" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
                 <article className="markdown-body">
                   <MDEditor.Markdown
                     source={contentMD || "_Nothing to preview yet._"}

@@ -49,19 +49,19 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
   if (!profile) {
     return (
-      <div className="rounded-3xl shadow-lg p-6 w-full animate-pulse h-[420px]" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }} />
+      <div className="rounded-3xl shadow-lg p-6 w-full animate-pulse h-[420px]" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }} />
     );
   }
 
   return (
-    <article className="relative overflow-hidden rounded-3xl shadow-lg p-6 md:p-8" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+    <article className="relative overflow-hidden rounded-3xl shadow-lg p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
       <div className="flex items-start gap-6">
         <div className="shrink-0 relative group/img">
           <img
             src={`/image/profile-img.png?v=${imageKey}`}
             alt="Profile"
             className="w-36 h-36 md:w-40 md:h-40 rounded-2xl object-cover shadow-sm"
-            style={{ border: '1px solid var(--gb-border)' }}
+            style={{ boxShadow: 'var(--gb-shadow-card)' }}
           />
           {showAdminFeatures && (
             <label className="absolute inset-0 flex items-center justify-center rounded-2xl opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer" style={{ background: 'var(--gb-overlay)' }}>

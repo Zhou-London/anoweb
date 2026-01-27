@@ -226,7 +226,7 @@ export default function Community() {
       >
         <motion.div
           className="rounded-3xl backdrop-blur-md shadow-xl p-8 text-center"
-          style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}
+          style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
           variants={itemVariants}
           initial="hidden"
           animate="show"
@@ -264,7 +264,7 @@ export default function Community() {
         {/* Fellow Fans Preview for Guests */}
         <motion.div
           className="rounded-3xl backdrop-blur-md shadow-lg p-6 relative overflow-hidden"
-          style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}
+          style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
           variants={itemVariants}
           initial="hidden"
           animate="show"
@@ -282,7 +282,7 @@ export default function Community() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {/* First 3 placeholders shown normally */}
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center gap-3 rounded-2xl p-3" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}>
+              <div key={i} className="flex items-center gap-3 rounded-2xl p-3" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>
                 <div className="w-10 h-10 rounded-full flex-shrink-0" style={{ background: 'var(--gb-primary)' }} />
                 <div className="flex-1 min-w-0">
                   <div className="h-3.5 rounded w-20 mb-1.5" style={{ background: 'var(--gb-bg-muted)' }} />
@@ -293,7 +293,7 @@ export default function Community() {
             {/* Remaining placeholders blurred */}
             <div className="contents blur-sm select-none pointer-events-none">
               {[4, 5, 6, 7, 8].map((i) => (
-                <div key={i} className="flex items-center gap-3 rounded-2xl p-3" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}>
+                <div key={i} className="flex items-center gap-3 rounded-2xl p-3" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>
                   <div className="w-10 h-10 rounded-full flex-shrink-0" style={{ background: 'var(--gb-accent)' }} />
                   <div className="flex-1 min-w-0">
                     <div className="h-3.5 rounded w-20 mb-1.5" style={{ background: 'var(--gb-bg-muted)' }} />
@@ -357,7 +357,7 @@ export default function Community() {
       {/* Fellow Fans */}
       <motion.div
         className="rounded-3xl backdrop-blur-md shadow-lg p-6"
-        style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}
+        style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
         variants={itemVariants}
         initial="hidden"
         animate="show"
@@ -375,7 +375,7 @@ export default function Community() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-48 sm:w-64 rounded-xl px-4 py-2 text-sm focus:outline-none"
-                  style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)', color: 'var(--gb-fg)' }}
+                  style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
                   initial={{ width: 0, opacity: 0, paddingLeft: 0, paddingRight: 0 }}
                   animate={{ width: "auto", opacity: 1, paddingLeft: 16, paddingRight: 16 }}
                   exit={{ width: 0, opacity: 0, paddingLeft: 0, paddingRight: 0 }}
@@ -421,7 +421,7 @@ export default function Community() {
             <motion.div
               key={fanItem.id}
               className="flex items-center gap-3 rounded-2xl p-3 cursor-pointer transition-colors"
-              style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}
               variants={itemVariants}
               whileHover={{ y: -2, scale: 1.01 }}
               transition={{ duration: 0.15, ease: defaultEase }}
@@ -470,18 +470,18 @@ export default function Community() {
               </div>
               <motion.div
                 className="rounded-full px-4 py-2 text-sm font-semibold"
-                style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
+                style={{ background: 'rgba(255,255,255,0.15)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.25)' }}
                 whileHover={{ scale: 1.05 }}
               >
                 {records.length} sessions logged
               </motion.div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="rounded-2xl p-4 shadow-inner" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <div className="rounded-2xl p-4 shadow-inner" style={{ background: 'rgba(255,255,255,0.15)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.2)' }}>
                 <p className="text-sm opacity-70 mb-1">Your Total Time</p>
                 <div className="text-3xl font-bold">{formatHours(userHours)}h</div>
               </div>
-              <div className="rounded-2xl p-4 shadow-inner" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <div className="rounded-2xl p-4 shadow-inner" style={{ background: 'rgba(255,255,255,0.15)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.2)' }}>
                 <p className="text-sm opacity-70 mb-1">Current Streak</p>
                 <div className="text-3xl font-bold flex items-center gap-2">
                   {streak}
@@ -493,7 +493,7 @@ export default function Community() {
 
           <motion.div
             className="rounded-3xl backdrop-blur-md shadow-lg p-4"
-            style={{ gridArea: "stats", background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}
+            style={{ gridArea: "stats", background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
             variants={itemVariants}
             initial="hidden"
             animate="show"
@@ -510,7 +510,7 @@ export default function Community() {
           {overallStats && (
             <motion.div
               className="rounded-3xl backdrop-blur-md shadow-lg p-6 space-y-4"
-              style={{ gridArea: "community", background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}
+              style={{ gridArea: "community", background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
               variants={itemVariants}
               initial="hidden"
               animate="show"
@@ -519,7 +519,7 @@ export default function Community() {
                 <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--gb-fg)' }}>
                   Community Highlights
                 </h2>
-                <span className="rounded-full text-xs font-semibold px-3 py-1" style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-primary)', border: '1px solid var(--gb-primary)' }}>
+                <span className="rounded-full text-xs font-semibold px-3 py-1" style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-primary)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-primary)' }}>
                   Live overview
                 </span>
               </div>
@@ -579,7 +579,7 @@ function StatCard({ icon, title, value, subtitle, color }: StatCardProps) {
   return (
     <div
       className="rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow"
-      style={{ background: colors.bg, border: `1px solid ${colors.border}` }}
+      style={{ background: colors.bg, boxShadow: `var(--gb-shadow-card), inset 0 0 0 2px ${colors.border}` }}
     >
       <div className="text-2xl mb-2">{icon === "Users" ? "👥" : icon === "Globe" ? "🌍" : icon === "Clock" ? "⏱️" : icon === "Fire" ? "🔥" : icon === "Chart" ? "📈" : "📊"}</div>
       <div className="text-xs font-medium mb-1" style={{ color: 'var(--gb-fg-soft)' }}>{title}</div>
@@ -596,7 +596,7 @@ interface MiniStatCardProps {
 
 function MiniStatCard({ label, value }: MiniStatCardProps) {
   return (
-    <div className="rounded-xl p-4 shadow-sm" style={{ background: 'var(--gb-bg-soft)', border: '1px solid var(--gb-border)' }}>
+    <div className="rounded-xl p-4 shadow-sm" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>
       <div className="text-xs font-medium mb-1" style={{ color: 'var(--gb-fg-soft)' }}>{label}</div>
       <div className="text-2xl font-bold" style={{ color: 'var(--gb-fg)' }}>{value}</div>
     </div>
@@ -615,7 +615,7 @@ function ChartCard({ title, data, xKey, color }: ChartCardProps) {
   const barColor = color === "primary" ? 'var(--gb-primary)' : 'var(--gb-accent)';
 
   return (
-    <div className="rounded-3xl backdrop-blur-md shadow-lg p-6 h-full" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+    <div className="rounded-3xl backdrop-blur-md shadow-lg p-6 h-full" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--gb-fg)' }}>
         <span className="h-2.5 w-2.5 rounded-full" style={{ background: barColor }} aria-hidden />
         {title}

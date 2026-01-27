@@ -84,7 +84,7 @@ export default function BlogsPage() {
       </div>
 
       {/* Blog Grid */}
-      <section className="rounded-3xl shadow-lg p-4 sm:p-6 md:p-8" style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}>
+      <section className="rounded-3xl shadow-lg p-4 sm:p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
         {isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
@@ -98,7 +98,7 @@ export default function BlogsPage() {
             ))}
           </div>
         ) : blogs.length === 0 ? (
-          <div className="text-center py-16 rounded-2xl" style={{ border: '1px dashed var(--gb-border)', background: 'var(--gb-bg-soft)' }}>
+          <div className="text-center py-16 rounded-2xl" style={{ boxShadow: 'var(--gb-shadow-inset)', background: 'var(--gb-bg-soft)' }}>
             <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--gb-accent)', color: 'var(--gb-bg)' }}>
               <span className="text-3xl">#</span>
             </div>

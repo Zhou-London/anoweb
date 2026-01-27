@@ -29,7 +29,7 @@ export default function LatestPostCard({ post, size = "compact" }: LatestPostCar
   return (
     <div
       className="relative w-full overflow-hidden rounded-2xl shadow-lg"
-      style={{ background: 'var(--gb-bg)', border: '1px solid var(--gb-border)' }}
+      style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
     >
       <div
         className="absolute inset-0"
