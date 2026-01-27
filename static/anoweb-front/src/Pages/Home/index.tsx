@@ -237,9 +237,7 @@ export default function Home() {
                 🚀
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-700">Start tracking</p>
-                <h2 className="text-2xl font-bold text-slate-900">Sign up to track your time</h2>
-                <p className="text-sm text-slate-700 mt-1">Join the community and see your impact</p>
+                <h2 className="text-2xl font-bold text-slate-900">Sign up for full access</h2>
               </div>
             </div>
           </Link>
