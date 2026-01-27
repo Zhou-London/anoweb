@@ -24,6 +24,8 @@ export default function ExperienceCard({ experience, setExperience }: Experience
   const [descriptionDrafts, setDescriptionDrafts] = useState<Record<number, string>>({});
   const [savingDescription, setSavingDescription] = useState<Record<number, boolean>>({});
   const [descriptionErrors, setDescriptionErrors] = useState<Record<number, string | null>>({});
+  const [uploadingImage, setUploadingImage] = useState<Record<number, boolean>>({});
+  const [imageErrors, setImageErrors] = useState<Record<number, string | null>>({});
 
   const cleanDate = (value: string) => {
     if (!value) return "";
@@ -109,6 +111,43 @@ export default function ExperienceCard({ experience, setExperience }: Experience
     }
   };
 
+  const handleImageUpload = async (exp: Experience, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage((prev) => ({ ...prev, [exp.id]: true }));
+    setImageErrors((prev) => ({ ...prev, [exp.id]: null }));
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadRes = await apiFetch("/experience/upload-experience-img", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+
+      if (!uploadRes.ok) throw new Error("Image upload failed");
+      const { img_path } = await uploadRes.json();
+
+      await apiFetch("/experience", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id: exp.id, image_url: img_path }),
+      });
+
+      setExperience((prev) => prev.map((item) => (item.id === exp.id ? { ...item, image_url: img_path } : item)));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Upload failed";
+      setImageErrors((prev) => ({ ...prev, [exp.id]: message }));
+      notifyError(message);
+    } finally {
+      setUploadingImage((prev) => ({ ...prev, [exp.id]: false }));
+    }
+  };
+
   const handleSaveBullets = async (exp: Experience) => {
     const bulletPoints = getDraftList(exp).map((line) => line.trim()).filter(Boolean);
 
@@ -173,11 +212,28 @@ export default function ExperienceCard({ experience, setExperience }: Experience
                 {exp.present && <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-1">Current</span>}
               </div>
               <div className="flex items-start gap-4 sm:col-auto">
-                <img
-                  src={exp.image_url}
-                  alt={exp.company}
-                  className="w-14 h-14 rounded-xl object-cover shadow-sm border border-slate-200"
-                />
+                <div className="relative group/img">
+                  <img
+                    src={exp.image_url}
+                    alt={exp.company}
+                    className="w-14 h-14 rounded-xl object-cover shadow-sm border border-slate-200"
+                  />
+                  {showAdminFeatures && (
+                    <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer">
+                      <span className="text-white text-xs font-medium">{uploadingImage[exp.id] ? "..." : "Edit"}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={uploadingImage[exp.id]}
+                        onChange={(e) => handleImageUpload(exp, e)}
+                      />
+                    </label>
+                  )}
+                  {imageErrors[exp.id] && (
+                    <span className="absolute -bottom-5 left-0 text-xs text-rose-600 whitespace-nowrap">{imageErrors[exp.id]}</span>
+                  )}
+                </div>
                 <div className="min-w-0 flex-1 space-y-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-base font-semibold text-slate-900 truncate">{exp.company}</p>

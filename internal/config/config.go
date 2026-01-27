@@ -23,6 +23,14 @@ type Config struct {
 	GOOGLE_REDIRECT_URL  string
 }
 
+type EmailConfig struct {
+	SMTPHost  string
+	SMTPPort  string
+	SMTPUser  string
+	SMTPPass  string
+	FromEmail string
+}
+
 func Load() Config {
 	env := os.Getenv("APP_ENV")
 	if env == "production" {
@@ -61,5 +69,15 @@ func Load() Config {
 		GOOGLE_CLIENT_ID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		GOOGLE_CLIENT_SECRET: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		GOOGLE_REDIRECT_URL:  os.Getenv("GOOGLE_REDIRECT_URL"),
+	}
+}
+
+func LoadEmailConfig() EmailConfig {
+	return EmailConfig{
+		SMTPHost:  os.Getenv("SMTP_HOST"),
+		SMTPPort:  os.Getenv("SMTP_PORT"),
+		SMTPUser:  os.Getenv("SMTP_USER"),
+		SMTPPass:  os.Getenv("SMTP_PASS"),
+		FromEmail: os.Getenv("SMTP_FROM"),
 	}
 }

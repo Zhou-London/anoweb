@@ -10,7 +10,6 @@ import { apiJson } from "../../lib/api";
 import ProfileCard from "./ProfileCard";
 import EducationCard from "./EducationCard";
 import ExperienceCard from "./ExperienceCard";
-import LatestPostCard from "./LatestPostCard";
 import CoreSkillCard from "./CoreSkillCard";
 import type { CoreSkill } from "./types";
 
@@ -20,7 +19,7 @@ export default function Home() {
   const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
   const notifySuccess = useSuccessNotifier();
-  const { profile, education, experience, setExperience, recentPosts, coreSkills, setCoreSkills } = useHomeData();
+  const { profile, education, setEducation, experience, setExperience, recentProjects, coreSkills, setCoreSkills } = useHomeData();
   const [totalHours, setTotalHours] = useState(0);
   const [userHours, setUserHours] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -192,7 +191,6 @@ export default function Home() {
     }
   };
 
-  const visiblePosts = recentPosts.slice(0, 6);
 
   return (
     <div className="space-y-6">
@@ -208,7 +206,7 @@ export default function Home() {
               <h2 className="text-3xl font-bold text-slate-900">
                 {loadingStats ? "..." : `${totalHours.toFixed(1)}h`}
               </h2>
-              <p className="text-sm text-slate-700 mt-1">Spent by all fan?s on this web</p>
+              <p className="text-sm text-slate-700 mt-1">Spent by all fans on this web</p>
             </div>
           </div>
         </div>
@@ -248,34 +246,11 @@ export default function Home() {
         )}
       </div>
 
-      {/* Guest Sign-Up Invitation */}
-      {!fan && (
-        <section className="rounded-3xl bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-fuchsia-500/10 border border-violet-200 shadow-lg p-6 md:p-8 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 to-fuchsia-500/5" aria-hidden />
-          <div className="relative flex flex-col md:flex-row items-center gap-6">
-            <div className="flex-shrink-0 h-20 w-20 rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white grid place-items-center text-3xl font-bold shadow-lg">
-              ✨
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
-                Unlock Your Full Potential!
-              </h2>
-              <p className="text-slate-700 leading-relaxed mb-4">
-                Join our vibrant community today and gain access to exclusive features, personalized tracking, and so much more. Your journey to greatness starts here!
-              </p>
-              <Link
-                to="/community"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-              >
-                Sign Up Now
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Profile and Education Cards */}
+      <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-start">
+        <ProfileCard profile={profile} />
+        <EducationCard education={education} setEducation={setEducation} />
+      </section>
 
       {/* New Fans Section */}
       <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 p-6 md:p-8 relative overflow-hidden">
@@ -285,36 +260,19 @@ export default function Home() {
             <span>👋</span> New Fans
           </h2>
           {!fan ? (
-            <div className="relative">
-              <div className="blur-sm select-none pointer-events-none">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="bg-white rounded-xl border border-slate-200 p-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600" />
-                        <div className="flex-1">
-                          <div className="h-4 bg-slate-300 rounded w-24 mb-1" />
-                          <div className="h-3 bg-slate-200 rounded w-32" />
-                        </div>
+            <div className="blur-sm select-none pointer-events-none">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-white rounded-xl border border-slate-200 p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600" />
+                      <div className="flex-1">
+                        <div className="h-4 bg-slate-300 rounded w-24 mb-1" />
+                        <div className="h-3 bg-slate-200 rounded w-32" />
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-slate-200">
-                  <p className="text-lg font-semibold text-slate-900 mb-2">Want to see who joined?</p>
-                  <p className="text-sm text-slate-600 mb-4">Sign up to discover new community members!</p>
-                  <Link
-                    to="/community"
-                    className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all"
-                  >
-                    Join Now
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </Link>
-                </div>
+                  </div>
+                ))}
               </div>
             </div>
           ) : newFans.length > 0 ? (
@@ -348,50 +306,52 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Recent Projects Section */}
       <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 overflow-hidden relative">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-[#e8f0fe]/60 to-green-100/60" aria-hidden />
         <div className="relative space-y-4 p-6 md:p-8">
           <div className="flex items-center justify-between gap-3 flex-wrap">
-            <div>
-              <p className="text-sm font-semibold text-slate-700">Overview</p>
-              <h1 className="text-3xl md:text-4xl font-semibold text-slate-900">Recent posts</h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link
-                to="/projects"
-                className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-              >
-                See more projects
-              </Link>
-              {showAdminFeatures && (
-                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 border border-emerald-200">
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /> Admin
-                </span>
-              )}
-            </div>
+            <h2 className="text-2xl font-bold text-slate-900">Recent Projects</h2>
+            <Link
+              to="/projects"
+              className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+            >
+              See all projects
+            </Link>
           </div>
-          {recentPosts.length > 0 ? (
-            <div className="flex flex-col gap-4 md:flex-row md:overflow-x-auto md:pb-2 custom-scrollbar">
-              {visiblePosts.map((post) => (
-                <div
-                  key={post.id}
-                  className="md:min-w-[320px] md:max-w-[320px] flex-shrink-0"
+          {recentProjects.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {recentProjects.map((project) => (
+                <Link
+                  key={project.id}
+                  to="/projects"
+                  className="group rounded-2xl bg-white border border-slate-200 overflow-hidden hover:shadow-md transition-shadow"
                 >
-                  <LatestPostCard post={post} size="default" />
-                </div>
+                  <div className="aspect-video bg-slate-100 overflow-hidden">
+                    {project.image_url ? (
+                      <img
+                        src={project.image_url}
+                        alt={project.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                        <span className="text-4xl">📁</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-slate-900 truncate">{project.name}</h3>
+                  </div>
+                </Link>
               ))}
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-white/80 p-6 text-slate-600">
-              No posts found.
+              No projects found.
             </div>
           )}
         </div>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-start">
-        <ProfileCard profile={profile} />
-        <EducationCard education={education} />
       </section>
 
       {/* Core Skills Section */}
@@ -451,6 +411,7 @@ export default function Home() {
         </section>
       )}
 
+      {/* Career Path Section */}
       <section className="rounded-3xl bg-white/80 shadow-lg border border-slate-200/80 p-6 md:p-8">
         <div className="flex items-center justify-between gap-4 mb-6">
           <div>
@@ -462,33 +423,6 @@ export default function Home() {
           )}
         </div>
         <ExperienceCard experience={experience} setExperience={setExperience} />
-      </section>
-
-      <section className="grid gap-6 md:grid-cols-2">
-        <Link
-          to="/projects"
-          className="group relative overflow-hidden rounded-3xl bg-white shadow-lg border border-slate-200/80 p-6 md:p-8 flex items-center gap-6"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden />
-          <div className="relative h-12 w-12 rounded-2xl bg-blue-600 text-white grid place-items-center text-xl font-semibold shadow-md">↗</div>
-          <div className="relative">
-            <p className="text-sm font-semibold text-slate-700">Navigate</p>
-            <h3 className="text-xl font-semibold text-slate-900">Projects workspace</h3>
-            <p className="text-sm text-slate-700 mt-1">Review projects and posts quickly.</p>
-          </div>
-        </Link>
-        <a
-          href="mailto:zhouzhouzhang@gmail.com"
-          className="group relative overflow-hidden rounded-3xl bg-white shadow-lg border border-slate-200/80 p-6 md:p-8 flex items-center gap-6"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden />
-          <div className="relative h-12 w-12 rounded-2xl bg-emerald-600 text-white grid place-items-center text-xl font-semibold shadow-md">✉</div>
-          <div className="relative">
-            <p className="text-sm font-semibold text-slate-700">Contact</p>
-            <h3 className="text-xl font-semibold text-slate-900">Get in touch</h3>
-            <p className="text-sm text-slate-700 mt-1">Reach out for collaboration.</p>
-          </div>
-        </a>
       </section>
 
       {/* Add/Edit Skill Modal */}

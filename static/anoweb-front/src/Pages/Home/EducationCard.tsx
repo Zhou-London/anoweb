@@ -1,7 +1,13 @@
+import { useContext, useState } from "react";
+import { FanContext } from "../../Contexts/fan_context";
+import { useEditMode } from "../../Contexts/edit_mode_context";
+import { useErrorNotifier } from "../../Contexts/error_context";
+import { apiFetch } from "../../lib/api";
 import type { Education } from "./types";
 
 type EducationCardProps = {
   education: Education[];
+  setEducation: React.Dispatch<React.SetStateAction<Education[]>>;
 };
 
 function formatRange(start: string, end: string) {
@@ -10,11 +16,19 @@ function formatRange(start: string, end: string) {
   return `${normalize(start)} – ${normalize(end) || "Present"}`;
 }
 
-function EducationRow({ edu }: { edu: Education }) {
+type EducationRowProps = {
+  edu: Education;
+  showAdminFeatures: boolean;
+  onImageUpload: (edu: Education, e: React.ChangeEvent<HTMLInputElement>) => void;
+  uploadingImage: boolean;
+  imageError: string | null;
+};
+
+function EducationRow({ edu, showAdminFeatures, onImageUpload, uploadingImage, imageError }: EducationRowProps) {
   return (
     <li className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-r from-white to-slate-50 hover:from-indigo-50/50 hover:to-white p-4 transition-all duration-200 shadow-sm">
       <div className="flex items-start gap-4">
-        <div className="shrink-0">
+        <div className="shrink-0 relative group/img">
           <img
             src={edu.image_url}
             alt={edu.school}
@@ -23,6 +37,21 @@ function EducationRow({ edu }: { edu: Education }) {
             }}
             className="w-12 h-12 rounded-lg object-cover shadow-sm border border-slate-200 bg-white"
           />
+          {showAdminFeatures && (
+            <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer">
+              <span className="text-white text-xs font-medium">{uploadingImage ? "..." : "Edit"}</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={uploadingImage}
+                onChange={(e) => onImageUpload(edu, e)}
+              />
+            </label>
+          )}
+          {imageError && (
+            <span className="absolute -bottom-5 left-0 text-xs text-rose-600 whitespace-nowrap">{imageError}</span>
+          )}
         </div>
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2">
@@ -56,14 +85,55 @@ function EducationRow({ edu }: { edu: Education }) {
   );
 }
 
-export default function EducationCard({ education }: EducationCardProps) {
+export default function EducationCard({ education, setEducation }: EducationCardProps) {
+  const { isAdmin } = useContext(FanContext);
+  const { editMode } = useEditMode();
+  const showAdminFeatures = isAdmin && editMode;
+  const notifyError = useErrorNotifier();
+  const [uploadingImage, setUploadingImage] = useState<Record<number, boolean>>({});
+  const [imageErrors, setImageErrors] = useState<Record<number, string | null>>({});
+
+  const handleImageUpload = async (edu: Education, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage((prev) => ({ ...prev, [edu.id]: true }));
+    setImageErrors((prev) => ({ ...prev, [edu.id]: null }));
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadRes = await apiFetch("/education/upload-image", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+
+      if (!uploadRes.ok) throw new Error("Image upload failed");
+      const img_path = await uploadRes.text();
+
+      await apiFetch("/education/image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id: edu.id, image_url: img_path }),
+      });
+
+      setEducation((prev) => prev.map((item) => (item.id === edu.id ? { ...item, image_url: img_path } : item)));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Upload failed";
+      setImageErrors((prev) => ({ ...prev, [edu.id]: message }));
+      notifyError(message);
+    } finally {
+      setUploadingImage((prev) => ({ ...prev, [edu.id]: false }));
+    }
+  };
+
   return (
     <article className="bg-white/90 rounded-3xl shadow-lg border border-slate-200 p-6 md:p-8 h-full flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold text-slate-700">Education</p>
-          <h2 className="text-xl font-semibold text-slate-900">Academic trail</h2>
-        </div>
+        <h2 className="text-2xl font-bold text-slate-900">Education</h2>
         <span className="rounded-full bg-indigo-50 text-indigo-700 px-3 py-1 text-xs font-semibold border border-indigo-100">
           {education.length} {education.length === 1 ? "entry" : "entries"}
         </span>
@@ -75,7 +145,14 @@ export default function EducationCard({ education }: EducationCardProps) {
       ) : (
         <ul className="space-y-3 flex-1 overflow-auto scrollbar-clear" aria-label="Education history">
           {education.map((edu) => (
-            <EducationRow key={edu.id} edu={edu} />
+            <EducationRow
+              key={edu.id}
+              edu={edu}
+              showAdminFeatures={showAdminFeatures}
+              onImageUpload={handleImageUpload}
+              uploadingImage={uploadingImage[edu.id] || false}
+              imageError={imageErrors[edu.id] || null}
+            />
           ))}
         </ul>
       )}
