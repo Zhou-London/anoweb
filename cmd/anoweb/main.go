@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"anonchihaya.co.uk/internal/auth"
+	"anonchihaya.co.uk/internal/blog"
 	"anonchihaya.co.uk/internal/config"
 	"anonchihaya.co.uk/internal/coreskill"
 	"anonchihaya.co.uk/internal/education"
@@ -53,6 +54,8 @@ func main() {
 		&mysterycode.MysteryCode{},
 		&guestpopup.GuestPopupConfig{},
 		&coreskill.CoreSkill{},
+		&blog.Blog{},
+		&blog.BlogLike{},
 	); err != nil {
 		log.Fatal(err)
 	}
@@ -81,6 +84,8 @@ func main() {
 	popup_repo := guestpopup.NewGuestPopupConfigRepository(store.DB)
 	stats_repo := statistics.NewStatisticsRepository(store.DB)
 	core_skill_repo := coreskill.NewCoreSkillRepository()
+	blog_repo := blog.NewBlogRepository()
+	blog_like_repo := blog.NewBlogLikeRepository()
 
 	if CONFIG.DOMAIN == "" {
 		log.Fatal("Error configuring domain from .env file")
@@ -95,7 +100,7 @@ func main() {
 		log.Fatal("Error configuring image url prefix from .env file")
 	}
 
-	routes.InitRoutes(r, CONFIG.DOMAIN, CONFIG.ADMIN_PASS, "", CONFIG.IMG_PATH, CONFIG.IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo)
+	routes.InitRoutes(r, CONFIG.DOMAIN, CONFIG.ADMIN_PASS, "", CONFIG.IMG_PATH, CONFIG.IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo, blog_repo, blog_like_repo)
 
 	r.Run("localhost:" + CONFIG.SERVER_PORT)
 }
