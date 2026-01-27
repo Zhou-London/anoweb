@@ -86,6 +86,10 @@ export default function Community() {
         setOverallStats(statsData);
 
         if (fan) {
+          const fansData = await apiJson<any[]>("/user/list", {
+            credentials: "include",
+          });
+          setCommunityFans(fansData);
           const userHoursData = await apiJson<{ total_hours: number }>(`/tracking/user-hours`, {
             credentials: "include",
           });
@@ -100,11 +104,6 @@ export default function Community() {
             credentials: "include",
           });
           setRecords(recordsData);
-
-          const fansData = await apiJson<any[]>("/user/list", {
-            credentials: "include",
-          });
-          setCommunityFans(fansData);
         }
 
         const fansOverTimeData = await apiJson<TimePoint[]>("/statistics/users-over-time?hours=48", {
@@ -231,8 +230,8 @@ export default function Community() {
           initial="hidden"
           animate="show"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Join Our Amazing Community! 🌟</h1>
-          <p className="text-lg text-slate-700 mb-6">Become a fan and unlock exclusive features! Track your journey, connect with fellow fans, and be part of something special.</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Join the Community</h1>
+          <p className="text-lg text-slate-700 mb-6">And unlock the full access.</p>
           <div className="flex items-center justify-center gap-4">
             <motion.button
               onClick={() => openAuthModal("login")}
@@ -276,36 +275,28 @@ export default function Community() {
               </svg>
             </div>
           </div>
-          <div className="relative">
-            <div className="blur-sm select-none pointer-events-none">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                  <div key={i} className="flex items-center gap-3 rounded-2xl bg-slate-50 border border-slate-100 p-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="h-3.5 bg-slate-200 rounded w-20 mb-1.5" />
-                      <div className="h-3 bg-slate-100 rounded w-28" />
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {/* First 3 placeholders shown normally */}
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center gap-3 rounded-2xl bg-slate-50 border border-slate-100 p-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="h-3.5 bg-slate-200 rounded w-20 mb-1.5" />
+                  <div className="h-3 bg-slate-100 rounded w-28" />
+                </div>
+              </div>
+            ))}
+            {/* Remaining placeholders blurred */}
+            <div className="contents blur-sm select-none pointer-events-none">
+              {[4, 5, 6, 7, 8].map((i) => (
+                <div key={i} className="flex items-center gap-3 rounded-2xl bg-slate-50 border border-slate-100 p-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="h-3.5 bg-slate-200 rounded w-20 mb-1.5" />
+                    <div className="h-3 bg-slate-100 rounded w-28" />
                   </div>
-                ))}
-              </div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center bg-white/95 backdrop-blur-sm rounded-2xl px-8 py-6 shadow-lg border border-slate-200">
-                <p className="text-base font-semibold text-slate-900 mb-1">Want to see who's here?</p>
-                <p className="text-sm text-slate-600 mb-4">Sign up to connect with fellow fans!</p>
-                <motion.button
-                  onClick={() => openAuthModal("register")}
-                  className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full text-sm font-semibold shadow-md"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Join Now
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </motion.button>
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         </motion.div>
