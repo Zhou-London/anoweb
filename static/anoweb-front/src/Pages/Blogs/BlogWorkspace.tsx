@@ -230,11 +230,23 @@ export default function BlogWorkspace() {
       img: ({ alt, ...props }: any) => (
         <img alt={alt} className="rounded-xl shadow-sm" style={{ boxShadow: 'var(--gb-shadow-card)' }} loading="lazy" {...props} />
       ),
-      pre: ({ children }: any) => <div className="relative group markdown-pre">{children}</div>,
+      pre: ({ children }: any) => children,
       code: ({ node, inline, className, children, ...props }: any) => {
         const language = className?.replace("language-", "");
-        const blockId = `${language}-${String(children).length}-${String(children).slice(0, 8)}`;
-        if (inline) {
+        const isBlockCode = Boolean(className);
+
+        // Helper to extract plain text from React children (for copy button)
+        const extractText = (node: any): string => {
+          if (typeof node === "string") return node;
+          if (Array.isArray(node)) return node.map(extractText).join("");
+          if (node?.props?.children) return extractText(node.props.children);
+          return "";
+        };
+
+        const plainText = extractText(children).replace(/\n$/, "");
+        const blockId = `${language}-${plainText.length}-${plainText.slice(0, 8)}`;
+
+        if (inline || !isBlockCode) {
           return (
             <code className={`${className || ""} rounded-md px-1.5 py-0.5`} style={{ background: 'var(--gb-bg-soft)' }} {...props}>
               {children}
@@ -242,14 +254,13 @@ export default function BlogWorkspace() {
           );
         }
 
-        const codeText = String(children || "").replace(/\n$/, "");
         return (
           <div className="group relative">
             <button
               type="button"
               className="copy-chip"
               onClick={() => {
-                navigator.clipboard.writeText(codeText).then(() => {
+                navigator.clipboard.writeText(plainText).then(() => {
                   setCopiedBlock(blockId);
                   setTimeout(() => setCopiedBlock(null), 1200);
                 });
@@ -258,8 +269,8 @@ export default function BlogWorkspace() {
               {copiedBlock === blockId ? "Copied" : "Copy"}
             </button>
             <pre className="markdown-pre" data-language={language}>
-              <code className={className} {...props}>
-                {codeText}
+              <code className={`${className} hljs`} {...props}>
+                {children}
               </code>
             </pre>
           </div>
