@@ -77,7 +77,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
   // Render the editable form when in edit mode
   if (isEditing) {
     return (
-      <section className="flex-1 rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col p-4 sm:p-6 md:p-8 mb-6 min-h-0 shadow-lg" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-primary)' }}>
+      <section className="flex-1 rounded-2xl sm:rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 min-h-0 shadow-lg" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6 md:gap-8 h-full">
           {/* Left side: Image Upload */}
           <div className="w-full md:w-1/3 flex flex-col items-center gap-4">
@@ -146,7 +146,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
   const descriptionNeedsExpansion = project.description.length > 400; // rough character count
 
   return (
-    <section className="flex-1 rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col md:flex-row gap-6 md:gap-8 p-4 sm:p-6 md:p-8 mb-6 min-h-0 shadow-lg relative" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
+    <section className="flex-1 rounded-2xl sm:rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col md:flex-row gap-4 sm:gap-6 md:gap-8 p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 min-h-0 shadow-lg relative" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
       {/* Edit button for admins */}
       {showAdminFeatures && (
         <button

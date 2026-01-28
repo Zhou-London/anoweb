@@ -26,7 +26,7 @@ type EducationRowProps = {
 
 function EducationRow({ edu, showAdminFeatures, onImageUpload, uploadingImage, imageError }: EducationRowProps) {
   return (
-    <li className="group relative overflow-hidden rounded-2xl p-4 transition-all duration-200 shadow-sm" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>
+    <li className="group relative overflow-hidden rounded-2xl p-4 transition-all duration-200" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
       <div className="flex items-start gap-4">
         <div className="shrink-0 relative group/img">
           <img

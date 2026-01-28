@@ -117,25 +117,25 @@ export default function AccountPage() {
   const pagedRecords = records.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="rounded-2xl shadow-sm p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
-        <h1 className="text-3xl font-bold mb-6" style={{ color: 'var(--gb-fg)' }}>Account Settings</h1>
+    <div className="max-w-2xl mx-auto px-3 sm:px-0">
+      <div className="rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6" style={{ color: 'var(--gb-fg)' }}>Account Settings</h1>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Profile Photo Section */}
           <div>
-            <label className="block text-sm font-medium mb-3" style={{ color: 'var(--gb-fg-soft)' }}>Profile Photo</label>
-            <div className="flex items-center gap-4">
+            <label className="block text-sm font-medium mb-2 sm:mb-3" style={{ color: 'var(--gb-fg-soft)' }}>Profile Photo</label>
+            <div className="flex items-center gap-3 sm:gap-4">
               <div className="relative">
                 {fan.profile_photo ? (
                   <img
                     src={fan.profile_photo}
                     alt={fan.username}
-                    className="w-20 h-20 rounded-full object-cover"
-                    style={{ boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-border)' }}
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover"
+                    style={{ boxShadow: 'var(--gb-shadow-card)' }}
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-xl sm:text-2xl font-bold" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
                     {fan.username.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -212,9 +212,9 @@ export default function AccountPage() {
 
           {/* Mystery Code Section */}
           {!fan.is_admin && (
-            <div className="mt-6 p-6 rounded-lg" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-accent)' }}>
-              <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--gb-fg)' }}>Unlock Admin Access</h3>
-              <p className="text-sm mb-4" style={{ color: 'var(--gb-fg-soft)' }}>
+            <div className="mt-4 sm:mt-6 p-4 sm:p-6 rounded-lg" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}>
+              <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2" style={{ color: 'var(--gb-fg)' }}>Unlock Admin Access</h3>
+              <p className="text-xs sm:text-sm mb-3 sm:mb-4" style={{ color: 'var(--gb-fg-soft)' }}>
                 Have a mystery code? Enter it below to gain administrator privileges.
               </p>
               <form
@@ -241,20 +241,20 @@ export default function AccountPage() {
                     setLoading(false);
                   }
                 }}
-                className="flex gap-2"
+                className="flex flex-col sm:flex-row gap-2"
               >
                 <input
                   type="text"
                   name="mystery_code"
                   placeholder="Enter mystery code"
-                  className="flex-1 px-3 py-2 rounded-lg focus:outline-none"
-                  style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-inset), inset 0 0 0 2px var(--gb-accent)', color: 'var(--gb-fg)' }}
+                  className="flex-1 px-3 py-2 rounded-lg focus:outline-none text-sm"
+                  style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
                   required
                 />
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2 rounded-lg font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ background: 'var(--gb-accent)', color: 'var(--gb-bg)' }}
                 >
                   {loading ? "Verifying..." : "Verify"}
@@ -265,7 +265,7 @@ export default function AccountPage() {
 
           {/* Admin Badge */}
           {fan.is_admin && (
-            <div className="mt-6 p-4 rounded-lg" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-success)' }}>
+            <div className="mt-4 sm:mt-6 p-3 sm:p-4 rounded-lg" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}>
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-semibold" style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}>
                   <span className="h-2 w-2 rounded-full" style={{ background: 'var(--gb-bg)' }} /> Admin
@@ -278,31 +278,31 @@ export default function AccountPage() {
       </div>
 
       {/* Session History */}
-      <div className="mt-6 rounded-2xl shadow-sm p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
-        <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2" style={{ color: 'var(--gb-fg)' }}>
+      <div className="mt-4 sm:mt-6 rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
+        <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 flex items-center gap-2" style={{ color: 'var(--gb-fg)' }}>
           Your Session History
         </h2>
         {records.length === 0 ? (
-          <p className="text-center py-8" style={{ color: 'var(--gb-fg-soft)' }}>No session records yet. Keep exploring!</p>
+          <p className="text-center py-6 sm:py-8 text-sm" style={{ color: 'var(--gb-fg-soft)' }}>No session records yet. Keep exploring!</p>
         ) : (
           <>
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="w-full min-w-[400px]">
                 <thead>
                   <tr style={{ boxShadow: 'inset 0 -1px 0 var(--gb-shadow)' }}>
-                    <th className="text-left py-3 px-4 text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>Start Time</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>End Time</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>Duration</th>
+                    <th className="text-left py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>Start Time</th>
+                    <th className="text-left py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>End Time</th>
+                    <th className="text-left py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>Duration</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pagedRecords.map((record) => (
                     <tr key={record.id} className="hover:opacity-80" style={{ boxShadow: 'inset 0 -1px 0 var(--gb-shadow-soft)' }}>
-                      <td className="py-3 px-4 text-sm" style={{ color: 'var(--gb-fg-soft)' }}>{formatDate(record.start_time)}</td>
-                      <td className="py-3 px-4 text-sm" style={{ color: 'var(--gb-fg-soft)' }}>
+                      <td className="py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm" style={{ color: 'var(--gb-fg-soft)' }}>{formatDate(record.start_time)}</td>
+                      <td className="py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm" style={{ color: 'var(--gb-fg-soft)' }}>
                         {record.end_time ? formatDate(record.end_time) : "Active"}
                       </td>
-                      <td className="py-3 px-4 text-sm" style={{ color: 'var(--gb-fg-soft)' }}>{formatDuration(record.duration)}</td>
+                      <td className="py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm" style={{ color: 'var(--gb-fg-soft)' }}>{formatDuration(record.duration)}</td>
                     </tr>
                   ))}
                 </tbody>

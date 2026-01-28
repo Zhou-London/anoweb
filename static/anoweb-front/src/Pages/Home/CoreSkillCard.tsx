@@ -38,7 +38,7 @@ export default function CoreSkillCard({
       }`}
       style={{
         background: 'var(--gb-bg)',
-        boxShadow: isExpanded ? 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-primary)' : 'var(--gb-shadow-card)',
+        boxShadow: isExpanded ? 'var(--gb-shadow-card-hover)' : 'var(--gb-shadow-card)',
       }}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.995 }}

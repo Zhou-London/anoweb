@@ -68,12 +68,12 @@
   color-scheme: light;
 
   /* Backgrounds */
-  --gb-bg: #fff1d4;
-  --gb-bg-soft: #ebdbb2;
-  --gb-bg-muted: #d5c4a1;
-  --gb-bg-emphasis: #bdae93;
-  --gb-border: #bdae93;
-  --gb-border-soft: #d5c4a1;
+  --gb-bg: #faf6ed;
+  --gb-bg-soft: #f2ebe0;
+  --gb-bg-muted: #e8dfd2;
+  --gb-bg-emphasis: #d8cfc2;
+  --gb-border: #d8cfc2;
+  --gb-border-soft: #e8dfd2;
 
   /* Foregrounds */
   --gb-fg: #282828;
@@ -94,8 +94,8 @@
   --gb-accent-bright: #d3869b;
   --gb-info: #689d6a;
   --gb-info-bright: #8ec07c;
-  --gb-yellow: #d79921;
-  --gb-yellow-bright: #fabd2f;
+  --gb-yellow: #b57614;
+  --gb-yellow-bright: #d79921;
 
   /* Overlay/backdrop */
   --gb-overlay: rgba(40, 40, 40, 0.6);
