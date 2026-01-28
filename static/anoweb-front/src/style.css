@@ -1,7 +1,6 @@
 /* style.css */
 @import "tailwindcss";
 @import "katex/dist/katex.min.css";
-@import "highlight.js/styles/github.css";
 @import "@uiw/react-md-editor/markdown-editor.css";
 @import "@uiw/react-markdown-preview/markdown.css";
 
@@ -35,22 +34,33 @@
   --color-gb-fg3-dark: #a89984;
   --color-gb-fg4-dark: #928374;
 
-  /* Accent colors */
+  /* Accent colors - neutral (for light backgrounds) */
   --color-gb-red: #cc241d;
-  --color-gb-red-bright: #fb4934;
   --color-gb-green: #98971a;
-  --color-gb-green-bright: #b8bb26;
   --color-gb-yellow: #d79921;
-  --color-gb-yellow-bright: #fabd2f;
   --color-gb-blue: #458588;
-  --color-gb-blue-bright: #83a598;
   --color-gb-purple: #b16286;
-  --color-gb-purple-bright: #d3869b;
   --color-gb-aqua: #689d6a;
-  --color-gb-aqua-bright: #8ec07c;
   --color-gb-orange: #d65d0e;
-  --color-gb-orange-bright: #fe8019;
   --color-gb-gray: #928374;
+
+  /* Accent colors - bright (for dark backgrounds) */
+  --color-gb-red-bright: #fb4934;
+  --color-gb-green-bright: #b8bb26;
+  --color-gb-yellow-bright: #fabd2f;
+  --color-gb-blue-bright: #83a598;
+  --color-gb-purple-bright: #d3869b;
+  --color-gb-aqua-bright: #8ec07c;
+  --color-gb-orange-bright: #fe8019;
+
+  /* Accent colors - dark (high contrast for light backgrounds) */
+  --color-gb-red-dark: #9d0006;
+  --color-gb-green-dark: #79740e;
+  --color-gb-yellow-dark: #b57614;
+  --color-gb-blue-dark: #076678;
+  --color-gb-purple-dark: #8f3f71;
+  --color-gb-aqua-dark: #427b58;
+  --color-gb-orange-dark: #af3a03;
 }
 
 /* Semantic CSS Variables - Light Mode (default) */
@@ -58,7 +68,7 @@
   color-scheme: light;
 
   /* Backgrounds */
-  --gb-bg: #fbf1c7;
+  --gb-bg: #fff1d4;
   --gb-bg-soft: #ebdbb2;
   --gb-bg-muted: #d5c4a1;
   --gb-bg-emphasis: #bdae93;
@@ -103,6 +113,15 @@
   --gb-shadow-card-hover: 0 4px 16px rgba(60, 56, 54, 0.12), 0 2px 6px rgba(60, 56, 54, 0.08);
   --gb-shadow-soft: 0 1px 4px rgba(60, 56, 54, 0.06);
   --gb-shadow-inset: inset 0 1px 3px rgba(60, 56, 54, 0.08);
+
+  /* Syntax highlighting (use dark variants for contrast on light bg) */
+  --gb-syntax-keyword: #9d0006;
+  --gb-syntax-string: #79740e;
+  --gb-syntax-number: #8f3f71;
+  --gb-syntax-comment: #928374;
+  --gb-syntax-function: #427b58;
+  --gb-syntax-type: #b57614;
+  --gb-syntax-builtin: #076678;
 }
 
 /* Dark Mode */
@@ -155,6 +174,15 @@
   --gb-shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.12);
   --gb-shadow-soft: 0 1px 4px rgba(0, 0, 0, 0.1);
   --gb-shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+
+  /* Syntax highlighting (use bright variants for contrast on dark bg) */
+  --gb-syntax-keyword: #fb4934;
+  --gb-syntax-string: #b8bb26;
+  --gb-syntax-number: #d3869b;
+  --gb-syntax-comment: #928374;
+  --gb-syntax-function: #b8bb26;
+  --gb-syntax-type: #fabd2f;
+  --gb-syntax-builtin: #83a598;
 }
 
 /* MD Editor - Light Mode */
@@ -162,14 +190,14 @@
 .w-md-editor[data-color-mode="light"],
 [data-color-mode="light"] .wmde-markdown,
 .wmde-markdown[data-color-mode="light"] {
-  --color-canvas-default: #fbf1c7;
-  --color-canvas-subtle: #ebdbb2;
-  --color-border-default: #bdae93;
-  --color-fg-default: #282828;
-  --md-editor-background-color: #fbf1c7;
-  --md-editor-box-shadow-color: #bdae93;
-  color: #282828;
-  background: #fbf1c7;
+  --color-canvas-default: var(--gb-bg);
+  --color-canvas-subtle: var(--gb-bg-soft);
+  --color-border-default: var(--gb-border);
+  --color-fg-default: var(--gb-fg);
+  --md-editor-background-color: var(--gb-bg);
+  --md-editor-box-shadow-color: var(--gb-border);
+  color: var(--gb-fg);
+  background: var(--gb-bg);
 }
 
 /* MD Editor - Dark Mode */
@@ -177,14 +205,14 @@
 .w-md-editor[data-color-mode="dark"],
 [data-color-mode="dark"] .wmde-markdown,
 .wmde-markdown[data-color-mode="dark"] {
-  --color-canvas-default: #282828;
-  --color-canvas-subtle: #3c3836;
-  --color-border-default: #504945;
-  --color-fg-default: #ebdbb2;
-  --md-editor-background-color: #282828;
-  --md-editor-box-shadow-color: #504945;
-  color: #ebdbb2;
-  background: #282828;
+  --color-canvas-default: var(--gb-bg);
+  --color-canvas-subtle: var(--gb-bg-soft);
+  --color-border-default: var(--gb-border);
+  --color-fg-default: var(--gb-fg);
+  --md-editor-background-color: var(--gb-bg);
+  --md-editor-box-shadow-color: var(--gb-border);
+  color: var(--gb-fg);
+  background: var(--gb-bg);
 }
 
 .w-md-editor,
@@ -400,34 +428,43 @@
   background: var(--gb-bg-emphasis);
 }
 
-/* Override highlight.js for dark mode */
-[data-theme="dark"] .hljs {
-  background: #3c3836;
-  color: #ebdbb2;
+/* Override highlight.js and markdown preview library with Gruvbox colors */
+.hljs,
+.wmde-markdown .hljs,
+.wmde-markdown pre,
+.wmde-markdown code,
+.markdown-body .hljs,
+.markdown-body pre {
+  background: var(--gb-bg-soft) !important;
+  color: var(--gb-fg-soft);
 }
-[data-theme="dark"] .hljs-keyword,
-[data-theme="dark"] .hljs-selector-tag {
-  color: #fb4934;
+.markdown-body pre code,
+.wmde-markdown pre code {
+  background: transparent !important;
 }
-[data-theme="dark"] .hljs-string,
-[data-theme="dark"] .hljs-attr {
-  color: #b8bb26;
+.hljs-keyword,
+.hljs-selector-tag {
+  color: var(--gb-syntax-keyword);
 }
-[data-theme="dark"] .hljs-number,
-[data-theme="dark"] .hljs-literal {
-  color: #d3869b;
+.hljs-string,
+.hljs-attr {
+  color: var(--gb-syntax-string);
 }
-[data-theme="dark"] .hljs-comment {
-  color: #928374;
+.hljs-number,
+.hljs-literal {
+  color: var(--gb-syntax-number);
 }
-[data-theme="dark"] .hljs-title,
-[data-theme="dark"] .hljs-function {
-  color: #b8bb26;
+.hljs-comment {
+  color: var(--gb-syntax-comment);
 }
-[data-theme="dark"] .hljs-type,
-[data-theme="dark"] .hljs-class {
-  color: #fabd2f;
+.hljs-title,
+.hljs-function {
+  color: var(--gb-syntax-function);
 }
-[data-theme="dark"] .hljs-built_in {
-  color: #83a598;
+.hljs-type,
+.hljs-class {
+  color: var(--gb-syntax-type);
+}
+.hljs-built_in {
+  color: var(--gb-syntax-builtin);
 }
