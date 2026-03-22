@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"anonchihaya.co.uk/internal/announcement"
 	"anonchihaya.co.uk/internal/auth"
 	"anonchihaya.co.uk/internal/blog"
 	"anonchihaya.co.uk/internal/coreskill"
@@ -39,6 +40,7 @@ func InitRoutes(
 	coreSkillRepo coreskill.CoreSkillRepository,
 	blogRepo blog.BlogRepository,
 	blogLikeRepo blog.BlogLikeRepository,
+	announcementRepo announcement.AnnouncementRepository,
 ) {
 	registerSwaggerRoutes(r)
 	registerFanRoutes(r, domain, imgPath, imgURLPrefix, fanRepo, sessionRepo)
@@ -55,4 +57,5 @@ func InitRoutes(
 	registerStatisticsRoutes(r, statsRepo, trackingRepo, sessionRepo)
 	registerCoreSkillRoutes(r, key, coreSkillRepo, sessionRepo)
 	registerBlogRoutes(r, blogRepo, blogLikeRepo, sessionRepo)
+	registerAnnouncementRoutes(r, announcementRepo, sessionRepo)
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiJson } from "../../lib/api";
-import type { Profile, Education, Experience, CoreSkill, Post } from "./types";
+import type { Profile, Education, Experience, CoreSkill, Post, Announcement } from "./types";
 import type { Project } from "../Projects/types";
 import type { BlogShort } from "../Blogs/types";
 
@@ -11,6 +11,7 @@ export function useHomeData() {
   const [recentProjects, setRecentProjects] = useState<Project[]>([]);
   const [coreSkills, setCoreSkills] = useState<CoreSkill[]>([]);
   const [recentBlogs, setRecentBlogs] = useState<BlogShort[]>([]);
+  const [latestAnnouncement, setLatestAnnouncement] = useState<Announcement | null>(null);
 
   useEffect(() => {
     apiJson<Profile>("/profile").then(setProfile).catch(() => setProfile(null));
@@ -64,7 +65,12 @@ export function useHomeData() {
     apiJson<BlogShort[]>("/blog/recent")
       .then(setRecentBlogs)
       .catch(() => setRecentBlogs([]));
+
+    // Fetch latest announcement
+    apiJson<{ announcement: Announcement }>("/announcement/latest")
+      .then((data) => setLatestAnnouncement(data.announcement))
+      .catch(() => setLatestAnnouncement(null));
   }, []);
 
-  return { profile, education, setEducation, experience, setExperience, recentProjects, coreSkills, setCoreSkills, recentBlogs };
+  return { profile, education, setEducation, experience, setExperience, recentProjects, coreSkills, setCoreSkills, recentBlogs, latestAnnouncement };
 }

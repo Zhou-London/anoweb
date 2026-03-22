@@ -11,6 +11,7 @@ import ProfileCard from "./ProfileCard";
 import EducationCard from "./EducationCard";
 import ExperienceCard from "./ExperienceCard";
 import CoreSkillCard from "./CoreSkillCard";
+import AnnouncementCard from "./AnnouncementCard";
 import type { CoreSkill } from "./types";
 
 export default function Home() {
@@ -19,7 +20,7 @@ export default function Home() {
   const showAdminFeatures = isAdmin && editMode;
   const notifyError = useErrorNotifier();
   const notifySuccess = useSuccessNotifier();
-  const { profile, education, setEducation, experience, setExperience, recentProjects, coreSkills, setCoreSkills, recentBlogs } = useHomeData();
+  const { profile, education, setEducation, experience, setExperience, recentProjects, coreSkills, setCoreSkills, recentBlogs, latestAnnouncement } = useHomeData();
   const [totalHours, setTotalHours] = useState(0);
   const [userHours, setUserHours] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -245,41 +246,55 @@ export default function Home() {
         <EducationCard education={education} setEducation={setEducation} />
       </section>
 
-      {/* New Fans Section */}
-      <section className="rounded-2xl sm:rounded-3xl shadow-lg p-4 sm:p-6 md:p-8 relative overflow-hidden" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
-        <div className="relative">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: 'var(--gb-fg)' }}>
+      {/* New Fans + Announcement Row */}
+      <section className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
+        {/* New Fans Card with horizontal scroll */}
+        <div className="rounded-2xl sm:rounded-3xl shadow-lg p-4 sm:p-6 md:p-8 overflow-hidden" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
+          <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: 'var(--gb-fg)' }}>
             <span>~</span> New Fans
           </h2>
           {newFans.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-              {newFans.map((newFan) => (
-                <div key={newFan.id} className="rounded-xl p-4 hover:shadow-md transition-shadow" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}>
-                  <div className="flex items-center gap-3">
-                    {newFan.profile_photo ? (
-                      <img src={newFan.profile_photo} alt={newFan.username} className="w-12 h-12 rounded-full object-cover" style={{ boxShadow: 'var(--gb-shadow-card)' }} />
-                    ) : (
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
-                        {newFan.username.charAt(0).toUpperCase()}
+            <div className="overflow-hidden relative group/scroll">
+              <div
+                className="flex gap-3"
+                style={{
+                  animation: newFans.length >= 2 ? 'scroll-left 20s linear infinite' : undefined,
+                  width: newFans.length >= 2 ? 'max-content' : undefined,
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.animationPlayState = 'paused'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.animationPlayState = 'running'; }}
+              >
+                {[...newFans, ...(newFans.length >= 2 ? newFans : [])].map((newFan, idx) => (
+                  <div key={`${newFan.id}-${idx}`} className="flex-shrink-0 w-48 rounded-xl p-3 hover:shadow-md transition-shadow" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}>
+                    <div className="flex items-center gap-2">
+                      {newFan.profile_photo ? (
+                        <img src={newFan.profile_photo} alt={newFan.username} className="w-10 h-10 rounded-full object-cover flex-shrink-0" style={{ boxShadow: 'var(--gb-shadow-card)' }} />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
+                          {newFan.username.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-sm truncate" style={{ color: 'var(--gb-fg)' }}>{newFan.username}</h3>
+                        <p className="text-xs" style={{ color: 'var(--gb-fg-muted)' }}>
+                          {new Date(newFan.created_at).toLocaleDateString()}
+                        </p>
                       </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold truncate" style={{ color: 'var(--gb-fg)' }}>{newFan.username}</h3>
-                      <p className="text-xs" style={{ color: 'var(--gb-fg-muted)' }}>
-                        Joined {new Date(newFan.created_at).toLocaleDateString()}
-                      </p>
                     </div>
+                    {newFan.bio && (
+                      <p className="mt-2 text-xs line-clamp-2" style={{ color: 'var(--gb-fg-soft)' }}>{newFan.bio}</p>
+                    )}
                   </div>
-                  {newFan.bio && (
-                    <p className="mt-3 text-sm line-clamp-2" style={{ color: 'var(--gb-fg-soft)' }}>{newFan.bio}</p>
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ) : (
             <p className="text-center py-8" style={{ color: 'var(--gb-fg-muted)' }}>No new fans yet. Be the first to join!</p>
           )}
         </div>
+
+        {/* Announcement Card */}
+        <AnnouncementCard announcement={latestAnnouncement} />
       </section>
 
       {/* Recent Blogs Section */}

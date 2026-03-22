@@ -468,3 +468,9 @@
 .hljs-built_in {
   color: var(--gb-syntax-builtin);
 }
+
+/* Horizontal scroll animation for New Fans */
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}

@@ -7,6 +7,7 @@ import { useErrorNotifier } from "../Contexts/error_context";
 import { useTheme } from "../Contexts/theme_context";
 import { apiFetch } from "../lib/api";
 import AuthModal from "./auth_modal";
+import NotificationBell from "./notification_bell";
 
 export default function Navbar() {
   const { fan, isAuthenticated, isAdmin, refreshFan } = useContext(FanContext);
@@ -164,6 +165,9 @@ export default function Navbar() {
                 )}
               </button>
 
+              {/* Notification Bell */}
+              <NotificationBell />
+
               {/* Account Dropdown */}
               <div className="relative" ref={accountDropdownRef}>
                 <button
@@ -270,6 +274,9 @@ export default function Navbar() {
                   </svg>
                 )}
               </button>
+              {/* Mobile Notification Bell */}
+              <NotificationBell />
+
               <button
                 className="inline-flex items-center justify-center rounded-full p-2 transition-colors"
                 style={{ color: 'var(--gb-fg-soft)' }}
