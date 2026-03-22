@@ -10,6 +10,28 @@ type ExperienceCardProps = {
   setExperience: React.Dispatch<React.SetStateAction<Experience[]>>;
 };
 
+type NewExperienceForm = {
+  company: string;
+  position: string;
+  start_date: string;
+  end_date: string;
+  present: boolean;
+  description: string;
+  imageFile: File | null;
+  imagePreview: string;
+};
+
+const emptyForm: NewExperienceForm = {
+  company: "",
+  position: "",
+  start_date: "",
+  end_date: "",
+  present: false,
+  description: "",
+  imageFile: null,
+  imagePreview: "",
+};
+
 export default function ExperienceCard({ experience, setExperience }: ExperienceCardProps) {
   const { isAdmin } = useContext(FanContext);
   const { editMode } = useEditMode();
@@ -26,6 +48,12 @@ export default function ExperienceCard({ experience, setExperience }: Experience
   const [descriptionErrors, setDescriptionErrors] = useState<Record<number, string | null>>({});
   const [uploadingImage, setUploadingImage] = useState<Record<number, boolean>>({});
   const [imageErrors, setImageErrors] = useState<Record<number, string | null>>({});
+  const [deletingExp, setDeletingExp] = useState<Record<number, boolean>>({});
+
+  // Add new experience modal state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newExpForm, setNewExpForm] = useState<NewExperienceForm>(emptyForm);
+  const [savingNewExp, setSavingNewExp] = useState(false);
 
   const cleanDate = (value: string) => {
     if (!value) return "";
@@ -173,191 +201,455 @@ export default function ExperienceCard({ experience, setExperience }: Experience
     }
   };
 
+  const handleDeleteExperience = async (exp: Experience) => {
+    if (!confirm(`Delete "${exp.company} - ${exp.position}"?`)) return;
+    setDeletingExp((prev) => ({ ...prev, [exp.id]: true }));
+    try {
+      await apiFetch(`/experience/${exp.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      setExperience((prev) => prev.filter((item) => item.id !== exp.id));
+    } catch (err) {
+      notifyError(err, "Delete failed");
+    } finally {
+      setDeletingExp((prev) => ({ ...prev, [exp.id]: false }));
+    }
+  };
+
+  const handleNewExpImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setNewExpForm((prev) => ({
+      ...prev,
+      imageFile: file,
+      imagePreview: URL.createObjectURL(file),
+    }));
+  };
+
+  const handleCreateExperience = async () => {
+    if (!newExpForm.company.trim() || !newExpForm.position.trim()) {
+      notifyError("Company and position are required.");
+      return;
+    }
+    if (!newExpForm.start_date) {
+      notifyError("Start date is required.");
+      return;
+    }
+
+    setSavingNewExp(true);
+    try {
+      let imageUrl = "";
+
+      // Upload image first if selected
+      if (newExpForm.imageFile) {
+        const formData = new FormData();
+        formData.append("file", newExpForm.imageFile);
+        const uploadRes = await apiFetch("/experience/upload-experience-img", {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+        });
+        const { img_path } = await uploadRes.json();
+        imageUrl = img_path;
+      }
+
+      const res = await apiFetch("/experience", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          company: newExpForm.company.trim(),
+          position: newExpForm.position.trim(),
+          start_date: newExpForm.start_date,
+          end_date: newExpForm.present ? "" : newExpForm.end_date,
+          present: newExpForm.present,
+          description: newExpForm.description.trim(),
+          image_url: imageUrl,
+          order_index: experience.length,
+        }),
+      });
+
+      const { experience: created } = await res.json();
+      setExperience((prev) => [...prev, created]);
+      setNewExpForm(emptyForm);
+      setShowAddModal(false);
+    } catch (err) {
+      notifyError(err, "Failed to create experience");
+    } finally {
+      setSavingNewExp(false);
+    }
+  };
+
+  const addButton = showAdminFeatures && (
+    <button
+      type="button"
+      onClick={() => { setNewExpForm(emptyForm); setShowAddModal(true); }}
+      className="w-full rounded-2xl border-2 border-dashed p-4 text-sm font-semibold transition-colors hover:opacity-80"
+      style={{ borderColor: 'var(--gb-primary)', color: 'var(--gb-primary)', background: 'var(--gb-bg-soft)' }}
+    >
+      <span className="flex items-center justify-center gap-2">
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+        Add New Experience
+      </span>
+    </button>
+  );
+
+  const addModal = showAddModal && (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm" style={{ background: 'var(--gb-overlay)' }} onClick={() => setShowAddModal(false)}>
+      <div className="relative w-full sm:max-w-2xl rounded-t-2xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 max-h-[90vh] overflow-y-auto" style={{ background: 'var(--gb-bg)' }} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h3 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--gb-fg)' }}>Add New Experience</h3>
+          <button
+            onClick={() => setShowAddModal(false)}
+            className="rounded-full p-2 transition-colors"
+            style={{ color: 'var(--gb-fg-muted)' }}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {/* Company Logo Upload */}
+          <div>
+            <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--gb-fg-soft)' }}>Company Logo</label>
+            <div className="flex items-center gap-4">
+              {newExpForm.imagePreview ? (
+                <img src={newExpForm.imagePreview} alt="Preview" className="w-16 h-16 rounded-xl object-cover shadow-sm" style={{ boxShadow: 'var(--gb-shadow-card)' }} />
+              ) : (
+                <div className="w-16 h-16 rounded-xl grid place-items-center" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)' }}>
+                  <svg className="w-6 h-6" style={{ color: 'var(--gb-fg-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              )}
+              <label className="cursor-pointer rounded-lg px-4 py-2 text-sm font-semibold transition-colors" style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-accent)', boxShadow: 'var(--gb-shadow-soft)' }}>
+                {newExpForm.imageFile ? "Change Image" : "Upload Image"}
+                <input type="file" accept="image/*" className="hidden" onChange={handleNewExpImageSelect} />
+              </label>
+            </div>
+          </div>
+
+          {/* Company */}
+          <div>
+            <label htmlFor="new-exp-company" className="block text-sm font-semibold mb-2" style={{ color: 'var(--gb-fg-soft)' }}>
+              Company *
+            </label>
+            <input
+              id="new-exp-company"
+              type="text"
+              value={newExpForm.company}
+              onChange={(e) => setNewExpForm((prev) => ({ ...prev, company: e.target.value }))}
+              placeholder="e.g., Google"
+              className="w-full rounded-lg px-4 py-3 text-sm transition-colors"
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
+            />
+          </div>
+
+          {/* Position */}
+          <div>
+            <label htmlFor="new-exp-position" className="block text-sm font-semibold mb-2" style={{ color: 'var(--gb-fg-soft)' }}>
+              Position *
+            </label>
+            <input
+              id="new-exp-position"
+              type="text"
+              value={newExpForm.position}
+              onChange={(e) => setNewExpForm((prev) => ({ ...prev, position: e.target.value }))}
+              placeholder="e.g., Software Engineer"
+              className="w-full rounded-lg px-4 py-3 text-sm transition-colors"
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
+            />
+          </div>
+
+          {/* Dates */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="new-exp-start" className="block text-sm font-semibold mb-2" style={{ color: 'var(--gb-fg-soft)' }}>
+                Start Date *
+              </label>
+              <input
+                id="new-exp-start"
+                type="date"
+                value={newExpForm.start_date}
+                onChange={(e) => setNewExpForm((prev) => ({ ...prev, start_date: e.target.value }))}
+                className="w-full rounded-lg px-4 py-3 text-sm transition-colors"
+                style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
+              />
+            </div>
+            <div>
+              <label htmlFor="new-exp-end" className="block text-sm font-semibold mb-2" style={{ color: 'var(--gb-fg-soft)' }}>
+                End Date
+              </label>
+              <input
+                id="new-exp-end"
+                type="date"
+                value={newExpForm.end_date}
+                onChange={(e) => setNewExpForm((prev) => ({ ...prev, end_date: e.target.value }))}
+                disabled={newExpForm.present}
+                className="w-full rounded-lg px-4 py-3 text-sm transition-colors disabled:opacity-50"
+                style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
+              />
+            </div>
+          </div>
+
+          {/* Present toggle */}
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={newExpForm.present}
+              onChange={(e) => setNewExpForm((prev) => ({ ...prev, present: e.target.checked, end_date: e.target.checked ? "" : prev.end_date }))}
+              className="w-4 h-4 rounded"
+            />
+            <span className="text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>Currently working here</span>
+          </label>
+
+          {/* Description */}
+          <div>
+            <label htmlFor="new-exp-desc" className="block text-sm font-semibold mb-2" style={{ color: 'var(--gb-fg-soft)' }}>
+              Description
+            </label>
+            <textarea
+              id="new-exp-desc"
+              value={newExpForm.description}
+              onChange={(e) => setNewExpForm((prev) => ({ ...prev, description: e.target.value }))}
+              placeholder="Describe your role and responsibilities..."
+              rows={4}
+              className="w-full rounded-lg px-4 py-3 text-sm transition-colors"
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-3 mt-8 pt-6" style={{ boxShadow: 'inset 0 1px 0 var(--gb-shadow)' }}>
+          <button
+            onClick={() => setShowAddModal(false)}
+            className="rounded-lg px-6 py-2.5 text-sm font-semibold transition-colors"
+            style={{ color: 'var(--gb-fg-soft)' }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleCreateExperience}
+            disabled={savingNewExp || !newExpForm.company.trim() || !newExpForm.position.trim() || !newExpForm.start_date}
+            className="rounded-lg px-6 py-2.5 text-sm font-semibold shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ background: 'var(--gb-accent)', color: 'var(--gb-bg)' }}
+          >
+            {savingNewExp ? "Creating..." : "Add Experience"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   if (!Array.isArray(experience) || experience.length === 0) {
     return (
-      <div className="rounded-2xl p-6 text-sm" style={{ boxShadow: 'var(--gb-shadow-inset)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-soft)' }}>
-        No career entries yet.
+      <div className="space-y-4">
+        <div className="rounded-2xl p-6 text-sm" style={{ boxShadow: 'var(--gb-shadow-inset)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-soft)' }}>
+          No career entries yet.
+        </div>
+        {addButton}
+        {addModal}
       </div>
     );
   }
 
   return (
-    <ul className="space-y-4">
-      {ordered.map((exp, index) => {
-        const endDisplay = exp.present ? "Present" : exp.end_date;
-        const range = `${cleanDate(exp.start_date)} – ${exp.present ? "Present" : cleanDate(endDisplay)}`;
-        const draftBullets = getDraftList(exp);
-        return (
-          <li
-            key={exp.id}
-            draggable={showAdminFeatures}
-            onDragStart={(e) => showAdminFeatures && e.dataTransfer.setData("text/plain", String(index))}
-            onDragOver={(e) => showAdminFeatures && e.preventDefault()}
-            onDrop={(e) => {
-              if (!showAdminFeatures) return;
-              const fromIndex = Number(e.dataTransfer.getData("text/plain"));
-              handleDrop(fromIndex, index);
-            }}
-            className={`group relative overflow-hidden rounded-2xl p-4 transition-all duration-200 shadow-sm hover:shadow-md ${
-              showAdminFeatures ? "cursor-grab" : "cursor-default"
-            }`}
-            style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
-          >
-            <div className="hidden sm:absolute sm:left-4 sm:top-4 sm:bottom-4 sm:w-px" style={{ background: 'var(--gb-border)' }} aria-hidden />
-            <div className="flex flex-col gap-4 sm:grid sm:grid-cols-[auto_1fr_auto] sm:items-start sm:gap-4">
-              <div className="flex items-center gap-3 text-sm sm:flex-col sm:items-center sm:gap-2" style={{ color: 'var(--gb-fg-soft)' }}>
-                <span className="h-8 w-8 rounded-full grid place-items-center font-semibold shadow-sm" style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-primary)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-primary)' }}>
-                  {index + 1}
-                </span>
-                {exp.present && <span className="rounded-full px-2 py-1" style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}>Current</span>}
-              </div>
-              <div className="flex items-start gap-4 sm:col-auto">
-                <div className="relative group/img">
-                  <img
-                    src={exp.image_url}
-                    alt={exp.company}
-                    className="w-14 h-14 rounded-xl object-cover shadow-sm"
-                    style={{ boxShadow: 'var(--gb-shadow-card)' }}
-                  />
-                  {showAdminFeatures && (
-                    <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer">
-                      <span className="text-white text-xs font-medium">{uploadingImage[exp.id] ? "..." : "Edit"}</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        disabled={uploadingImage[exp.id]}
-                        onChange={(e) => handleImageUpload(exp, e)}
-                      />
-                    </label>
-                  )}
-                  {imageErrors[exp.id] && (
-                    <span className="absolute -bottom-5 left-0 text-xs whitespace-nowrap" style={{ color: 'var(--gb-error)' }}>{imageErrors[exp.id]}</span>
-                  )}
+    <div className="space-y-4">
+      <ul className="space-y-4">
+        {ordered.map((exp, index) => {
+          const endDisplay = exp.present ? "Present" : exp.end_date;
+          const range = `${cleanDate(exp.start_date)} – ${exp.present ? "Present" : cleanDate(endDisplay)}`;
+          const draftBullets = getDraftList(exp);
+          return (
+            <li
+              key={exp.id}
+              draggable={showAdminFeatures}
+              onDragStart={(e) => showAdminFeatures && e.dataTransfer.setData("text/plain", String(index))}
+              onDragOver={(e) => showAdminFeatures && e.preventDefault()}
+              onDrop={(e) => {
+                if (!showAdminFeatures) return;
+                const fromIndex = Number(e.dataTransfer.getData("text/plain"));
+                handleDrop(fromIndex, index);
+              }}
+              className={`group relative overflow-hidden rounded-2xl p-4 transition-all duration-200 shadow-sm hover:shadow-md ${
+                showAdminFeatures ? "cursor-grab" : "cursor-default"
+              }`}
+              style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
+            >
+              <div className="hidden sm:absolute sm:left-4 sm:top-4 sm:bottom-4 sm:w-px" style={{ background: 'var(--gb-border)' }} aria-hidden />
+              <div className="flex flex-col gap-4 sm:grid sm:grid-cols-[auto_1fr_auto] sm:items-start sm:gap-4">
+                <div className="flex items-center gap-3 text-sm sm:flex-col sm:items-center sm:gap-2" style={{ color: 'var(--gb-fg-soft)' }}>
+                  <span className="h-8 w-8 rounded-full grid place-items-center font-semibold shadow-sm" style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-primary)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-primary)' }}>
+                    {index + 1}
+                  </span>
+                  {exp.present && <span className="rounded-full px-2 py-1" style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}>Current</span>}
                 </div>
-                <div className="min-w-0 flex-1 space-y-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-base font-semibold truncate" style={{ color: 'var(--gb-fg)' }}>{exp.company}</p>
-                    {showAdminFeatures && <span className="text-xs font-medium rounded-full px-2 py-0.5" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>Drag</span>}
+                <div className="flex items-start gap-4 sm:col-auto">
+                  <div className="relative group/img">
+                    <img
+                      src={exp.image_url}
+                      alt={exp.company}
+                      className="w-14 h-14 rounded-xl object-cover shadow-sm"
+                      style={{ boxShadow: 'var(--gb-shadow-card)' }}
+                    />
+                    {showAdminFeatures && (
+                      <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer">
+                        <span className="text-white text-xs font-medium">{uploadingImage[exp.id] ? "..." : "Edit"}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={uploadingImage[exp.id]}
+                          onChange={(e) => handleImageUpload(exp, e)}
+                        />
+                      </label>
+                    )}
+                    {imageErrors[exp.id] && (
+                      <span className="absolute -bottom-5 left-0 text-xs whitespace-nowrap" style={{ color: 'var(--gb-error)' }}>{imageErrors[exp.id]}</span>
+                    )}
                   </div>
-                  <p className="text-xs truncate" style={{ color: 'var(--gb-fg-soft)' }}>{exp.position}</p>
-                  {!showAdminFeatures && exp.description && <p className="text-sm leading-snug" style={{ color: 'var(--gb-fg-soft)' }}>{exp.description}</p>}
-                  {showAdminFeatures && (
-                    <div className="space-y-2 rounded-lg p-3" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>
-                      <div className="flex items-center justify-between gap-2">
-                        <label className="text-xs font-medium" style={{ color: 'var(--gb-fg-soft)' }} htmlFor={`description-${exp.id}`}>
-                          Description
-                        </label>
-                        <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ background: 'var(--gb-warning)', color: 'var(--gb-bg)' }}>
-                          Admin edit
-                        </span>
-                      </div>
-                      <textarea
-                        id={`description-${exp.id}`}
-                        className="w-full rounded-md px-3 py-2 text-sm focus:outline-none"
-                        style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
-                        rows={3}
-                        value={getDescriptionDraft(exp)}
-                        onChange={(e) => handleDescriptionChange(exp, e.target.value)}
-                        placeholder="Add a short description"
-                      />
-                      <div className="flex flex-wrap items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleSaveDescription(exp)}
-                          disabled={savingDescription[exp.id]}
-                          className="rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm disabled:opacity-50"
-                          style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
-                        >
-                          {savingDescription[exp.id] ? "Saving…" : "Save description"}
-                        </button>
-                        {descriptionErrors[exp.id] && <span className="text-xs" style={{ color: 'var(--gb-error)' }}>{descriptionErrors[exp.id]}</span>}
-                      </div>
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-base font-semibold truncate" style={{ color: 'var(--gb-fg)' }}>{exp.company}</p>
+                      {showAdminFeatures && <span className="text-xs font-medium rounded-full px-2 py-0.5" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>Drag</span>}
                     </div>
-                  )}
-                  {Array.isArray(exp.bullet_points) && exp.bullet_points.length > 0 && (
-                    <ul className="mt-2 space-y-1 text-sm list-disc list-inside" style={{ color: 'var(--gb-fg)' }}>
-                      {exp.bullet_points.map((point, idx) => (
-                        <li key={idx} className="leading-snug">{point}</li>
-                      ))}
-                    </ul>
-                  )}
-                  {showAdminFeatures && (
-                    <div className="mt-3 space-y-3 rounded-lg p-3" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>
-                      <div className="flex items-center justify-between gap-2">
-                        <label className="text-xs font-medium" style={{ color: 'var(--gb-fg-soft)' }} htmlFor={`bullets-${exp.id}`}>
-                          Bullet points
-                        </label>
-                        <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
-                          Editable
-                        </span>
+                    <p className="text-xs truncate" style={{ color: 'var(--gb-fg-soft)' }}>{exp.position}</p>
+                    {!showAdminFeatures && exp.description && <p className="text-sm leading-snug" style={{ color: 'var(--gb-fg-soft)' }}>{exp.description}</p>}
+                    {showAdminFeatures && (
+                      <div className="space-y-2 rounded-lg p-3" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-xs font-medium" style={{ color: 'var(--gb-fg-soft)' }} htmlFor={`description-${exp.id}`}>
+                            Description
+                          </label>
+                          <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ background: 'var(--gb-warning)', color: 'var(--gb-bg)' }}>
+                            Admin edit
+                          </span>
+                        </div>
+                        <textarea
+                          id={`description-${exp.id}`}
+                          className="w-full rounded-md px-3 py-2 text-sm focus:outline-none"
+                          style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
+                          rows={3}
+                          value={getDescriptionDraft(exp)}
+                          onChange={(e) => handleDescriptionChange(exp, e.target.value)}
+                          placeholder="Add a short description"
+                        />
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleSaveDescription(exp)}
+                            disabled={savingDescription[exp.id]}
+                            className="rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm disabled:opacity-50"
+                            style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
+                          >
+                            {savingDescription[exp.id] ? "Saving…" : "Save description"}
+                          </button>
+                          {descriptionErrors[exp.id] && <span className="text-xs" style={{ color: 'var(--gb-error)' }}>{descriptionErrors[exp.id]}</span>}
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        {draftBullets.length === 0 && <p className="text-xs" style={{ color: 'var(--gb-fg-muted)' }}>No bullet points yet.</p>}
-                        {draftBullets.map((point, idx) => (
-                          <div key={`${exp.id}-bullet-${idx}`} className="flex items-center gap-2">
+                    )}
+                    {Array.isArray(exp.bullet_points) && exp.bullet_points.length > 0 && (
+                      <ul className="mt-2 space-y-1 text-sm list-disc list-inside" style={{ color: 'var(--gb-fg)' }}>
+                        {exp.bullet_points.map((point, idx) => (
+                          <li key={idx} className="leading-snug">{point}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {showAdminFeatures && (
+                      <div className="mt-3 space-y-3 rounded-lg p-3" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-xs font-medium" style={{ color: 'var(--gb-fg-soft)' }} htmlFor={`bullets-${exp.id}`}>
+                            Bullet points
+                          </label>
+                          <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
+                            Editable
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {draftBullets.length === 0 && <p className="text-xs" style={{ color: 'var(--gb-fg-muted)' }}>No bullet points yet.</p>}
+                          {draftBullets.map((point, idx) => (
+                            <div key={`${exp.id}-bullet-${idx}`} className="flex items-center gap-2">
+                              <input
+                                id={`bullets-${exp.id}-${idx}`}
+                                className="w-full rounded-md px-2 py-1.5 text-sm focus:outline-none"
+                                style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
+                                value={point}
+                                onChange={(e) => handleBulletChange(exp, idx, e.target.value)}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveBullet(exp, idx)}
+                                className="rounded-md px-2 py-1 text-xs font-semibold"
+                                style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-error)', color: 'var(--gb-error)' }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          ))}
+                          <div className="flex flex-col gap-2 sm:flex-row">
                             <input
-                              id={`bullets-${exp.id}-${idx}`}
                               className="w-full rounded-md px-2 py-1.5 text-sm focus:outline-none"
                               style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
-                              value={point}
-                              onChange={(e) => handleBulletChange(exp, idx, e.target.value)}
+                              value={newBulletText[exp.id] ?? ""}
+                              placeholder="Add bullet point"
+                              onChange={(e) => setNewBulletText((prev) => ({ ...prev, [exp.id]: e.target.value }))}
                             />
                             <button
                               type="button"
-                              onClick={() => handleRemoveBullet(exp, idx)}
-                              className="rounded-md px-2 py-1 text-xs font-semibold"
-                              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-error)', color: 'var(--gb-error)' }}
+                              onClick={() => handleAddBullet(exp)}
+                              className="rounded-md px-3 py-1.5 text-xs font-semibold shadow-sm"
+                              style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}
                             >
-                              Delete
+                              Add
                             </button>
                           </div>
-                        ))}
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                          <input
-                            className="w-full rounded-md px-2 py-1.5 text-sm focus:outline-none"
-                            style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
-                            value={newBulletText[exp.id] ?? ""}
-                            placeholder="Add bullet point"
-                            onChange={(e) => setNewBulletText((prev) => ({ ...prev, [exp.id]: e.target.value }))}
-                          />
+                        </div>
+                        <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() => handleAddBullet(exp)}
-                            className="rounded-md px-3 py-1.5 text-xs font-semibold shadow-sm"
-                            style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}
+                            onClick={() => handleSaveBullets(exp)}
+                            disabled={savingBullets[exp.id]}
+                            className="rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm disabled:opacity-50"
+                            style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
                           >
-                            Add
+                            {savingBullets[exp.id] ? "Saving…" : "Save bullets"}
                           </button>
+                          {bulletErrors[exp.id] && <span className="text-xs" style={{ color: 'var(--gb-error)' }}>{bulletErrors[exp.id]}</span>}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleSaveBullets(exp)}
-                          disabled={savingBullets[exp.id]}
-                          className="rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm disabled:opacity-50"
-                          style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
-                        >
-                          {savingBullets[exp.id] ? "Saving…" : "Save bullets"}
-                        </button>
-                        {bulletErrors[exp.id] && <span className="text-xs" style={{ color: 'var(--gb-error)' }}>{bulletErrors[exp.id]}</span>}
-                      </div>
-                    </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-col items-start gap-2 text-left sm:items-end sm:text-right sm:min-w-[140px]">
+                  <div className="flex flex-wrap items-center gap-2 text-sm" style={{ color: 'var(--gb-fg-soft)' }}>
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'var(--gb-primary)' }} />
+                    <span className="rounded-full px-2 py-1" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>{range}</span>
+                  </div>
+                  {exp.present && <span className="rounded-full px-2 py-1 text-xs" style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}>Active</span>}
+                  {showAdminFeatures && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteExperience(exp)}
+                      disabled={deletingExp[exp.id]}
+                      className="mt-1 rounded-full px-3 py-1 text-xs font-semibold transition-colors disabled:opacity-50"
+                      style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-error)', boxShadow: 'inset 0 0 0 1.5px var(--gb-error)' }}
+                    >
+                      {deletingExp[exp.id] ? "Deleting..." : "Delete"}
+                    </button>
                   )}
                 </div>
               </div>
-              <div className="flex flex-col items-start gap-2 text-left sm:items-end sm:text-right sm:min-w-[140px]">
-                <div className="flex flex-wrap items-center gap-2 text-sm" style={{ color: 'var(--gb-fg-soft)' }}>
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'var(--gb-primary)' }} />
-                  <span className="rounded-full px-2 py-1" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>{range}</span>
-                </div>
-                {exp.present && <span className="rounded-full px-2 py-1 text-xs" style={{ background: 'var(--gb-success)', color: 'var(--gb-bg)' }}>Active</span>}
-              </div>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+            </li>
+          );
+        })}
+      </ul>
+      {addButton}
+      {addModal}
+    </div>
   );
 }
