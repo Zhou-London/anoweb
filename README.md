@@ -8,7 +8,7 @@ Build Go application.
 
 ```zsh
 $ cd <root-dir>
-$ go build -o <wherever> ./src
+$ go build -o ../../apps/anoweb ./cmd/anoweb/
 ```
 
 Build React application.
@@ -32,7 +32,7 @@ Configure systemd
 
 ## API Docs
 
-Swagger UI is served at `/swagger/index.html` (direct to the Go app) and `/api/swagger/index.html` (behind Caddy, since only `/api*` is reverse-proxied).
+Swagger UI is served at `/api/swagger/index.html`ß
 
 Regenerate docs after API changes:
 
