@@ -11,6 +11,12 @@ $ cd <root-dir>
 $ go build -o ../../apps/anoweb ./cmd/anoweb/
 ```
 
+Start/restart systemctl.
+
+```zsh
+sudo systemctl restart myserver
+```
+
 Build React application.
 
 ```zsh
