@@ -58,19 +58,17 @@ export default function Home() {
 
   useEffect(() => {
     const fetchNewFans = async () => {
-      if (fan) {
-        try {
-          const fans = await apiJson<any[]>("/user/list", {
-            credentials: "include",
-          });
-          setNewFans(fans.slice(0, 3));
-        } catch (err) {
-          console.error("Failed to load new fans:", err);
-        }
+      try {
+        const fans = await apiJson<any[]>("/user/list", {
+          credentials: "include",
+        });
+        setNewFans(fans.slice(0, 3));
+      } catch (err) {
+        console.error("Failed to load new fans:", err);
       }
     };
     fetchNewFans();
-  }, [fan]);
+  }, []);
 
   const handleDragStart = (e: React.DragEvent, skill: CoreSkill) => {
     setDraggedSkill(skill);
@@ -253,23 +251,7 @@ export default function Home() {
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: 'var(--gb-fg)' }}>
             <span>~</span> New Fans
           </h2>
-          {!fan ? (
-            <div className="blur-sm select-none pointer-events-none">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="rounded-xl p-4" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}>
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full" style={{ background: 'var(--gb-primary)' }} />
-                      <div className="flex-1">
-                        <div className="h-4 rounded w-24 mb-1" style={{ background: 'var(--gb-bg-muted)' }} />
-                        <div className="h-3 rounded w-32" style={{ background: 'var(--gb-bg-muted)' }} />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : newFans.length > 0 ? (
+          {newFans.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               {newFans.map((newFan) => (
                 <div key={newFan.id} className="rounded-xl p-4 hover:shadow-md transition-shadow" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}>

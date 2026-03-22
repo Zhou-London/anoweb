@@ -84,11 +84,14 @@ export default function Community() {
         });
         setOverallStats(statsData);
 
+        // Always fetch community fans (public endpoint)
+        const fansData = await apiJson<any[]>("/user/list", {
+          credentials: "include",
+        });
+        setCommunityFans(fansData ?? []);
+
+        // Only fetch personal data when logged in
         if (fan) {
-          const fansData = await apiJson<any[]>("/user/list", {
-            credentials: "include",
-          });
-          setCommunityFans(fansData ?? []);
           const userHoursData = await apiJson<{ total_hours: number }>(`/tracking/user-hours`, {
             credentials: "include",
           });
@@ -128,7 +131,7 @@ export default function Community() {
     return hours.toFixed(2);
   };
 
-  const guestStats = useMemo(
+  const communityStats = useMemo(
     () =>
       overallStats
         ? [
@@ -214,14 +217,22 @@ export default function Community() {
     [overallStats]
   );
 
-  if (!fan) {
-    return (
-      <motion.div
-        className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-8"
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: defaultEase }}
-      >
+  return (
+    <motion.div
+      className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-8"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: defaultEase }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-wide" style={{ fontFamily: "'Bebas Neue', sans-serif", color: 'var(--gb-fg)' }}>
+          COMMUNITY
+        </h1>
+      </div>
+
+      {/* Guest CTA */}
+      {!fan && (
         <motion.div
           className="rounded-2xl sm:rounded-3xl backdrop-blur-md shadow-xl p-4 sm:p-8 text-center"
           style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
@@ -229,8 +240,8 @@ export default function Community() {
           initial="hidden"
           animate="show"
         >
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4" style={{ color: 'var(--gb-fg)' }}>Join the Community</h1>
-          <p className="text-sm sm:text-lg mb-4 sm:mb-6" style={{ color: 'var(--gb-fg-soft)' }}>And unlock the full access.</p>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4" style={{ color: 'var(--gb-fg)' }}>Join the Community</h2>
+          <p className="text-sm sm:text-lg mb-4 sm:mb-6" style={{ color: 'var(--gb-fg-soft)' }}>Sign in to track your personal stats and streaks.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <motion.button
               onClick={() => openAuthModal("login")}
@@ -258,96 +269,9 @@ export default function Community() {
             </motion.button>
           </div>
         </motion.div>
+      )}
 
-        {/* Fellow Fans Preview for Guests */}
-        <motion.div
-          className="rounded-2xl sm:rounded-3xl backdrop-blur-md shadow-lg p-4 sm:p-6 relative overflow-hidden"
-          style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
-          variants={itemVariants}
-          initial="hidden"
-          animate="show"
-          whileHover={{ y: -4 }}
-          transition={{ duration: 0.2, ease: defaultEase }}
-        >
-          <div className="flex items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5">
-            <h2 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--gb-fg)' }}>Fellow Fans</h2>
-            <div className="p-2 rounded-xl" style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-muted)' }}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
-            {/* First 3 placeholders shown normally */}
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center gap-2 sm:gap-3 rounded-xl sm:rounded-2xl p-2.5 sm:p-3" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>
-                <div className="w-10 h-10 rounded-full flex-shrink-0" style={{ background: 'var(--gb-primary)' }} />
-                <div className="flex-1 min-w-0">
-                  <div className="h-3.5 rounded w-20 mb-1.5" style={{ background: 'var(--gb-bg-muted)' }} />
-                  <div className="h-3 rounded w-28" style={{ background: 'var(--gb-bg-soft)' }} />
-                </div>
-              </div>
-            ))}
-            {/* Remaining placeholders blurred */}
-            <div className="contents blur-sm select-none pointer-events-none">
-              {[4, 5, 6, 7, 8].map((i) => (
-                <div key={i} className="flex items-center gap-2 sm:gap-3 rounded-xl sm:rounded-2xl p-2.5 sm:p-3" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-soft)' }}>
-                  <div className="w-10 h-10 rounded-full flex-shrink-0" style={{ background: 'var(--gb-accent)' }} />
-                  <div className="flex-1 min-w-0">
-                    <div className="h-3.5 rounded w-20 mb-1.5" style={{ background: 'var(--gb-bg-muted)' }} />
-                    <div className="h-3 rounded w-28" style={{ background: 'var(--gb-bg-soft)' }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12" style={{ borderBottom: '2px solid var(--gb-primary)' }}></div>
-            <p className="mt-4" style={{ color: 'var(--gb-fg-soft)' }}>Loading community stats...</p>
-          </div>
-        ) : (
-          <>
-            <motion.div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4" variants={containerVariants} initial="hidden" animate="show">
-              {guestStats.map((stat) => (
-                <motion.div key={stat.title} variants={itemVariants} whileHover={{ y: -4, scale: 1.01 }}>
-                  <StatCard icon={stat.icon} title={stat.title} value={stat.value} subtitle={stat.subtitle} color={stat.color} />
-                </motion.div>
-              ))}
-            </motion.div>
-
-            <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6" variants={containerVariants} initial="hidden" animate="show">
-              <motion.div variants={itemVariants} whileHover={{ y: -4 }}>
-                <ChartCard title="Visitors Over Time (48h)" data={fansOverTime} xKey="hour" color="primary" />
-              </motion.div>
-              <motion.div variants={itemVariants} whileHover={{ y: -4 }}>
-                <ChartCard title="Daily Active Users (14 days)" data={dailyActive} xKey="date" color="accent" />
-              </motion.div>
-            </motion.div>
-          </>
-        )}
-        <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} initialMode={authModalMode} />
-      </motion.div>
-    );
-  }
-
-  return (
-    <motion.div
-      className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-8"
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: defaultEase }}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-wide" style={{ fontFamily: "'Bebas Neue', sans-serif", color: 'var(--gb-fg)' }}>
-          COMMUNITY
-        </h1>
-      </div>
-
-      {/* Fellow Fans */}
+      {/* Fellow Fans - always visible */}
       <motion.div
         className="rounded-2xl sm:rounded-3xl backdrop-blur-md shadow-lg p-4 sm:p-6"
         style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
@@ -436,7 +360,7 @@ export default function Community() {
           ))}
         </motion.div>
 
-        {filteredFans.length === 0 && (
+        {filteredFans.length === 0 && !loading && (
           <p className="text-center py-6 text-sm" style={{ color: 'var(--gb-fg-muted)' }}>No fans found matching your search.</p>
         )}
       </motion.div>
@@ -444,46 +368,48 @@ export default function Community() {
       {loading ? (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-12 w-12" style={{ borderBottom: '2px solid var(--gb-primary)' }}></div>
-          <p className="mt-4" style={{ color: 'var(--gb-fg-soft)' }}>Loading your activity...</p>
+          <p className="mt-4" style={{ color: 'var(--gb-fg-soft)' }}>Loading community stats...</p>
         </div>
       ) : (
         <div className="space-y-4 sm:space-y-6">
-          {/* Hero Card */}
-          <motion.div
-            className="rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl flex flex-col gap-4 sm:gap-6"
-            style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
-            variants={itemVariants}
-            initial="hidden"
-            animate="show"
-            whileHover={{ y: -4 }}
-          >
-            <div className="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
-              <div>
-                <p className="text-xs sm:text-sm font-semibold opacity-80">Today&apos;s snapshot</p>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mt-1 sm:mt-2">Keep the momentum going</h2>
+          {/* Personal Hero Card - only for logged-in users */}
+          {fan && (
+            <motion.div
+              className="rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl flex flex-col gap-4 sm:gap-6"
+              style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
+              variants={itemVariants}
+              initial="hidden"
+              animate="show"
+              whileHover={{ y: -4 }}
+            >
+              <div className="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
+                <div>
+                  <p className="text-xs sm:text-sm font-semibold opacity-80">Today&apos;s snapshot</p>
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mt-1 sm:mt-2">Keep the momentum going</h2>
+                </div>
+                <motion.div
+                  className="rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold"
+                  style={{ background: 'rgba(255,255,255,0.15)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.25)' }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  {records.length} sessions logged
+                </motion.div>
               </div>
-              <motion.div
-                className="rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold"
-                style={{ background: 'rgba(255,255,255,0.15)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.25)' }}
-                whileHover={{ scale: 1.05 }}
-              >
-                {records.length} sessions logged
-              </motion.div>
-            </div>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-inner" style={{ background: 'rgba(255,255,255,0.15)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.2)' }}>
-                <p className="text-xs sm:text-sm opacity-70 mb-1">Your Total Time</p>
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold">{formatHours(userHours)}h</div>
-              </div>
-              <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-inner" style={{ background: 'rgba(255,255,255,0.15)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.2)' }}>
-                <p className="text-xs sm:text-sm opacity-70 mb-1">Current Streak</p>
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-1 sm:gap-2">
-                  {streak}
-                  <span className="text-sm sm:text-base font-semibold opacity-80">{streak === 1 ? "day" : "days"}</span>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-inner" style={{ background: 'rgba(255,255,255,0.15)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.2)' }}>
+                  <p className="text-xs sm:text-sm opacity-70 mb-1">Your Total Time</p>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold">{formatHours(userHours)}h</div>
+                </div>
+                <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-inner" style={{ background: 'rgba(255,255,255,0.15)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.2)' }}>
+                  <p className="text-xs sm:text-sm opacity-70 mb-1">Current Streak</p>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-1 sm:gap-2">
+                    {streak}
+                    <span className="text-sm sm:text-base font-semibold opacity-80">{streak === 1 ? "day" : "days"}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
 
           {/* Stats Grid */}
           <motion.div
@@ -494,7 +420,7 @@ export default function Community() {
             animate="show"
           >
             <motion.div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3" variants={containerVariants} initial="hidden" animate="show">
-              {personalHighlights.map((stat) => (
+              {(fan ? personalHighlights : communityStats).map((stat) => (
                 <motion.div key={stat.title} variants={itemVariants} whileHover={{ y: -3, scale: 1.01 }}>
                   <StatCard icon={stat.icon} title={stat.title} value={stat.value} subtitle={stat.subtitle} color={stat.color} />
                 </motion.div>
