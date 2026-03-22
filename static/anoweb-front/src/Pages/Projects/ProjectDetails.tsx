@@ -3,7 +3,7 @@
 import { useState, useContext, useEffect } from "react";
 import { FanContext } from "../../Contexts/fan_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
-import { apiFetch } from "../../lib/api";
+import { apiFetch, getErrorMessage } from "../../lib/api";
 import { type Project } from "./types";
 
 type ProjectDetailsProps = {
@@ -42,11 +42,10 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
 
     try {
       const response = await apiFetch("/static/upload-image", { method: "POST", body: data });
-      if (!response.ok) throw new Error("Image upload failed");
       const url = await response.text();
       setFormData((prev) => ({ ...prev, image_url: url }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload error");
+      setError(getErrorMessage(err, "Upload failed"));
     } finally {
       setIsUploading(false);
     }
@@ -58,17 +57,15 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
     setError(null);
 
     try {
-      const response = await apiFetch("/project", {
+      await apiFetch("/project", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData }),
       });
-      if (!response.ok) throw new Error("Failed to update project");
-
       onProjectUpdate(); // Refresh the main project list to show changes
       setIsEditing(false); // Exit edit mode
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Update error");
+      setError(getErrorMessage(err, "Failed to update project"));
     } finally {
       setIsSubmitting(false);
     }

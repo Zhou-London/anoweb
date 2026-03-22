@@ -8,7 +8,7 @@ import rehypeHighlight from "rehype-highlight";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { FanContext } from "../../Contexts/fan_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
-import { apiFetch, apiJson } from "../../lib/api";
+import { apiFetch, apiJson, getErrorMessage } from "../../lib/api";
 import type { Post } from "../Projects/types";
 
 type EditorMode = "write" | "preview" | "split";
@@ -102,17 +102,17 @@ export default function PostWorkspace() {
         setName(data.name);
       })
       .catch((err) => {
-        const message = err instanceof Error ? err.message : "Failed to load post";
+        const message = getErrorMessage(err, "Failed to load post");
         const detail = allowMock ? `${message}. Showing demo content because the API is unavailable.` : message;
         if (allowMock) {
           setPost(demoPost);
           setContent(demoPost.content_md || "");
           setName(demoPost.name);
           setError(detail);
-          notifyError(detail);
+          notifyError(err, "Failed to load post");
         } else {
           setError(detail);
-          notifyError(detail);
+          notifyError(err, "Failed to load post");
         }
       })
       .finally(() => setIsLoading(false));
@@ -153,17 +153,15 @@ export default function PostWorkspace() {
         name,
         content_md: content,
       };
-      const res = await apiFetch("/post", {
+      await apiFetch("/post", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("Save failed");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Save failed";
-      setError(message);
-      notifyError(message);
+      setError(getErrorMessage(err, "Save failed"));
+      notifyError(err, "Save failed");
     } finally {
       setIsSaving(false);
     }

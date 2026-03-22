@@ -36,7 +36,7 @@ export default function AccountPage() {
         setRecords(data);
         setPageIndex(0);
       } catch (err) {
-        console.error("Failed to load tracking records:", err);
+        notifyError(err, "Failed to load session history");
       }
     };
     fetchRecords();
@@ -71,7 +71,7 @@ export default function AccountPage() {
       await refreshFan();
       notifySuccess("Profile updated successfully!");
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Failed to update profile");
+      notifyError(err, "Failed to update profile");
     } finally {
       setLoading(false);
     }
@@ -94,7 +94,7 @@ export default function AccountPage() {
       await refreshFan();
       notifySuccess("Profile photo updated successfully!");
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Failed to upload photo");
+      notifyError(err, "Failed to upload photo");
     } finally {
       setLoading(false);
     }
@@ -236,7 +236,7 @@ export default function AccountPage() {
                     notifySuccess("Admin privileges granted! Please refresh the page.");
                     e.currentTarget.reset();
                   } catch (err) {
-                    notifyError(err instanceof Error ? err.message : "Invalid mystery code");
+                    notifyError(err, "Invalid mystery code");
                   } finally {
                     setLoading(false);
                   }

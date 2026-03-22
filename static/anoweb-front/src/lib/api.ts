@@ -1,6 +1,28 @@
 const env = (import.meta as any).env || {};
 const API_BASE = (env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
 
+export class ApiError extends Error {
+  status: number;
+  statusText: string;
+
+  constructor(status: number, statusText: string, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.statusText = statusText;
+  }
+}
+
+/** Extract a user-friendly message from any caught value. */
+export function getErrorMessage(
+  err: unknown,
+  fallback = "An unexpected error occurred",
+): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  return fallback;
+}
+
 export function apiUrl(path: string) {
   if (path.startsWith("http")) return path;
   const normalized = path.startsWith("/") ? path : `/${path}`;
@@ -24,7 +46,7 @@ async function handleResponse(res: Response) {
       // ignore parse errors and fall back to defaults
     }
 
-    throw new Error(message);
+    throw new ApiError(res.status, res.statusText, message);
   }
   return res;
 }

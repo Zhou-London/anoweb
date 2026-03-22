@@ -88,35 +88,34 @@ export default function Community() {
           const fansData = await apiJson<any[]>("/user/list", {
             credentials: "include",
           });
-          setCommunityFans(fansData);
+          setCommunityFans(fansData ?? []);
           const userHoursData = await apiJson<{ total_hours: number }>(`/tracking/user-hours`, {
             credentials: "include",
           });
-          setUserHours(userHoursData.total_hours);
+          setUserHours(userHoursData.total_hours ?? 0);
 
           const streakData = await apiJson<{ streak: number }>("/statistics/streak", {
             credentials: "include",
           });
-          setStreak(streakData.streak);
+          setStreak(streakData.streak ?? 0);
 
           const recordsData = await apiJson<TrackingRecord[]>("/tracking/records", {
             credentials: "include",
           });
-          setRecords(recordsData);
+          setRecords(recordsData ?? []);
         }
 
-        const fansOverTimeData = await apiJson<TimePoint[]>("/statistics/users-over-time?hours=48", {
+        const fansOverTimeData = await apiJson<TimePoint[] | null>("/statistics/users-over-time?hours=48", {
           credentials: "include",
         });
-        setFansOverTime(fansOverTimeData);
+        setFansOverTime(fansOverTimeData ?? []);
 
-        const dailyActiveData = await apiJson<TimePoint[]>("/statistics/daily-active?days=14", {
+        const dailyActiveData = await apiJson<TimePoint[] | null>("/statistics/daily-active?days=14", {
           credentials: "include",
         });
-        setDailyActive(dailyActiveData);
+        setDailyActive(dailyActiveData ?? []);
       } catch (error) {
-        notifyError("Failed to load activity data");
-        console.error(error);
+        notifyError(error, "Failed to load activity data");
       } finally {
         setLoading(false);
       }

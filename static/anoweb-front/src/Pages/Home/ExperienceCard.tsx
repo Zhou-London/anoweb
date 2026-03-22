@@ -2,7 +2,7 @@ import { useContext, useMemo, useState } from "react";
 import { FanContext } from "../../Contexts/fan_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
-import { apiFetch } from "../../lib/api";
+import { apiFetch, getErrorMessage } from "../../lib/api";
 import type { Experience } from "./types";
 
 type ExperienceCardProps = {
@@ -51,7 +51,7 @@ export default function ExperienceCard({ experience, setExperience }: Experience
       body: JSON.stringify(reindexed.map((it, idx) => ({ id: it.id, order_index: idx }))),
       credentials: "include",
     }).catch((err) => {
-      notifyError(err instanceof Error ? err.message : "Failed to update order");
+      notifyError(err, "Failed to update order");
       setExperience(previous);
     });
   };
@@ -103,9 +103,9 @@ export default function ExperienceCard({ experience, setExperience }: Experience
       setExperience((prev) => prev.map((item) => (item.id === exp.id ? { ...item, description } : item)));
       setDescriptionDrafts((prev) => ({ ...prev, [exp.id]: description }));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Save failed";
+      const message = getErrorMessage(err, "Save failed");
       setDescriptionErrors((prev) => ({ ...prev, [exp.id]: message }));
-      notifyError(message);
+      notifyError(err, "Save failed");
     } finally {
       setSavingDescription((prev) => ({ ...prev, [exp.id]: false }));
     }
@@ -128,7 +128,6 @@ export default function ExperienceCard({ experience, setExperience }: Experience
         credentials: "include",
       });
 
-      if (!uploadRes.ok) throw new Error("Image upload failed");
       const { img_path } = await uploadRes.json();
 
       await apiFetch("/experience", {
@@ -140,9 +139,9 @@ export default function ExperienceCard({ experience, setExperience }: Experience
 
       setExperience((prev) => prev.map((item) => (item.id === exp.id ? { ...item, image_url: img_path } : item)));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Upload failed";
+      const message = getErrorMessage(err, "Upload failed");
       setImageErrors((prev) => ({ ...prev, [exp.id]: message }));
-      notifyError(message);
+      notifyError(err, "Upload failed");
     } finally {
       setUploadingImage((prev) => ({ ...prev, [exp.id]: false }));
     }
@@ -163,12 +162,12 @@ export default function ExperienceCard({ experience, setExperience }: Experience
       setExperience((prev) => prev.map((item) => (item.id === exp.id ? { ...item, bullet_points: bulletPoints } : item)));
       updateDraftList(exp, bulletPoints);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Save failed";
+      const message = getErrorMessage(err, "Save failed");
       setBulletErrors((prev) => ({
         ...prev,
         [exp.id]: message,
       }));
-      notifyError(message);
+      notifyError(err, "Save failed");
     } finally {
       setSavingBullets((prev) => ({ ...prev, [exp.id]: false }));
     }

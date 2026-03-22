@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { apiFetch } from "../../lib/api";
+import { apiFetch, getErrorMessage } from "../../lib/api";
 
 type CreateBlogModalProps = {
   onClose: () => void;
@@ -30,14 +30,10 @@ export default function CreateBlogModal({ onClose, onSuccess }: CreateBlogModalP
         credentials: "include",
       });
 
-      if (!response.ok) {
-        throw new Error("Image upload failed");
-      }
-
       const url = await response.text();
       setImageUrl(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unknown error occurred.");
+      setError(getErrorMessage(err, "Image upload failed"));
     } finally {
       setIsUploading(false);
     }
@@ -54,21 +50,17 @@ export default function CreateBlogModal({ onClose, onSuccess }: CreateBlogModalP
     setError(null);
 
     try {
-      const response = await apiFetch("/blog", {
+      await apiFetch("/blog", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ title, content_md: "", image_url: imageUrl }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create blog");
-      }
-
       onSuccess();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unknown error occurred.");
+      setError(getErrorMessage(err, "Failed to create blog"));
     } finally {
       setIsSubmitting(false);
     }

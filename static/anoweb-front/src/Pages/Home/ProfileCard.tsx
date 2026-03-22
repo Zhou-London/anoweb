@@ -32,16 +32,15 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await apiFetch("/profile/upload-image", {
+      await apiFetch("/profile/upload-image", {
         method: "POST",
         body: formData,
         credentials: "include",
       });
 
-      if (!res.ok) throw new Error("Image upload failed");
       setImageKey(Date.now());
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Upload failed");
+      notifyError(err, "Upload failed");
     } finally {
       setUploading(false);
     }

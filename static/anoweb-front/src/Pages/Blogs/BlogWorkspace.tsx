@@ -9,7 +9,7 @@ import { useErrorNotifier } from "../../Contexts/error_context";
 import { useSuccessNotifier } from "../../Contexts/success_context";
 import { FanContext } from "../../Contexts/fan_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
-import { apiFetch, apiJson } from "../../lib/api";
+import { apiFetch, apiJson, getErrorMessage } from "../../lib/api";
 import type { BlogWithLikeStatus } from "./types";
 
 type EditorMode = "write" | "preview" | "split";
@@ -66,9 +66,8 @@ export default function BlogWorkspace() {
         setLikesCount(data.likes_count);
       })
       .catch((err) => {
-        const message = err instanceof Error ? err.message : "Failed to load blog";
-        setError(message);
-        notifyError(message);
+        setError(getErrorMessage(err, "Failed to load blog"));
+        notifyError(err, "Failed to load blog");
       })
       .finally(() => setIsLoading(false));
   }, [blogId, notifyError]);
@@ -116,21 +115,19 @@ export default function BlogWorkspace() {
         title,
         content_md: content,
       };
-      const res = await apiFetch("/blog", {
+      await apiFetch("/blog", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("Save failed");
       notifySuccess("Blog saved successfully");
       // Refresh blog data
       const updated = await apiJson<BlogWithLikeStatus>(`/blog/${blogId}`, { credentials: "include" });
       setBlog(updated);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Save failed";
-      setError(message);
-      notifyError(message);
+      setError(getErrorMessage(err, "Save failed"));
+      notifyError(err, "Save failed");
     } finally {
       setIsSaving(false);
     }
@@ -151,7 +148,7 @@ export default function BlogWorkspace() {
       setHasLiked(response.has_liked);
       setLikesCount(response.likes_count);
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Failed to update like");
+      notifyError(err, "Failed to update like");
     } finally {
       setIsLiking(false);
     }

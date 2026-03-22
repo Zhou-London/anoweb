@@ -132,7 +132,7 @@ func (r *FanTrackingRepository) GetFanTotalHours(fanID uint) (float64, error) {
 
 // GetAllTrackingRecords returns all tracking records with optional fan filter
 func (r *FanTrackingRepository) GetAllTrackingRecords(fanID *uint) ([]FanTracking, error) {
-	var records []FanTracking
+	records := make([]FanTracking, 0)
 	query := r.db.Order("start_time DESC")
 
 	if fanID != nil {

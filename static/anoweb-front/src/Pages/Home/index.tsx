@@ -47,7 +47,7 @@ export default function Home() {
           setUserHours(userHoursData.total_hours);
         }
       } catch (err) {
-        notifyError(err instanceof Error ? err.message : "Failed to load statistics");
+        notifyError(err, "Failed to load statistics");
       } finally {
         setLoadingStats(false);
       }
@@ -114,7 +114,7 @@ export default function Home() {
         credentials: "include",
       });
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Failed to update skill order");
+      notifyError(err, "Failed to update skill order");
       setCoreSkills(coreSkills);
     }
   };
@@ -128,7 +128,7 @@ export default function Home() {
       setCoreSkills(coreSkills.filter((s) => s.id !== id));
       notifySuccess("Skill deleted successfully!");
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Failed to delete skill");
+      notifyError(err, "Failed to delete skill");
     }
   };
 
@@ -184,7 +184,7 @@ export default function Home() {
       setSkillBullets([]);
       setEditingSkill(null);
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Failed to save skill");
+      notifyError(err, "Failed to save skill");
     } finally {
       setSavingSkill(false);
     }

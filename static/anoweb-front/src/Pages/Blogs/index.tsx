@@ -31,7 +31,7 @@ export default function BlogsPage() {
       const data = await apiJson<BlogShort[]>("/blog", { credentials: "include" });
       setBlogs(data);
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Failed to load blogs");
+      notifyError(err, "Failed to load blogs");
       setBlogs([]);
     } finally {
       setIsLoading(false);
@@ -52,15 +52,14 @@ export default function BlogsPage() {
     if (!confirm("Are you sure you want to delete this blog?")) return;
 
     try {
-      const response = await apiFetch(`/blog/${blogId}`, {
+      await apiFetch(`/blog/${blogId}`, {
         method: "DELETE",
         credentials: "include",
       });
-      if (!response.ok) throw new Error("Failed to delete blog");
       notifySuccess("Blog deleted successfully");
       fetchBlogs();
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Failed to delete blog");
+      notifyError(err, "Failed to delete blog");
     }
   };
 

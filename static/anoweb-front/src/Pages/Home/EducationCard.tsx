@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { FanContext } from "../../Contexts/fan_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
-import { apiFetch } from "../../lib/api";
+import { apiFetch, getErrorMessage } from "../../lib/api";
 import type { Education } from "./types";
 
 type EducationCardProps = {
@@ -112,7 +112,6 @@ export default function EducationCard({ education, setEducation }: EducationCard
         credentials: "include",
       });
 
-      if (!uploadRes.ok) throw new Error("Image upload failed");
       const img_path = await uploadRes.text();
 
       await apiFetch("/education/image", {
@@ -124,9 +123,9 @@ export default function EducationCard({ education, setEducation }: EducationCard
 
       setEducation((prev) => prev.map((item) => (item.id === edu.id ? { ...item, image_url: img_path } : item)));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Upload failed";
+      const message = getErrorMessage(err, "Upload failed");
       setImageErrors((prev) => ({ ...prev, [edu.id]: message }));
-      notifyError(message);
+      notifyError(err, "Upload failed");
     } finally {
       setUploadingImage((prev) => ({ ...prev, [edu.id]: false }));
     }

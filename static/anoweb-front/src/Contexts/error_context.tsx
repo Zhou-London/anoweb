@@ -1,12 +1,15 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { ApiError, getErrorMessage } from "../lib/api";
 
 type ErrorContextValue = {
-  notifyError: (message: string) => void;
+  notifyError: (err: unknown, fallback?: string) => void;
 };
 
 type ErrorItem = {
   id: number;
   message: string;
+  status?: number;
+  statusText?: string;
 };
 
 export const ErrorContext = createContext<ErrorContextValue>({
@@ -21,11 +24,22 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const notifyError = useCallback(
-    (message: string) => {
+    (err: unknown, fallback?: string) => {
+      const message = typeof err === "string" ? err : getErrorMessage(err, fallback);
       if (!message) return;
-      const id = Date.now() + Math.random();
-      setErrors((prev) => [...prev, { id, message }]);
-      window.setTimeout(() => dismissError(id), 6200);
+
+      const item: ErrorItem = {
+        id: Date.now() + Math.random(),
+        message,
+      };
+
+      if (err instanceof ApiError) {
+        item.status = err.status;
+        item.statusText = err.statusText;
+      }
+
+      setErrors((prev) => [...prev, item]);
+      window.setTimeout(() => dismissError(item.id), 6200);
     },
     [dismissError]
   );
@@ -51,7 +65,14 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
               !
             </span>
             <div className="flex-1 space-y-0.5">
-              <p className="font-semibold" style={{ color: 'var(--gb-error)' }}>Error</p>
+              <p className="font-semibold" style={{ color: 'var(--gb-error)' }}>
+                {error.status ? `Error · ${error.status}` : "Error"}
+              </p>
+              {error.statusText && (
+                <p className="text-xs font-medium" style={{ color: 'var(--gb-error)', opacity: 0.7 }}>
+                  {error.statusText}
+                </p>
+              )}
               <p className="leading-snug" style={{ color: 'var(--gb-fg-soft)' }}>{error.message}</p>
             </div>
             <button

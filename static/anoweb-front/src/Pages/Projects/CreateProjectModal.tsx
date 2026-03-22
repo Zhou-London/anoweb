@@ -1,7 +1,7 @@
 // src/components/ProjectPage/CreateProjectModal.tsx
 
 import { useState } from "react";
-import { apiFetch } from "../../lib/api";
+import { apiFetch, getErrorMessage } from "../../lib/api";
 
 type CreateProjectModalProps = {
   onClose: () => void;
@@ -33,14 +33,10 @@ export default function CreateProjectModal({ onClose, onSuccess }: CreateProject
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error("Image upload failed");
-      }
-
       const url = await response.text();
       setImageUrl(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unknown error occurred.");
+      setError(getErrorMessage(err, "Image upload failed"));
     } finally {
       setIsUploading(false);
     }
@@ -57,20 +53,16 @@ export default function CreateProjectModal({ onClose, onSuccess }: CreateProject
     setError(null);
 
     try {
-      const response = await apiFetch("/project", {
+      await apiFetch("/project", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, description, link, image_url: imageUrl }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create project");
-      }
-
       onSuccess(); // Trigger project list refresh
       onClose();   // Close modal
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unknown error occurred.");
+      setError(getErrorMessage(err, "Failed to create project"));
     } finally {
       setIsSubmitting(false);
     }

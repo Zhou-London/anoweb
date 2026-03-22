@@ -75,7 +75,7 @@ export default function Navbar() {
       await refreshFan();
       setAccountDropdownOpen(false);
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Failed to log out");
+      notifyError(err, "Failed to log out");
     }
   };
 
