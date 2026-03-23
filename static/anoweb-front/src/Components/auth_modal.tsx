@@ -1,4 +1,5 @@
 import { useState, useContext } from "react";
+import { Link } from "react-router";
 import { FanContext } from "../Contexts/fan_context";
 import { useErrorNotifier } from "../Contexts/error_context";
 import { useSuccessNotifier } from "../Contexts/success_context";
@@ -16,6 +17,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "login" }: Au
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [privacyConsent, setPrivacyConsent] = useState(false);
   const [showVerificationMessage, setShowVerificationMessage] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const { refreshFan } = useContext(FanContext);
@@ -221,9 +223,35 @@ export default function AuthModal({ isOpen, onClose, initialMode = "login" }: Au
                 />
               </div>
 
+              {mode === "register" && (
+                <div className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    id="privacy-consent"
+                    checked={privacyConsent}
+                    onChange={(e) => setPrivacyConsent(e.target.checked)}
+                    className="mt-1 shrink-0"
+                    style={{ accentColor: 'var(--gb-primary)' }}
+                    required
+                  />
+                  <label htmlFor="privacy-consent" className="text-xs" style={{ color: 'var(--gb-fg-muted)' }}>
+                    I have read and agree to the{" "}
+                    <Link
+                      to="/privacy"
+                      target="_blank"
+                      style={{ color: 'var(--gb-primary)', textDecoration: 'underline' }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Privacy Policy
+                    </Link>
+                    . I consent to the processing of my personal data as described.
+                  </label>
+                </div>
+              )}
+
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || (mode === "register" && !privacyConsent)}
                 className="w-full py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}
               >

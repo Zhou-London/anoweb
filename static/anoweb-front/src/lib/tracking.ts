@@ -1,4 +1,5 @@
 import { apiFetch } from "./api";
+import { hasTrackingConsent } from "../Components/cookie_consent";
 
 // Generate a unique session ID for tracking
 export function generateSessionId(): string {
@@ -17,6 +18,8 @@ export function getSessionId(): string {
 
 // Start tracking session
 export async function startTracking(): Promise<void> {
+  if (!hasTrackingConsent()) return;
+
   const sessionId = getSessionId();
   try {
     await apiFetch("/tracking/start", {
@@ -49,6 +52,8 @@ export async function endTracking(): Promise<void> {
 
 // Update tracking session (heartbeat)
 export async function updateTracking(): Promise<void> {
+  if (!hasTrackingConsent()) return;
+
   const sessionId = sessionStorage.getItem("tracking_session_id");
   if (!sessionId) return;
 
@@ -66,7 +71,7 @@ export async function updateTracking(): Promise<void> {
 
 // Initialize tracking on app load
 export function initializeTracking(): () => void {
-  // Start tracking
+  // Start tracking only if consent is given
   startTracking();
 
   // Update tracking every 30 seconds
@@ -79,10 +84,17 @@ export function initializeTracking(): () => void {
 
   window.addEventListener("beforeunload", handleUnload);
 
+  // Listen for late consent grant and start tracking then
+  const handleConsentGranted = () => {
+    startTracking();
+  };
+  window.addEventListener("cookie-consent-granted", handleConsentGranted);
+
   // Return cleanup function
   return () => {
     clearInterval(updateInterval);
     window.removeEventListener("beforeunload", handleUnload);
+    window.removeEventListener("cookie-consent-granted", handleConsentGranted);
     endTracking();
   };
 }

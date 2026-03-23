@@ -11,6 +11,8 @@ import Navbar from "./Components/navbar";
 import GuestPopup from "./Components/guest_popup";
 import AnnouncementPopup from "./Components/announcement_popup";
 import EditModeToggle from "./Components/edit_mode_toggle";
+import CookieConsentBanner from "./Components/cookie_consent";
+import Footer from "./Components/footer";
 import { initializeTracking } from "./lib/tracking";
 import "./style.css";
 
@@ -21,16 +23,18 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full transition-colors duration-200" style={{ background: 'var(--gb-bg)', color: 'var(--gb-fg)' }}>
-      <div className="relative">
+    <div className="min-h-screen w-full flex flex-col transition-colors duration-200" style={{ background: 'var(--gb-bg)', color: 'var(--gb-fg)' }}>
+      <div className="relative flex-1">
         <Navbar />
         <main className="mx-auto max-w-6xl px-4 pb-14 pt-6 md:pt-10 md:px-8">
           <AppRouter />
         </main>
       </div>
+      <Footer />
       <GuestPopup onOpenAuth={() => {}} />
       <AnnouncementPopup />
       <EditModeToggle />
+      <CookieConsentBanner />
     </div>
   );
 }

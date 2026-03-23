@@ -8,6 +8,7 @@ import BlogsPage from "./Pages/Blogs";
 import BlogWorkspace from "./Pages/Blogs/BlogWorkspace";
 import AccountPage from "./Pages/Account";
 import VerifyEmail from "./Pages/VerifyEmail";
+import PrivacyPolicyPage from "./Pages/PrivacyPolicy";
 import PageTransition from "./Components/page_transition";
 
 export default function AppRouter() {
@@ -69,6 +70,14 @@ export default function AppRouter() {
           element={
             <PageTransition>
               <AccountPage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/privacy"
+          element={
+            <PageTransition>
+              <PrivacyPolicyPage />
             </PageTransition>
           }
         />
