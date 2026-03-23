@@ -12,7 +12,7 @@ async function prerender() {
   // Read the client-built index.html as template
   const template = fs.readFileSync(path.join(outDir, "index.html"), "utf-8");
 
-  const routes = ["/", "/community", "/blogs", "/projects"];
+  const routes = ["/", "/community", "/blogs", "/projects", "/privacy"];
 
   for (const url of routes) {
     const { html: appHtml, meta } = render(url);

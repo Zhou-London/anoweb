@@ -201,6 +201,11 @@ func calculateDuration(tracking *FanTracking, now time.Time) int64 {
 	return duration
 }
 
+// DeleteByFanID removes all tracking records for a given fan (GDPR erasure).
+func (r *FanTrackingRepository) DeleteByFanID(fanID uint) error {
+	return r.db.Where("user_id = ?", fanID).Delete(&FanTracking{}).Error
+}
+
 // finalizeActiveSessionsForFan ends all active sessions for the given fan ID.
 // This ensures only one active session exists per fan at any time.
 func (r *FanTrackingRepository) finalizeActiveSessionsForFan(fanID *uint) error {

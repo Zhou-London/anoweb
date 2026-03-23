@@ -24,6 +24,8 @@ export default function AccountPage() {
   const [loading, setLoading] = useState(false);
   const [records, setRecords] = useState<TrackingRecord[]>([]);
   const [pageIndex, setPageIndex] = useState(0);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pageSize = 10;
 
@@ -275,6 +277,73 @@ export default function AccountPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Delete Account (GDPR Right to Erasure) */}
+      <div className="mt-4 sm:mt-6 rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
+        <h2 className="text-xl sm:text-2xl font-semibold mb-2" style={{ color: 'var(--gb-error)' }}>
+          Delete Account
+        </h2>
+        <p className="text-sm mb-4" style={{ color: 'var(--gb-fg-soft)' }}>
+          Permanently delete your account and all associated data (profile, session history, blog likes).
+          This action cannot be undone.
+        </p>
+
+        {!showDeleteConfirm ? (
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={{ background: 'var(--gb-error)', color: 'var(--gb-bg)' }}
+          >
+            Delete My Account
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm font-medium" style={{ color: 'var(--gb-error)' }}>
+              Type <strong>DELETE</strong> to confirm:
+            </p>
+            <input
+              type="text"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              className="w-full max-w-xs px-3 py-2 rounded-lg text-sm focus:outline-none"
+              style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)', color: 'var(--gb-fg)' }}
+              placeholder="Type DELETE"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={async () => {
+                  if (deleteConfirmText !== "DELETE") return;
+                  setLoading(true);
+                  try {
+                    await apiFetch("/auth/delete-account", {
+                      method: "DELETE",
+                      credentials: "include",
+                    });
+                    await refreshFan();
+                    navigate("/");
+                  } catch (err) {
+                    notifyError(err, "Failed to delete account");
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={deleteConfirmText !== "DELETE" || loading}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: 'var(--gb-error)', color: 'var(--gb-bg)' }}
+              >
+                {loading ? "Deleting..." : "Confirm Delete"}
+              </button>
+              <button
+                onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                style={{ background: 'var(--gb-bg-muted)', color: 'var(--gb-fg-soft)' }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Session History */}

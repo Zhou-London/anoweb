@@ -13,6 +13,7 @@ type BlogLikeRepository interface {
 	Unlike(blogID int, fanID uint) error
 	GetLikesByBlog(blogID int) ([]*BlogLike, error)
 	CountLikes(blogID int) (int64, error)
+	DeleteByFanID(fanID uint) error
 }
 
 type blogLikeRepository struct {
@@ -64,4 +65,8 @@ func (r *blogLikeRepository) CountLikes(blogID int) (int64, error) {
 		return 0, err
 	}
 	return count, nil
+}
+
+func (r *blogLikeRepository) DeleteByFanID(fanID uint) error {
+	return r.db.Where("fan_id = ?", fanID).Delete(&BlogLike{}).Error
 }

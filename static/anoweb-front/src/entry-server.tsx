@@ -43,15 +43,30 @@ function SSRNavbar() {
   );
 }
 
+function SSRFooter() {
+  return (
+    <footer className="mt-auto py-6 text-center text-xs" style={{ color: "var(--gb-fg-muted)" }}>
+      <div className="mx-auto max-w-6xl px-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+        <span>&copy; {new Date().getFullYear()} Zhouzhou (JoJo) Zhang</span>
+        <span className="hidden sm:inline" style={{ color: "var(--gb-fg-faint)" }}>|</span>
+        <a href="/privacy" className="transition-colors hover:underline" style={{ color: "var(--gb-fg-muted)" }}>
+          Privacy Policy
+        </a>
+      </div>
+    </footer>
+  );
+}
+
 function SSRApp() {
   return (
-    <div className="min-h-screen w-full transition-colors duration-200" style={{ background: 'var(--gb-bg)', color: 'var(--gb-fg)' }}>
-      <div className="relative">
+    <div className="min-h-screen w-full flex flex-col transition-colors duration-200" style={{ background: 'var(--gb-bg)', color: 'var(--gb-fg)' }}>
+      <div className="relative flex-1">
         <SSRNavbar />
         <main className="mx-auto max-w-6xl px-4 pb-14 pt-6 md:pt-10 md:px-8">
           <AppRouter />
         </main>
       </div>
+      <SSRFooter />
     </div>
   );
 }
@@ -72,6 +87,10 @@ const routeMeta: Record<string, { title: string; description: string }> = {
   "/projects": {
     title: "Projects - Zhouzhou Zhang",
     description: "Explore software engineering projects by Zhouzhou Zhang.",
+  },
+  "/privacy": {
+    title: "Privacy Policy - Zhouzhou Zhang",
+    description: "Privacy policy for zhouzhouzhang.co.uk. Learn how your personal data is collected, used, and protected.",
   },
 };
 

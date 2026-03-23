@@ -43,7 +43,7 @@ func InitRoutes(
 	announcementRepo announcement.AnnouncementRepository,
 ) {
 	registerSwaggerRoutes(r)
-	registerFanRoutes(r, domain, imgPath, imgURLPrefix, fanRepo, sessionRepo)
+	registerFanRoutes(r, domain, imgPath, imgURLPrefix, fanRepo, sessionRepo, trackingRepo, blogLikeRepo)
 	registerAdminRoutes(r, domain, adminPass, key)
 	registerStaticRoutes(r, key, imgPath, imgURLPrefix, sessionRepo)
 	registerProfileRoutes(r, key, imgPath, imgURLPrefix, profileRepo, sessionRepo)

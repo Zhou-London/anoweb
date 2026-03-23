@@ -2,11 +2,14 @@ package routes
 
 import (
 	"anonchihaya.co.uk/internal/auth"
+	"anonchihaya.co.uk/internal/blog"
+	"anonchihaya.co.uk/internal/tracking"
 	"github.com/gin-gonic/gin"
 )
 
-func registerFanRoutes(r *gin.Engine, domain, imgPath, imgURLPrefix string, fanRepo *auth.FanRepository, sessionRepo *auth.SessionRepository) {
+func registerFanRoutes(r *gin.Engine, domain, imgPath, imgURLPrefix string, fanRepo *auth.FanRepository, sessionRepo *auth.SessionRepository, trackingRepo *tracking.FanTrackingRepository, blogLikeRepo blog.BlogLikeRepository) {
 	fanHandler := auth.NewFanHandler(fanRepo, sessionRepo, domain)
+	fanHandler.SetDeleters(trackingRepo, blogLikeRepo)
 	oauthHandler := auth.NewOAuthHandler(fanRepo, sessionRepo, domain)
 
 	authGroup := r.Group(prefix + "/auth")
@@ -19,6 +22,7 @@ func registerFanRoutes(r *gin.Engine, domain, imgPath, imgURLPrefix string, fanR
 		authGroup.POST("/resend-verification", fanHandler.ResendVerificationEmail)
 		authGroup.GET("/google", oauthHandler.GoogleLogin)
 		authGroup.GET("/google/callback", oauthHandler.GoogleCallback)
+		authGroup.DELETE("/delete-account", auth.AuthMiddleware(sessionRepo), fanHandler.DeleteAccount)
 	}
 
 	// Public user routes (no auth required)

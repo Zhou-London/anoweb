@@ -9,10 +9,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// TrackingDeleter is an interface for deleting tracking records by fan ID (GDPR erasure).
+type TrackingDeleter interface {
+	DeleteByFanID(fanID uint) error
+}
+
+// BlogLikeDeleter is an interface for deleting blog likes by fan ID (GDPR erasure).
+type BlogLikeDeleter interface {
+	DeleteByFanID(fanID uint) error
+}
+
 type FanHandler struct {
-	fanRepo     *FanRepository
-	sessionRepo *SessionRepository
-	domain      string
+	fanRepo         *FanRepository
+	sessionRepo     *SessionRepository
+	domain          string
+	trackingDeleter TrackingDeleter
+	blogLikeDeleter BlogLikeDeleter
 }
 
 func NewFanHandler(fanRepo *FanRepository, sessionRepo *SessionRepository, domain string) *FanHandler {
@@ -21,6 +33,12 @@ func NewFanHandler(fanRepo *FanRepository, sessionRepo *SessionRepository, domai
 		sessionRepo: sessionRepo,
 		domain:      domain,
 	}
+}
+
+// SetDeleters sets optional deleters for GDPR account deletion.
+func (h *FanHandler) SetDeleters(td TrackingDeleter, bld BlogLikeDeleter) {
+	h.trackingDeleter = td
+	h.blogLikeDeleter = bld
 }
 
 // Register godoc
@@ -414,6 +432,57 @@ func (h *FanHandler) ResendVerificationEmail(c *gin.Context) {
 	go util.SendVerificationEmail(fan.Email, verificationToken, frontendURL)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Verification email has been sent"})
+}
+
+// DeleteAccount godoc
+// @Summary Delete account
+// @Tags auth
+// @Produce json
+// @Success 200 {object} MessageResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /auth/delete-account [delete]
+func (h *FanHandler) DeleteAccount(c *gin.Context) {
+	fan, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
+		return
+	}
+
+	currentFan := fan.(*Fan)
+
+	// Delete tracking records
+	if h.trackingDeleter != nil {
+		if err := h.trackingDeleter.DeleteByFanID(currentFan.ID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete tracking data"})
+			return
+		}
+	}
+
+	// Delete blog likes
+	if h.blogLikeDeleter != nil {
+		if err := h.blogLikeDeleter.DeleteByFanID(currentFan.ID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete blog likes"})
+			return
+		}
+	}
+
+	// Delete sessions
+	if err := h.sessionRepo.DeleteByUserID(currentFan.ID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete sessions"})
+		return
+	}
+
+	// Delete the user account
+	if err := h.fanRepo.Delete(currentFan.ID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete account"})
+		return
+	}
+
+	// Clear cookie
+	c.SetCookie("session_token", "", -1, "/", h.domain, false, true)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Account and all associated data have been deleted"})
 }
 
 // GetAllUsers godoc
