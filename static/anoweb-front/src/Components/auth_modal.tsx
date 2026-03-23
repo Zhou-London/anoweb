@@ -31,7 +31,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "login" }: Au
       });
       window.location.href = response.url;
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Failed to initiate Google login");
+      notifyError(err, "Failed to initiate Google login");
     }
   };
 
@@ -45,7 +45,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "login" }: Au
       });
       notifySuccess("Verification email has been resent!");
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Failed to resend verification email");
+      notifyError(err, "Failed to resend verification email");
     }
   };
 
@@ -79,7 +79,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "login" }: Au
         setPassword("");
       }
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Authentication failed");
+      notifyError(err, "Authentication failed");
     } finally {
       setLoading(false);
     }

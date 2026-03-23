@@ -155,7 +155,7 @@ type FansOverTimePoint struct {
 
 // GetFansOverTime returns hourly visitor counts for the last N hours
 func (r *StatisticsRepository) GetFansOverTime(hours int) ([]FansOverTimePoint, error) {
-	var results []FansOverTimePoint
+	results := make([]FansOverTimePoint, 0)
 
 	since := time.Now().Add(-time.Duration(hours) * time.Hour)
 
@@ -198,7 +198,7 @@ type DailyActiveUsersPoint struct {
 
 // GetDailyActiveUsers returns daily active user counts for the last N days
 func (r *StatisticsRepository) GetDailyActiveUsers(days int) ([]DailyActiveUsersPoint, error) {
-	var results []DailyActiveUsersPoint
+	results := make([]DailyActiveUsersPoint, 0)
 
 	since := time.Now().Add(-time.Duration(days) * 24 * time.Hour)
 

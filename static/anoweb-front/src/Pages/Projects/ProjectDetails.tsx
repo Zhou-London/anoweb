@@ -3,7 +3,7 @@
 import { useState, useContext, useEffect } from "react";
 import { FanContext } from "../../Contexts/fan_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
-import { apiFetch } from "../../lib/api";
+import { apiFetch, getErrorMessage } from "../../lib/api";
 import { type Project } from "./types";
 
 type ProjectDetailsProps = {
@@ -42,11 +42,10 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
 
     try {
       const response = await apiFetch("/static/upload-image", { method: "POST", body: data });
-      if (!response.ok) throw new Error("Image upload failed");
       const url = await response.text();
       setFormData((prev) => ({ ...prev, image_url: url }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload error");
+      setError(getErrorMessage(err, "Upload failed"));
     } finally {
       setIsUploading(false);
     }
@@ -58,17 +57,15 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
     setError(null);
 
     try {
-      const response = await apiFetch("/project", {
+      await apiFetch("/project", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData }),
       });
-      if (!response.ok) throw new Error("Failed to update project");
-
       onProjectUpdate(); // Refresh the main project list to show changes
       setIsEditing(false); // Exit edit mode
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Update error");
+      setError(getErrorMessage(err, "Failed to update project"));
     } finally {
       setIsSubmitting(false);
     }
@@ -77,7 +74,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
   // Render the editable form when in edit mode
   if (isEditing) {
     return (
-      <section className="flex-1 rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col p-4 sm:p-6 md:p-8 mb-6 min-h-0 shadow-lg" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card), inset 0 0 0 2px var(--gb-primary)' }}>
+      <section className="flex-1 rounded-2xl sm:rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 min-h-0 shadow-lg" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6 md:gap-8 h-full">
           {/* Left side: Image Upload */}
           <div className="w-full md:w-1/3 flex flex-col items-center gap-4">
@@ -146,7 +143,7 @@ export function ProjectDetails({ project, onProjectUpdate }: ProjectDetailsProps
   const descriptionNeedsExpansion = project.description.length > 400; // rough character count
 
   return (
-    <section className="flex-1 rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col md:flex-row gap-6 md:gap-8 p-4 sm:p-6 md:p-8 mb-6 min-h-0 shadow-lg relative" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
+    <section className="flex-1 rounded-2xl sm:rounded-3xl backdrop-blur-lg overflow-hidden flex flex-col md:flex-row gap-4 sm:gap-6 md:gap-8 p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 min-h-0 shadow-lg relative" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
       {/* Edit button for admins */}
       {showAdminFeatures && (
         <button

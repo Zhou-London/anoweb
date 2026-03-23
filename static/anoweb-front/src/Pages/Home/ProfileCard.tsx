@@ -32,16 +32,15 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await apiFetch("/profile/upload-image", {
+      await apiFetch("/profile/upload-image", {
         method: "POST",
         body: formData,
         credentials: "include",
       });
 
-      if (!res.ok) throw new Error("Image upload failed");
       setImageKey(Date.now());
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Upload failed");
+      notifyError(err, "Upload failed");
     } finally {
       setUploading(false);
     }
@@ -49,22 +48,22 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
   if (!profile) {
     return (
-      <div className="rounded-3xl shadow-lg p-6 w-full animate-pulse h-[420px]" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }} />
+      <div className="rounded-2xl sm:rounded-3xl shadow-lg p-4 sm:p-6 w-full animate-pulse h-[300px] sm:h-[420px]" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }} />
     );
   }
 
   return (
-    <article className="relative overflow-hidden rounded-3xl shadow-lg p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
-      <div className="flex items-start gap-6">
+    <article className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-lg p-4 sm:p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
         <div className="shrink-0 relative group/img">
           <img
             src={`/image/profile-img.png?v=${imageKey}`}
             alt="Profile"
-            className="w-36 h-36 md:w-40 md:h-40 rounded-2xl object-cover shadow-sm"
+            className="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-xl sm:rounded-2xl object-cover shadow-sm"
             style={{ boxShadow: 'var(--gb-shadow-card)' }}
           />
           {showAdminFeatures && (
-            <label className="absolute inset-0 flex items-center justify-center rounded-2xl opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer" style={{ background: 'var(--gb-overlay)' }}>
+            <label className="absolute inset-0 flex items-center justify-center rounded-xl sm:rounded-2xl opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer" style={{ background: 'var(--gb-overlay)' }}>
               <span className="text-sm font-medium" style={{ color: 'var(--gb-bg)' }}>{uploading ? "Uploading..." : "Edit"}</span>
               <input
                 type="file"
@@ -76,13 +75,13 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             </label>
           )}
         </div>
-        <div className="min-w-0 space-y-4 flex-1">
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold" style={{ color: 'var(--gb-fg)' }}>{profile.name}</h2>
-            <p className="leading-relaxed whitespace-pre-line" style={{ color: 'var(--gb-fg-soft)' }}>{profile.bio}</p>
+        <div className="min-w-0 space-y-3 sm:space-y-4 flex-1 text-center sm:text-left">
+          <div className="space-y-1 sm:space-y-2">
+            <h2 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--gb-fg)' }}>{profile.name}</h2>
+            <p className="text-sm sm:text-base leading-relaxed whitespace-pre-line" style={{ color: 'var(--gb-fg-soft)' }}>{profile.bio}</p>
           </div>
 
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1 sm:pt-2">
             {fields.map((field) => {
               const value = profile[field.key];
               const href = value ? field.buildHref(value) : undefined;
@@ -92,7 +91,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
                 <button
                   key={field.key}
                   type="button"
-                  className="inline-flex items-center justify-center px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200"
+                  className="inline-flex items-center justify-center px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200"
                   style={{
                     background: isDisabled ? 'var(--gb-bg-muted)' : 'var(--gb-bg-soft)',
                     color: isDisabled ? 'var(--gb-fg-faint)' : 'var(--gb-fg-soft)',

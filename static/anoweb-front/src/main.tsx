@@ -9,6 +9,7 @@ import { EditModeProvider } from "./Contexts/edit_mode_context";
 import { ThemeProvider } from "./Contexts/theme_context";
 import Navbar from "./Components/navbar";
 import GuestPopup from "./Components/guest_popup";
+import AnnouncementPopup from "./Components/announcement_popup";
 import EditModeToggle from "./Components/edit_mode_toggle";
 import { initializeTracking } from "./lib/tracking";
 import "./style.css";
@@ -28,12 +29,14 @@ function App() {
         </main>
       </div>
       <GuestPopup onOpenAuth={() => {}} />
+      <AnnouncementPopup />
       <EditModeToggle />
     </div>
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+const root = document.getElementById("root")!;
+const tree = (
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider>
@@ -50,3 +53,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </BrowserRouter>
   </React.StrictMode>
 );
+
+// Hydrate if pre-rendered content exists, otherwise create fresh
+if (root.innerHTML.trim() && root.innerHTML.trim() !== "<!--app-html-->") {
+  ReactDOM.hydrateRoot(root, tree);
+} else {
+  ReactDOM.createRoot(root).render(tree);
+}

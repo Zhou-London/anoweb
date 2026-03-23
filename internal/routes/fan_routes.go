@@ -21,22 +21,32 @@ func registerFanRoutes(r *gin.Engine, domain, imgPath, imgURLPrefix string, fanR
 		authGroup.GET("/google/callback", oauthHandler.GoogleCallback)
 	}
 
-	// Keep existing /api/user/* routes for backward compatibility
+	// Public user routes (no auth required)
+	userPublic := r.Group(prefix + "/user")
+	{
+		userPublic.GET("/list", fanHandler.GetAllUsers)
+	}
+
+	// Authenticated user routes
 	user := r.Group(prefix + "/user")
 	user.Use(auth.AuthMiddleware(sessionRepo))
 	{
-		user.GET("/list", fanHandler.GetAllUsers)
 		user.PUT("/profile", fanHandler.UpdateProfile)
 		user.POST("/profile/photo", func(c *gin.Context) {
 			fanHandler.UploadProfilePhoto(c, imgPath, imgURLPrefix)
 		})
 	}
 
-	// Add new /api/fan/* routes
+	// Public fan routes (no auth required)
+	fanPublic := r.Group(prefix + "/fan")
+	{
+		fanPublic.GET("/list", fanHandler.GetAllUsers)
+	}
+
+	// Authenticated fan routes
 	fan := r.Group(prefix + "/fan")
 	fan.Use(auth.AuthMiddleware(sessionRepo))
 	{
-		fan.GET("/list", fanHandler.GetAllUsers)
 		fan.PUT("/profile", fanHandler.UpdateProfile)
 		fan.POST("/profile/photo", func(c *gin.Context) {
 			fanHandler.UploadProfilePhoto(c, imgPath, imgURLPrefix)

@@ -6,7 +6,7 @@ import remarkMath from "remark-math";
 import rehypeHighlight from "rehype-highlight";
 import rehypeKatex from "rehype-katex";
 import { useErrorNotifier } from "../../Contexts/error_context";
-import { apiFetch } from "../../lib/api";
+import { apiFetch, getErrorMessage } from "../../lib/api";
 
 type CreatePostModalProps = {
   onClose: () => void;
@@ -69,7 +69,6 @@ export default function CreatePostModal({
     formData.append("file", file);
     try {
       const res = await apiFetch("/static/upload-image", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Image upload failed");
       const url = await res.text();
       const md = `![alt text](${url})`;
       const ta = textAreaRef.current;
@@ -79,9 +78,8 @@ export default function CreatePostModal({
         setContentMD(out);
       } else setContentMD((p) => `${p}\n${md}`);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Upload error";
-      setError(message);
-      notifyError(message);
+      setError(getErrorMessage(err, "Upload failed"));
+      notifyError(err, "Upload failed");
     } finally {
       setIsUploading(false);
       e.currentTarget.value = "";
@@ -99,18 +97,16 @@ export default function CreatePostModal({
     setIsSubmitting(true);
     setError(null);
     try {
-      const res = await apiFetch("/post", {
+      await apiFetch("/post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ parent_id: parentId, name, content_md: contentMD }),
       });
-      if (!res.ok) throw new Error("Failed to create post");
       onSuccess();
       onClose();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
-      setError(message);
-      notifyError(message);
+      setError(getErrorMessage(err, "Failed to create post"));
+      notifyError(err, "Failed to create post");
     } finally {
       setIsSubmitting(false);
     }

@@ -9,7 +9,7 @@ import { useErrorNotifier } from "../../Contexts/error_context";
 import { useSuccessNotifier } from "../../Contexts/success_context";
 import { FanContext } from "../../Contexts/fan_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
-import { apiFetch, apiJson } from "../../lib/api";
+import { apiFetch, apiJson, getErrorMessage } from "../../lib/api";
 import type { BlogWithLikeStatus } from "./types";
 
 type EditorMode = "write" | "preview" | "split";
@@ -66,9 +66,8 @@ export default function BlogWorkspace() {
         setLikesCount(data.likes_count);
       })
       .catch((err) => {
-        const message = err instanceof Error ? err.message : "Failed to load blog";
-        setError(message);
-        notifyError(message);
+        setError(getErrorMessage(err, "Failed to load blog"));
+        notifyError(err, "Failed to load blog");
       })
       .finally(() => setIsLoading(false));
   }, [blogId, notifyError]);
@@ -116,21 +115,19 @@ export default function BlogWorkspace() {
         title,
         content_md: content,
       };
-      const res = await apiFetch("/blog", {
+      await apiFetch("/blog", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("Save failed");
       notifySuccess("Blog saved successfully");
       // Refresh blog data
       const updated = await apiJson<BlogWithLikeStatus>(`/blog/${blogId}`, { credentials: "include" });
       setBlog(updated);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Save failed";
-      setError(message);
-      notifyError(message);
+      setError(getErrorMessage(err, "Save failed"));
+      notifyError(err, "Save failed");
     } finally {
       setIsSaving(false);
     }
@@ -151,7 +148,7 @@ export default function BlogWorkspace() {
       setHasLiked(response.has_liked);
       setLikesCount(response.likes_count);
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Failed to update like");
+      notifyError(err, "Failed to update like");
     } finally {
       setIsLiking(false);
     }
@@ -230,11 +227,23 @@ export default function BlogWorkspace() {
       img: ({ alt, ...props }: any) => (
         <img alt={alt} className="rounded-xl shadow-sm" style={{ boxShadow: 'var(--gb-shadow-card)' }} loading="lazy" {...props} />
       ),
-      pre: ({ children }: any) => <div className="relative group markdown-pre">{children}</div>,
+      pre: ({ children }: any) => children,
       code: ({ node, inline, className, children, ...props }: any) => {
         const language = className?.replace("language-", "");
-        const blockId = `${language}-${String(children).length}-${String(children).slice(0, 8)}`;
-        if (inline) {
+        const isBlockCode = Boolean(className);
+
+        // Helper to extract plain text from React children (for copy button)
+        const extractText = (node: any): string => {
+          if (typeof node === "string") return node;
+          if (Array.isArray(node)) return node.map(extractText).join("");
+          if (node?.props?.children) return extractText(node.props.children);
+          return "";
+        };
+
+        const plainText = extractText(children).replace(/\n$/, "");
+        const blockId = `${language}-${plainText.length}-${plainText.slice(0, 8)}`;
+
+        if (inline || !isBlockCode) {
           return (
             <code className={`${className || ""} rounded-md px-1.5 py-0.5`} style={{ background: 'var(--gb-bg-soft)' }} {...props}>
               {children}
@@ -242,14 +251,13 @@ export default function BlogWorkspace() {
           );
         }
 
-        const codeText = String(children || "").replace(/\n$/, "");
         return (
           <div className="group relative">
             <button
               type="button"
               className="copy-chip"
               onClick={() => {
-                navigator.clipboard.writeText(codeText).then(() => {
+                navigator.clipboard.writeText(plainText).then(() => {
                   setCopiedBlock(blockId);
                   setTimeout(() => setCopiedBlock(null), 1200);
                 });
@@ -258,8 +266,8 @@ export default function BlogWorkspace() {
               {copiedBlock === blockId ? "Copied" : "Copy"}
             </button>
             <pre className="markdown-pre" data-language={language}>
-              <code className={className} {...props}>
-                {codeText}
+              <code className={`${className} hljs`} {...props}>
+                {children}
               </code>
             </pre>
           </div>

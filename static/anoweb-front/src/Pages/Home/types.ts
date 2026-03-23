@@ -48,3 +48,12 @@ export type CoreSkill = {
   created_at: string;
   updated_at: string;
 };
+
+export type Announcement = {
+  id: number;
+  title: string;
+  content_md: string;
+  image_url: string;
+  created_at: string;
+  updated_at: string;
+};

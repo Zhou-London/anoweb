@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useErrorNotifier } from "../../Contexts/error_context";
 import { apiFetch, apiJson } from "../../lib/api";
 import { type Project, type PostShort } from "./types";
 
 export function useProjectData() {
   const navigate = useNavigate();
+  const notifyError = useErrorNotifier();
   const [projects, setProjects] = useState<Project[]>([]);
   const [posts, setPosts] = useState<PostShort[]>([]);
 
@@ -27,9 +29,9 @@ export function useProjectData() {
           setSelectedProjectId(data[0].id);
         }
       })
-      .catch(console.error)
+      .catch((err) => notifyError(err, "Failed to load projects"))
       .finally(() => setIsLoadingProjects(false));
-  }, [selectedProjectId]);
+  }, [selectedProjectId, notifyError]);
 
   useEffect(() => {
     refreshProjects();
@@ -45,16 +47,15 @@ export function useProjectData() {
         if (Array.isArray(data)) {
           setPosts(data);
         } else {
-          console.error("API did not return an array for posts:", data);
           setPosts([]);
         }
       })
       .catch((err) => {
-        console.error("Failed to fetch posts:", err);
+        notifyError(err, "Failed to load posts");
         setPosts([]);
       })
       .finally(() => setIsLoadingPosts(false));
-  }, [selectedProjectId]);
+  }, [selectedProjectId, notifyError]);
 
   useEffect(() => {
     refreshPosts();
@@ -77,10 +78,10 @@ export function useProjectData() {
 
         refreshPosts();
       } catch (err) {
-        console.error("Failed to delete post:", err);
+        notifyError(err, "Failed to delete post");
       }
     },
-    [refreshPosts]
+    [refreshPosts, notifyError]
   );
 
   const selectedProject = useMemo(

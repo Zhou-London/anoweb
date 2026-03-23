@@ -8,5 +8,9 @@ export default defineConfig({
   build: {
     outDir: '/var/www/anoweb',
     emptyOutDir: true
+  },
+  ssr: {
+    // Bundle all dependencies in SSR build so CSS imports are handled by Vite
+    noExternal: true
   }
 })

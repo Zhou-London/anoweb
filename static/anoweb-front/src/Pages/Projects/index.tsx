@@ -50,10 +50,10 @@ export default function ProjectPage() {
   return (
     <>
       <style>{styles}</style>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-wide" style={{ fontFamily: "'Bebas Neue', sans-serif", color: 'var(--gb-fg)' }}>
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-wide" style={{ fontFamily: "'Bebas Neue', sans-serif", color: 'var(--gb-fg)' }}>
             PROJECTS
           </h1>
           {showAdminFeatures && (
@@ -70,8 +70,8 @@ export default function ProjectPage() {
 
         {/* Mobile Project Selector - horizontal scrollable chips */}
         <div className="lg:hidden">
-          <div className="rounded-2xl shadow-lg p-4" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
-            <p className="text-sm font-semibold mb-3" style={{ color: 'var(--gb-fg-soft)' }}>Select a project</p>
+          <div className="rounded-xl sm:rounded-2xl shadow-lg p-3 sm:p-4" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
+            <p className="text-xs sm:text-sm font-semibold mb-2 sm:mb-3" style={{ color: 'var(--gb-fg-soft)' }}>Select a project</p>
             {isLoadingProjects ? (
               <p className="text-sm" style={{ color: 'var(--gb-fg-muted)' }}>Loading...</p>
             ) : projects.length === 0 ? (
@@ -96,7 +96,7 @@ export default function ProjectPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[320px_1fr] items-start">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[280px_1fr] xl:grid-cols-[320px_1fr] items-start">
           {/* Sidebar - hidden on mobile, visible on lg+ */}
           <div className="hidden lg:block">
             <ProjectList
@@ -107,7 +107,7 @@ export default function ProjectPage() {
             />
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {selectedProject ? (
               <>
                 <ProjectDetails project={selectedProject} onProjectUpdate={refreshProjects} />
@@ -120,7 +120,7 @@ export default function ProjectPage() {
                 />
               </>
             ) : (
-              <div className="rounded-3xl shadow-inner p-10 text-center" style={{ boxShadow: 'var(--gb-shadow-inset)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-muted)' }}>
+              <div className="rounded-2xl sm:rounded-3xl shadow-inner p-6 sm:p-10 text-center text-sm sm:text-base" style={{ boxShadow: 'var(--gb-shadow-inset)', background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-muted)' }}>
                 {isLoadingProjects ? "Loading projects..." : "Select a project above to view details."}
               </div>
             )}

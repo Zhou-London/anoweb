@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { apiFetch } from "../lib/api";
+import { apiFetch, getErrorMessage } from "../lib/api";
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -25,7 +25,7 @@ export default function VerifyEmail() {
         setMessage(data.message || "Email verified successfully!");
       } catch (err) {
         setStatus("error");
-        setMessage(err instanceof Error ? err.message : "Failed to verify email");
+        setMessage(getErrorMessage(err, "Failed to verify email"));
       }
     };
 
