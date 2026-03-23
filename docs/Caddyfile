@@ -6,16 +6,15 @@ anonchihaya.co.uk, www.anonchihaya.co.uk, zhouzhouzhang.co.uk, www.zhouzhouzhang
            reverse_proxy localhost:8080
     }
 
-    @images path /image/*
-    handle @images {
+    handle_path /image/* {
         root * /var/www/images/anoweb
         file_server
     }
 
-    @spa not path /api*
+    @spa not path /api* /image/*
     handle @spa {
         root * /var/www/anoweb
-        try_files {path} /index.html
+        try_files {path} {path}/index.html /index.html
         file_server
     }
 }
