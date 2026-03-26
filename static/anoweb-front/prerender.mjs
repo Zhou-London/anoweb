@@ -20,6 +20,7 @@ async function prerender() {
     let page = template.replace("<!--app-html-->", appHtml);
 
     // Inject route-specific meta tags
+    const canonicalUrl = `https://zhouzhouzhang.co.uk${url === "/" ? "" : url}`;
     if (meta) {
       page = page.replace(
         /<title>[^<]*<\/title>/,
@@ -28,6 +29,11 @@ async function prerender() {
       page = page.replace(
         /<meta name="description" content="[^"]*" \/>/,
         `<meta name="description" content="${meta.description}" />`
+      );
+      // Update canonical URL per route
+      page = page.replace(
+        /<link rel="canonical" href="[^"]*" \/>/,
+        `<link rel="canonical" href="${canonicalUrl}" />`
       );
       page = page.replace(
         /<meta property="og:title" content="[^"]*" \/>/,
@@ -38,12 +44,39 @@ async function prerender() {
         `<meta property="og:description" content="${meta.description}" />`
       );
       page = page.replace(
+        /<meta property="og:url" content="[^"]*" \/>/,
+        `<meta property="og:url" content="${canonicalUrl}" />`
+      );
+      page = page.replace(
         /<meta name="twitter:title" content="[^"]*" \/>/,
         `<meta name="twitter:title" content="${meta.title}" />`
       );
       page = page.replace(
         /<meta name="twitter:description" content="[^"]*" \/>/,
         `<meta name="twitter:description" content="${meta.description}" />`
+      );
+
+      // Inject JSON-LD structured data
+      const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": meta.title,
+        "description": meta.description,
+        "url": canonicalUrl,
+        "author": {
+          "@type": "Person",
+          "name": "Zhouzhou Zhang",
+          "url": "https://zhouzhouzhang.co.uk"
+        },
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "Zhouzhou Zhang",
+          "url": "https://zhouzhouzhang.co.uk"
+        }
+      };
+      page = page.replace(
+        "</head>",
+        `    <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n  </head>`
       );
     }
 

@@ -1,4 +1,8 @@
-anonchihaya.co.uk, www.anonchihaya.co.uk, zhouzhouzhang.co.uk, www.zhouzhouzhang.co.uk {
+www.zhouzhouzhang.co.uk, anonchihaya.co.uk, www.anonchihaya.co.uk {
+    redir https://zhouzhouzhang.co.uk{uri} permanent
+}
+
+zhouzhouzhang.co.uk {
     encode gzip zstd
 
     @api path /api*
