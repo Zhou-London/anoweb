@@ -14,6 +14,7 @@ import (
 	"anonchihaya.co.uk/internal/project"
 	"anonchihaya.co.uk/internal/statistics"
 	"anonchihaya.co.uk/internal/tracking"
+	"anonchihaya.co.uk/internal/vbook"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,6 +42,8 @@ func InitRoutes(
 	blogRepo blog.BlogRepository,
 	blogLikeRepo blog.BlogLikeRepository,
 	announcementRepo announcement.AnnouncementRepository,
+	vbookRepo vbook.VBookRepository,
+	vbookProgressRepo vbook.VBookProgressRepository,
 ) {
 	registerSwaggerRoutes(r)
 	registerFanRoutes(r, domain, imgPath, imgURLPrefix, fanRepo, sessionRepo, trackingRepo, blogLikeRepo)
@@ -58,4 +61,5 @@ func InitRoutes(
 	registerCoreSkillRoutes(r, key, coreSkillRepo, sessionRepo)
 	registerBlogRoutes(r, blogRepo, blogLikeRepo, sessionRepo)
 	registerAnnouncementRoutes(r, announcementRepo, sessionRepo)
+	registerVBookRoutes(r, vbookRepo, vbookProgressRepo, sessionRepo)
 }

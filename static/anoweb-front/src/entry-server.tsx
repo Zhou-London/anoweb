@@ -14,6 +14,7 @@ function SSRNavbar() {
     { label: "Home", to: "/" },
     { label: "Community", to: "/community" },
     { label: "Blogs", to: "/blogs" },
+    { label: "vBooks", to: "/vbooks" },
     { label: "Projects", to: "/projects" },
   ];
 
@@ -83,6 +84,10 @@ const routeMeta: Record<string, { title: string; description: string }> = {
   "/blogs": {
     title: "Blogs - Zhouzhou Zhang",
     description: "Read the latest blog posts by Zhouzhou Zhang on software engineering, tech, and more.",
+  },
+  "/vbooks": {
+    title: "vBooks - Zhouzhou Zhang",
+    description: "Interactive walk-throughs and learning material curated by Zhouzhou Zhang.",
   },
   "/projects": {
     title: "Projects - Zhouzhou Zhang",

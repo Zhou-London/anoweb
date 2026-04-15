@@ -20,6 +20,7 @@ import (
 	"anonchihaya.co.uk/internal/statistics"
 	"anonchihaya.co.uk/internal/store"
 	"anonchihaya.co.uk/internal/tracking"
+	"anonchihaya.co.uk/internal/vbook"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -58,6 +59,8 @@ func main() {
 		&blog.Blog{},
 		&blog.BlogLike{},
 		&announcement.Announcement{},
+		&vbook.VBook{},
+		&vbook.VBookProgress{},
 	); err != nil {
 		log.Fatal(err)
 	}
@@ -89,6 +92,11 @@ func main() {
 	blog_repo := blog.NewBlogRepository()
 	blog_like_repo := blog.NewBlogLikeRepository()
 	announcement_repo := announcement.NewAnnouncementRepository()
+	vbook_repo := vbook.NewVBookRepository()
+	vbook_progress_repo := vbook.NewVBookProgressRepository()
+	if err := vbook.SeedDefaults(vbook_repo); err != nil {
+		log.Printf("Warning: failed to seed default vBook: %v", err)
+	}
 
 	if CONFIG.DOMAIN == "" {
 		log.Fatal("Error configuring domain from .env file")
@@ -103,7 +111,7 @@ func main() {
 		log.Fatal("Error configuring image url prefix from .env file")
 	}
 
-	routes.InitRoutes(r, CONFIG.DOMAIN, CONFIG.ADMIN_PASS, "", CONFIG.IMG_PATH, CONFIG.IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo, blog_repo, blog_like_repo, announcement_repo)
+	routes.InitRoutes(r, CONFIG.DOMAIN, CONFIG.ADMIN_PASS, "", CONFIG.IMG_PATH, CONFIG.IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo, blog_repo, blog_like_repo, announcement_repo, vbook_repo, vbook_progress_repo)
 
 	r.Run("localhost:" + CONFIG.SERVER_PORT)
 }

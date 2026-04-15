@@ -6,6 +6,9 @@ import Home from "./Pages/Home";
 import PostWorkspace from "./Pages/Markdown/PostWorkspace";
 import BlogsPage from "./Pages/Blogs";
 import BlogWorkspace from "./Pages/Blogs/BlogWorkspace";
+import VBooksPage from "./Pages/VBooks";
+import VBookDetail from "./Pages/VBooks/VBookDetail";
+import VBookReader from "./Pages/VBooks/VBookReader";
 import AccountPage from "./Pages/Account";
 import VerifyEmail from "./Pages/VerifyEmail";
 import PrivacyPolicyPage from "./Pages/PrivacyPolicy";
@@ -62,6 +65,30 @@ export default function AppRouter() {
           element={
             <PageTransition>
               <BlogWorkspace />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/vbooks"
+          element={
+            <PageTransition>
+              <VBooksPage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/vbooks/:vbookId"
+          element={
+            <PageTransition>
+              <VBookDetail />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/vbooks/:vbookId/:chapterId"
+          element={
+            <PageTransition>
+              <VBookReader />
             </PageTransition>
           }
         />

@@ -24,6 +24,7 @@ export default function Navbar() {
       { label: "Home", to: "/" },
       { label: "Community", to: "/community" },
       { label: "Blogs", to: "/blogs" },
+      { label: "vBooks", to: "/vbooks" },
       { label: "Projects", to: "/projects" },
     ],
     []
@@ -345,6 +346,14 @@ export default function Navbar() {
                 onClick={() => setOpen(false)}
               >
                 Blogs
+              </Link>
+              <Link
+                to="/vbooks"
+                className="block rounded-lg px-3 py-2 transition-colors"
+                style={{ color: 'var(--gb-fg-soft)' }}
+                onClick={() => setOpen(false)}
+              >
+                vBooks
               </Link>
               <Link
                 to="/projects"
