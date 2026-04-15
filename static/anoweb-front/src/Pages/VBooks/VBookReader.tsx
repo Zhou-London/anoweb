@@ -41,7 +41,6 @@ export default function VBookReader() {
     setCurrentIdx(0);
   }, [chapterId]);
 
-  // Keyboard navigation
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
@@ -103,9 +102,20 @@ export default function VBookReader() {
 
   if (!chapter || !current) {
     return (
-      <div className="rounded-3xl p-6 space-y-3" style={{ background: "var(--gb-bg)", boxShadow: "var(--gb-shadow-card)", color: "var(--gb-fg-soft)" }}>
+      <div
+        className="rounded-3xl p-6 space-y-3"
+        style={{
+          background: "var(--gb-bg)",
+          boxShadow: "var(--gb-shadow-card)",
+          color: "var(--gb-fg-soft)",
+        }}
+      >
         <p className="font-semibold">Chapter not found.</p>
-        <Link to={`/vbooks/${vbookId}`} className="underline text-sm" style={{ color: "var(--gb-accent)" }}>
+        <Link
+          to={`/vbooks/${vbookId}`}
+          className="underline text-sm"
+          style={{ color: "var(--gb-accent)" }}
+        >
           Back to vBook
         </Link>
       </div>
@@ -117,24 +127,40 @@ export default function VBookReader() {
 
   return (
     <div className="space-y-4">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-4">
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-center gap-4 min-w-0">
           <Link
             to={`/vbooks/${vbookId}`}
-            className="group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+            className="group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 flex-shrink-0"
             style={{ background: "var(--gb-accent)", color: "var(--gb-bg)" }}
           >
-            <svg className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <svg
+              className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
             </svg>
-            Back to vBook
+            Back
           </Link>
           {vbook && (
-            <div>
-              <h1 className="text-xl md:text-2xl font-semibold" style={{ color: "var(--gb-fg)" }}>
+            <div className="min-w-0">
+              <h1
+                className="text-xl md:text-2xl font-semibold truncate"
+                style={{ color: "var(--gb-fg)" }}
+              >
                 {vbook.title}
               </h1>
-              <div className="text-xs mt-0.5" style={{ color: "var(--gb-fg-muted)" }}>
+              <div
+                className="text-xs mt-0.5 truncate"
+                style={{ color: "var(--gb-fg-muted)" }}
+              >
                 {chapter.label}: {chapter.title}
               </div>
             </div>
@@ -142,50 +168,70 @@ export default function VBookReader() {
         </div>
       </header>
 
-      <div className="qi-learn-content">
-        <div className="ql-app">
-          <header className="ql-header">
-            <div className="ql-header-left">
-              <div className="ql-book-icon">📘</div>
-              <div>
-                <div className="ql-book-title">{chapter.title}</div>
-                <div className="ql-book-subtitle">{chapter.label}</div>
-              </div>
-            </div>
-            <div className="chapter-switcher" style={{ display: "flex", gap: 4, padding: 4, background: "var(--ql-bg-elev)", border: "1px solid var(--ql-border)", borderRadius: 999 }}>
-              {chapters.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => switchChapter(c.id)}
-                  style={{
-                    padding: "6px 14px",
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: chapterId === c.id ? "#1c1c28" : "var(--ql-text-muted)",
-                    borderRadius: 999,
-                    background:
-                      chapterId === c.id
-                        ? "linear-gradient(135deg, var(--ql-accent), var(--ql-accent-2))"
-                        : "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  {c.label}
-                </button>
-              ))}
-            </div>
-            <div className="ql-progress-container">
-              <div className="ql-progress-bar">
-                <div className="ql-progress-fill" style={{ width: `${progressPct}%` }} />
-              </div>
-              <div className="ql-progress-label">
-                {currentIdx + 1} / {sections.length}
-              </div>
-            </div>
-          </header>
+      <section
+        className="rounded-2xl p-3 sm:p-4 flex flex-wrap items-center gap-3 sm:gap-4"
+        style={{
+          background: "var(--gb-bg)",
+          boxShadow: "var(--gb-shadow-card)",
+        }}
+      >
+        <div
+          className="flex items-center gap-1 p-1 rounded-full flex-shrink-0"
+          style={{
+            background: "var(--gb-bg-soft)",
+            boxShadow: "var(--gb-shadow-inset)",
+          }}
+        >
+          {chapters.map((c) => {
+            const isActive = chapterId === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => switchChapter(c.id)}
+                className="px-3 sm:px-4 py-1.5 text-xs font-semibold rounded-full transition-all duration-200"
+                style={{
+                  color: isActive ? "var(--gb-bg)" : "var(--gb-fg-muted)",
+                  background: isActive ? "var(--gb-accent)" : "transparent",
+                }}
+              >
+                {c.shortLabel ?? c.label}
+              </button>
+            );
+          })}
+        </div>
 
+        <div className="flex-1 min-w-[140px] flex items-center gap-3">
+          <div
+            className="flex-1 h-1.5 rounded-full overflow-hidden"
+            style={{ background: "var(--gb-bg-muted)" }}
+          >
+            <div
+              className="h-full transition-all duration-500"
+              style={{
+                width: `${progressPct}%`,
+                background:
+                  "linear-gradient(90deg, var(--gb-accent), var(--gb-primary))",
+              }}
+            />
+          </div>
+          <div
+            className="text-xs font-medium tabular-nums whitespace-nowrap"
+            style={{ color: "var(--gb-fg-muted)" }}
+          >
+            {currentIdx + 1} / {sections.length}
+          </div>
+        </div>
+      </section>
+
+      <section
+        className="qi-learn-content rounded-2xl sm:rounded-3xl p-3 sm:p-6 md:p-8"
+        style={{
+          background: "var(--gb-bg)",
+          boxShadow: "var(--gb-shadow-card)",
+        }}
+      >
+        <div className="ql-app">
           <div className="ql-layout">
             <aside className="ql-sidebar">
               <div className="ql-sidebar-title">{chapter.label} Guide</div>
@@ -195,7 +241,9 @@ export default function VBookReader() {
                     key={s.id}
                     type="button"
                     onClick={() => go(idx)}
-                    className={`ql-nav-item ${idx === currentIdx ? "active" : ""} ${completedSet.has(s.id) ? "done" : ""}`}
+                    className={`ql-nav-item ${idx === currentIdx ? "active" : ""} ${
+                      completedSet.has(s.id) ? "done" : ""
+                    }`}
                   >
                     <span className="ql-nav-emoji">{s.emoji}</span>
                     <span className="ql-nav-label">{s.label}</span>
@@ -229,7 +277,9 @@ export default function VBookReader() {
                     <button
                       key={s.id}
                       type="button"
-                      className={`dot ${i === currentIdx ? "active" : ""} ${i < currentIdx ? "done" : ""}`}
+                      className={`dot ${i === currentIdx ? "active" : ""} ${
+                        i < currentIdx ? "done" : ""
+                      }`}
                       onClick={() => go(i)}
                       title={s.label}
                     />
@@ -247,12 +297,16 @@ export default function VBookReader() {
             </main>
           </div>
         </div>
-      </div>
+      </section>
 
       {!isAuthenticated && (
         <div
           className="rounded-2xl p-4 text-sm flex items-center gap-3"
-          style={{ background: "var(--gb-bg-soft)", color: "var(--gb-fg-muted)", boxShadow: "var(--gb-shadow-card)" }}
+          style={{
+            background: "var(--gb-bg-soft)",
+            color: "var(--gb-fg-muted)",
+            boxShadow: "var(--gb-shadow-card)",
+          }}
         >
           <span className="text-lg" aria-hidden>
             ℹ️
