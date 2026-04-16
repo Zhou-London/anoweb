@@ -12,6 +12,7 @@ import EducationCard from "./EducationCard";
 import ExperienceCard from "./ExperienceCard";
 import CoreSkillCard from "./CoreSkillCard";
 import AnnouncementCard from "./AnnouncementCard";
+import AsyncImage from "../../Components/async_image";
 import type { CoreSkill } from "./types";
 
 export default function Home() {
@@ -268,7 +269,7 @@ export default function Home() {
                   <div key={`${newFan.id}-${idx}`} className="flex-shrink-0 w-48 rounded-xl p-3 hover:shadow-md transition-shadow" style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}>
                     <div className="flex items-center gap-2">
                       {newFan.profile_photo ? (
-                        <img src={newFan.profile_photo} alt={newFan.username} className="w-10 h-10 rounded-full object-cover flex-shrink-0" style={{ boxShadow: 'var(--gb-shadow-card)' }} />
+                        <AsyncImage src={newFan.profile_photo} alt={newFan.username} className="w-10 h-10 rounded-full flex-shrink-0" style={{ boxShadow: 'var(--gb-shadow-card)' }} />
                       ) : (
                         <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
                           {newFan.username.charAt(0).toUpperCase()}
@@ -322,12 +323,12 @@ export default function Home() {
                   className="group rounded-2xl overflow-hidden hover:shadow-md transition-shadow"
                   style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}
                 >
-                  <div className="aspect-video overflow-hidden" style={{ background: 'var(--gb-bg-muted)' }}>
+                  <div className="aspect-video overflow-hidden relative" style={{ background: 'var(--gb-bg-muted)' }}>
                     {blog.image_url ? (
-                      <img
+                      <AsyncImage
                         src={blog.image_url}
                         alt={blog.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--gb-accent)' }}>
@@ -389,12 +390,12 @@ export default function Home() {
                   className="group rounded-2xl overflow-hidden hover:shadow-md transition-shadow"
                   style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-card)' }}
                 >
-                  <div className="aspect-video overflow-hidden" style={{ background: 'var(--gb-bg-muted)' }}>
+                  <div className="aspect-video overflow-hidden relative" style={{ background: 'var(--gb-bg-muted)' }}>
                     {project.image_url ? (
-                      <img
+                      <AsyncImage
                         src={project.image_url}
                         alt={project.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--gb-primary)' }}>

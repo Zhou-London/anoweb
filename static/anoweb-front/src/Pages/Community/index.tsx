@@ -4,6 +4,7 @@ import { FanContext } from "../../Contexts/fan_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { apiJson } from "../../lib/api";
 import AuthModal from "../../Components/auth_modal";
+import AsyncImage from "../../Components/async_image";
 
 interface TrackingRecord {
   id: number;
@@ -344,7 +345,7 @@ export default function Community() {
               transition={{ duration: 0.15, ease: defaultEase }}
             >
               {fanItem.profile_photo ? (
-                <img src={fanItem.profile_photo} alt={fanItem.username} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                <AsyncImage src={fanItem.profile_photo} alt={fanItem.username} className="w-10 h-10 rounded-full flex-shrink-0" />
               ) : (
                 <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: 'var(--gb-primary)', color: 'var(--gb-bg)' }}>
                   {fanItem.username.charAt(0).toUpperCase()}

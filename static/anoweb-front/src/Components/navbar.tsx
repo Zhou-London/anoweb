@@ -9,6 +9,28 @@ import { apiFetch } from "../lib/api";
 import AuthModal from "./auth_modal";
 import NotificationBell from "./notification_bell";
 
+function NavLinkItem({ to, label, active }: { to: string; label: string; active: boolean }) {
+  return (
+    <motion.div className="relative" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+      {active && (
+        <motion.span
+          layoutId="nav-pill"
+          className="absolute inset-0 rounded-full"
+          style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
+          transition={{ type: "tween", duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+        />
+      )}
+      <Link
+        to={to}
+        className="relative z-10 px-3 py-1.5 text-sm font-semibold transition-colors"
+        style={{ color: active ? 'var(--gb-fg)' : 'var(--gb-fg-soft)' }}
+      >
+        {label}
+      </Link>
+    </motion.div>
+  );
+}
+
 export default function Navbar() {
   const { fan, isAuthenticated, isAdmin, refreshFan } = useContext(FanContext);
   const { theme, toggleTheme } = useTheme();
@@ -23,8 +45,8 @@ export default function Navbar() {
     () => [
       { label: "Home", to: "/" },
       { label: "Community", to: "/community" },
-      { label: "Blogs", to: "/blogs" },
       { label: "vBooks", to: "/vbooks" },
+      { label: "Blogs", to: "/blogs" },
       { label: "Projects", to: "/projects" },
     ],
     []
@@ -94,30 +116,6 @@ export default function Navbar() {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 
-  const NavLinkItem = ({ to, label }: { to: string; label: string }) => {
-    const active = isActivePath(to);
-
-    return (
-      <motion.div className="relative" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-        {active && (
-          <motion.span
-            layoutId="nav-pill"
-            className="absolute inset-0 rounded-full"
-            style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
-            transition={{ type: "spring", stiffness: 450, damping: 32 }}
-          />
-        )}
-        <Link
-          to={to}
-          className="relative z-10 px-3 py-1.5 text-sm font-semibold transition-colors"
-          style={{ color: active ? 'var(--gb-fg)' : 'var(--gb-fg-soft)' }}
-        >
-          {label}
-        </Link>
-      </motion.div>
-    );
-  };
-
   return (
     <>
       <nav
@@ -144,7 +142,7 @@ export default function Navbar() {
                 style={{ background: 'var(--gb-bg-soft)', boxShadow: 'var(--gb-shadow-inset)' }}
               >
                 {navLinks.map((link) => (
-                  <NavLinkItem key={link.to} to={link.to} label={link.label} />
+                  <NavLinkItem key={link.to} to={link.to} label={link.label} active={isActivePath(link.to)} />
                 ))}
               </div>
 
@@ -306,109 +304,77 @@ export default function Navbar() {
         >
           <div className="mx-auto max-w-6xl px-4 pb-3">
             <div
-              className="rounded-2xl"
+              className="rounded-2xl p-2"
               style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}
             >
-              <div className="flex items-center justify-between px-3 py-2">
-                <span className="text-sm font-semibold" style={{ color: 'var(--gb-fg-soft)' }}>Quick links</span>
-                <button
-                  className="inline-flex items-center justify-center rounded-full p-2 transition-colors"
-                  style={{ color: 'var(--gb-fg-soft)' }}
-                  aria-label="Close menu"
-                  onClick={() => setOpen(false)}
-                >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+              <div className="grid grid-cols-3 gap-1">
+                {navLinks.map((link) => {
+                  const active = isActivePath(link.to);
+                  return (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className="rounded-xl px-3 py-2.5 text-sm font-medium text-center transition-all duration-150"
+                      style={{
+                        background: active ? 'color-mix(in srgb, var(--gb-accent) 14%, transparent)' : 'transparent',
+                        color: active ? 'var(--gb-accent)' : 'var(--gb-fg-soft)',
+                        boxShadow: active ? 'inset 0 0 0 1px color-mix(in srgb, var(--gb-accent) 35%, transparent)' : 'none',
+                        fontWeight: active ? 600 : 500,
+                      }}
+                      onClick={() => setOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
               </div>
 
-              <Link
-                to="/"
-                className="block rounded-lg px-3 py-2 transition-colors"
-                style={{ color: 'var(--gb-fg-soft)' }}
-                onClick={() => setOpen(false)}
-              >
-                Home
-              </Link>
-              <Link
-                to="/community"
-                className="block rounded-lg px-3 py-2 transition-colors"
-                style={{ color: 'var(--gb-fg-soft)' }}
-                onClick={() => setOpen(false)}
-              >
-                Community
-              </Link>
-              <Link
-                to="/blogs"
-                className="block rounded-lg px-3 py-2 transition-colors"
-                style={{ color: 'var(--gb-fg-soft)' }}
-                onClick={() => setOpen(false)}
-              >
-                Blogs
-              </Link>
-              <Link
-                to="/vbooks"
-                className="block rounded-lg px-3 py-2 transition-colors"
-                style={{ color: 'var(--gb-fg-soft)' }}
-                onClick={() => setOpen(false)}
-              >
-                vBooks
-              </Link>
-              <Link
-                to="/projects"
-                className="block rounded-lg px-3 py-2 transition-colors"
-                style={{ color: 'var(--gb-fg-soft)' }}
-                onClick={() => setOpen(false)}
-              >
-                Projects
-              </Link>
-
-              <div className="mt-2 pt-2" style={{ boxShadow: 'inset 0 1px 0 var(--gb-shadow)' }}>
+              <div className="mt-2 pt-2" style={{ borderTop: '1px solid var(--gb-border)' }}>
                 {isAuthenticated ? (
-                  <>
+                  <div className="flex items-center justify-between px-1 py-1">
                     <Link
                       to="/account"
-                      className="block rounded-lg px-3 py-2 transition-colors"
+                      className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium transition-colors"
                       style={{ color: 'var(--gb-fg-soft)' }}
                       onClick={() => setOpen(false)}
                     >
-                      Account Details
+                      {fan?.profile_photo ? (
+                        <img src={fan.profile_photo} alt="" className="w-6 h-6 rounded-full object-cover" />
+                      ) : (
+                        <div
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                          style={{ background: 'var(--gb-fg-muted)', color: 'var(--gb-bg)' }}
+                        >
+                          {fan?.username.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      Account
                     </Link>
                     <button
-                      onClick={() => {
-                        setOpen(false);
-                        handleLogout();
-                      }}
-                      className="block w-full text-left rounded-lg px-3 py-2 transition-colors"
+                      onClick={() => { setOpen(false); handleLogout(); }}
+                      className="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
                       style={{ color: 'var(--gb-error)' }}
                     >
                       Log Out
                     </button>
-                  </>
+                  </div>
                 ) : (
-                  <>
+                  <div className="flex items-center gap-2 p-1">
                     <button
-                      onClick={() => {
-                        setOpen(false);
-                        openAuthModal("login");
-                      }}
-                      className="block w-full text-left rounded-lg px-3 py-2 transition-colors"
-                      style={{ color: 'var(--gb-fg-soft)' }}
+                      onClick={() => { setOpen(false); openAuthModal("login"); }}
+                      className="flex-1 rounded-xl py-2 text-sm font-semibold text-center transition-colors"
+                      style={{ background: 'var(--gb-accent)', color: 'var(--gb-bg)' }}
                     >
                       Log In
                     </button>
                     <button
-                      onClick={() => {
-                        setOpen(false);
-                        openAuthModal("register");
-                      }}
-                      className="block w-full text-left rounded-lg px-3 py-2 transition-colors"
-                      style={{ color: 'var(--gb-fg-soft)' }}
+                      onClick={() => { setOpen(false); openAuthModal("register"); }}
+                      className="flex-1 rounded-xl py-2 text-sm font-semibold text-center transition-colors"
+                      style={{ background: 'var(--gb-bg-soft)', color: 'var(--gb-fg-soft)', boxShadow: 'inset 0 0 0 1px var(--gb-border)' }}
                     >
                       Register
                     </button>
-                  </>
+                  </div>
                 )}
               </div>
             </div>

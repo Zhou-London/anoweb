@@ -5,6 +5,7 @@ import { FanContext } from "../../Contexts/fan_context";
 import { useEditMode } from "../../Contexts/edit_mode_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { apiJson } from "../../lib/api";
+import AsyncImage from "../../Components/async_image";
 import type { VBookShort } from "./types";
 
 const containerVariants = {
@@ -163,10 +164,10 @@ export default function VBooksPage() {
                     style={{ background: "var(--gb-bg-muted)" }}
                   >
                     {vb.cover_image_url ? (
-                      <img
+                      <AsyncImage
                         src={vb.cover_image_url}
                         alt={vb.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
                       <div

@@ -6,6 +6,7 @@ import { useErrorNotifier } from "../../Contexts/error_context";
 import { useSuccessNotifier } from "../../Contexts/success_context";
 import { apiFetch, apiJson } from "../../lib/api";
 import { chapters } from "./chapters/quant-research";
+import AsyncImage from "../../Components/async_image";
 import EditVBookModal from "./EditVBookModal";
 import type { VBookWithProgress } from "./types";
 
@@ -155,10 +156,10 @@ export default function VBookDetail() {
             style={{ background: "var(--gb-bg-muted)" }}
           >
             {vbook.cover_image_url ? (
-              <img
+              <AsyncImage
                 src={vbook.cover_image_url}
                 alt={vbook.title}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full"
               />
             ) : (
               <div

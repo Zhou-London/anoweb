@@ -474,3 +474,19 @@
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+
+/* Async image shimmer skeleton */
+.img-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--gb-bg-muted) 0%,
+    var(--gb-bg-soft) 40%,
+    var(--gb-bg-muted) 80%
+  );
+  background-size: 200% 100%;
+  animation: img-shimmer 1.5s ease-in-out infinite;
+}
+@keyframes img-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

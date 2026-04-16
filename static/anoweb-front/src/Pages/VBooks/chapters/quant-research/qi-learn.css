@@ -2144,29 +2144,6 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .qi-learn-content .ql-layout {
-    flex-direction: column;
-    gap: 16px;
-  }
-  .qi-learn-content .ql-sidebar {
-    width: 100%;
-    padding: 14px;
-    position: static;
-  }
-  .qi-learn-content .ql-nav {
-    flex-direction: row;
-    overflow-x: auto;
-  }
-  .qi-learn-content .ql-nav-item {
-    flex: 0 0 auto;
-    white-space: nowrap;
-  }
-  .qi-learn-content .ql-main {
-    padding: 4px;
-  }
-  .qi-learn-content .ql-sidebar-footer {
-    display: none;
-  }
   .qi-learn-content .intro-title {
     font-size: 34px;
   }

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import AsyncImage from "../../Components/async_image";
 import type { BlogShort } from "./types";
 import { formatRelativeDate } from "../../lib/dateFormat";
 
@@ -39,10 +40,10 @@ export default function BlogCard({ blog, onDelete, showAdminFeatures }: BlogCard
         {/* Cover Image */}
         <div className="aspect-video overflow-hidden relative" style={{ background: 'var(--gb-bg-muted)' }}>
           {blog.image_url ? (
-            <img
+            <AsyncImage
               src={blog.image_url}
               alt={blog.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--gb-accent)' }}>

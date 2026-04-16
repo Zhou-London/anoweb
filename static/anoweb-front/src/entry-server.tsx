@@ -1,6 +1,6 @@
 import React from "react";
 import { renderToString } from "react-dom/server";
-import { StaticRouter } from "react-router";
+import { StaticRouter, useLocation } from "react-router";
 import AppRouter from "./App";
 import { ThemeProvider } from "./Contexts/theme_context";
 import { ErrorProvider } from "./Contexts/error_context";
@@ -13,8 +13,8 @@ function SSRNavbar() {
   const navLinks = [
     { label: "Home", to: "/" },
     { label: "Community", to: "/community" },
-    { label: "Blogs", to: "/blogs" },
     { label: "vBooks", to: "/vbooks" },
+    { label: "Blogs", to: "/blogs" },
     { label: "Projects", to: "/projects" },
   ];
 
@@ -59,11 +59,17 @@ function SSRFooter() {
 }
 
 function SSRApp() {
+  const { pathname } = useLocation();
+  const isReader = /^\/vbooks\/[^/]+\/.+/.test(pathname);
+
   return (
     <div className="min-h-screen w-full flex flex-col transition-colors duration-200" style={{ background: 'var(--gb-bg)', color: 'var(--gb-fg)' }}>
       <div className="relative flex-1">
         <SSRNavbar />
-        <main className="mx-auto max-w-6xl px-4 pb-14 pt-6 md:pt-10 md:px-8">
+        <main className={isReader
+          ? "mx-auto max-w-[1800px] px-4 pb-14 pt-4 md:pt-6 md:px-6 lg:px-10"
+          : "mx-auto max-w-6xl px-4 pb-14 pt-6 md:pt-10 md:px-8"
+        }>
           <AppRouter />
         </main>
       </div>

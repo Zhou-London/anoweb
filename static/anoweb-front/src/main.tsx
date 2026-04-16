@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router";
+import { BrowserRouter, useLocation } from "react-router";
 import AppRouter from "./App";
 import { FanProvider } from "./Contexts/fan_context";
 import { ErrorProvider } from "./Contexts/error_context";
@@ -17,6 +17,9 @@ import { initializeTracking } from "./lib/tracking";
 import "./style.css";
 
 function App() {
+  const { pathname } = useLocation();
+  const isReader = /^\/vbooks\/[^/]+\/.+/.test(pathname);
+
   useEffect(() => {
     const cleanup = initializeTracking();
     return cleanup;
@@ -26,7 +29,10 @@ function App() {
     <div className="min-h-screen w-full flex flex-col transition-colors duration-200" style={{ background: 'var(--gb-bg)', color: 'var(--gb-fg)' }}>
       <div className="relative flex-1">
         <Navbar />
-        <main className="mx-auto max-w-6xl px-4 pb-14 pt-6 md:pt-10 md:px-8">
+        <main className={isReader
+          ? "mx-auto max-w-[1800px] px-4 pb-14 pt-4 md:pt-6 md:px-6 lg:px-10"
+          : "mx-auto max-w-6xl px-4 pb-14 pt-6 md:pt-10 md:px-8"
+        }>
           <AppRouter />
         </main>
       </div>

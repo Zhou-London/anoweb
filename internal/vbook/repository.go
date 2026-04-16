@@ -101,7 +101,7 @@ func NewVBookProgressRepository() VBookProgressRepository {
 
 func (r *vbookProgressRepository) MarkCompleted(fanID uint, vbookID int, chapterID, sectionID string) error {
 	var existing VBookProgress
-	err := r.db.Where("fan_id = ? AND vbook_id = ? AND chapter_id = ? AND section_id = ?",
+	err := r.db.Where("fan_id = ? AND v_book_id = ? AND chapter_id = ? AND section_id = ?",
 		fanID, vbookID, chapterID, sectionID).First(&existing).Error
 	if err == nil {
 		return nil
@@ -119,17 +119,17 @@ func (r *vbookProgressRepository) MarkCompleted(fanID uint, vbookID int, chapter
 }
 
 func (r *vbookProgressRepository) UnmarkCompleted(fanID uint, vbookID int, chapterID, sectionID string) error {
-	return r.db.Where("fan_id = ? AND vbook_id = ? AND chapter_id = ? AND section_id = ?",
+	return r.db.Where("fan_id = ? AND v_book_id = ? AND chapter_id = ? AND section_id = ?",
 		fanID, vbookID, chapterID, sectionID).Delete(&VBookProgress{}).Error
 }
 
 func (r *vbookProgressRepository) ResetForVBook(fanID uint, vbookID int) error {
-	return r.db.Where("fan_id = ? AND vbook_id = ?", fanID, vbookID).Delete(&VBookProgress{}).Error
+	return r.db.Where("fan_id = ? AND v_book_id = ?", fanID, vbookID).Delete(&VBookProgress{}).Error
 }
 
 func (r *vbookProgressRepository) GetForFanVBook(fanID uint, vbookID int) ([]*VBookProgress, error) {
 	var rows []*VBookProgress
-	if err := r.db.Where("fan_id = ? AND vbook_id = ?", fanID, vbookID).
+	if err := r.db.Where("fan_id = ? AND v_book_id = ?", fanID, vbookID).
 		Order("chapter_id ASC, section_id ASC").
 		Find(&rows).Error; err != nil {
 		return nil, err
