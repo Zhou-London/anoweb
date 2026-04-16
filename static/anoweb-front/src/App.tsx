@@ -1,4 +1,5 @@
-import { Route, Routes } from "react-router";
+import { Route, Routes, useLocation } from "react-router";
+import { AnimatePresence } from "framer-motion";
 import Community from "./Pages/Community";
 import ProjectPage from "./Pages/Projects";
 import Home from "./Pages/Home";
@@ -11,22 +12,27 @@ import VBookReader from "./Pages/VBooks/VBookReader";
 import AccountPage from "./Pages/Account";
 import VerifyEmail from "./Pages/VerifyEmail";
 import PrivacyPolicyPage from "./Pages/PrivacyPolicy";
+import PageTransition from "./Components/page_transition";
 
 export default function AppRouter() {
+  const location = useLocation();
+
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/community" element={<Community />} />
-      <Route path="/projects" element={<ProjectPage />} />
-      <Route path="/markdown/:postId" element={<PostWorkspace />} />
-      <Route path="/blogs" element={<BlogsPage />} />
-      <Route path="/blogs/:blogId" element={<BlogWorkspace />} />
-      <Route path="/vbooks" element={<VBooksPage />} />
-      <Route path="/vbooks/:vbookId" element={<VBookDetail />} />
-      <Route path="/vbooks/:vbookId/:chapterId" element={<VBookReader />} />
-      <Route path="/account" element={<AccountPage />} />
-      <Route path="/privacy" element={<PrivacyPolicyPage />} />
-      <Route path="/verify-email" element={<VerifyEmail />} />
-    </Routes>
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+        <Route path="/community" element={<PageTransition><Community /></PageTransition>} />
+        <Route path="/projects" element={<PageTransition><ProjectPage /></PageTransition>} />
+        <Route path="/markdown/:postId" element={<PageTransition><PostWorkspace /></PageTransition>} />
+        <Route path="/blogs" element={<PageTransition><BlogsPage /></PageTransition>} />
+        <Route path="/blogs/:blogId" element={<PageTransition><BlogWorkspace /></PageTransition>} />
+        <Route path="/vbooks" element={<PageTransition><VBooksPage /></PageTransition>} />
+        <Route path="/vbooks/:vbookId" element={<PageTransition><VBookDetail /></PageTransition>} />
+        <Route path="/vbooks/:vbookId/:chapterId" element={<PageTransition><VBookReader /></PageTransition>} />
+        <Route path="/account" element={<PageTransition><AccountPage /></PageTransition>} />
+        <Route path="/privacy" element={<PageTransition><PrivacyPolicyPage /></PageTransition>} />
+        <Route path="/verify-email" element={<PageTransition><VerifyEmail /></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
   );
 }

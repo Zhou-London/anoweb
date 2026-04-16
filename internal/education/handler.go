@@ -26,7 +26,7 @@ func UploadEducationImg(c *gin.Context, img_path string, img_url_prefix string) 
 	}
 
 	dst := img_path + "/education-img-" + file.Filename
-	if err := c.SaveUploadedFile(file, dst); err != nil {
+	if err := util.CompressAndSave(file, dst); err != nil {
 		c.String(http.StatusInternalServerError, "save failed: %s", err)
 		return
 	}

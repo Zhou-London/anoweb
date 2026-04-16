@@ -56,6 +56,13 @@ func GetVBook(c *gin.Context, vbookRepo VBookRepository, progressRepo VBookProgr
 			if err == nil {
 				resp.Progress = aggregateProgress(rows)
 			}
+			if lr, err := progressRepo.GetLastRead(fan.ID, id); err == nil {
+				resp.LastRead = &LastReadInfo{
+					ChapterID: lr.ChapterID,
+					SectionID: lr.SectionID,
+					UpdatedAt: lr.UpdatedAt,
+				}
+			}
 		}
 	}
 
@@ -63,22 +70,29 @@ func GetVBook(c *gin.Context, vbookRepo VBookRepository, progressRepo VBookProgr
 }
 
 // aggregateProgress groups progress rows by chapter id, preserving insertion order.
+// It also tracks the most recent completion timestamp per chapter.
 func aggregateProgress(rows []*VBookProgress) []ChapterProgress {
 	idx := map[string]int{}
 	out := make([]ChapterProgress, 0, len(rows))
 	for _, r := range rows {
 		i, ok := idx[r.ChapterID]
 		if !ok {
+			t := r.CreatedAt
 			idx[r.ChapterID] = len(out)
 			out = append(out, ChapterProgress{
 				ChapterID:        r.ChapterID,
 				CompletedCount:   1,
 				CompletedSection: []string{r.SectionID},
+				LastCompletedAt:  &t,
 			})
 			continue
 		}
 		out[i].CompletedCount++
 		out[i].CompletedSection = append(out[i].CompletedSection, r.SectionID)
+		if r.CreatedAt.After(*out[i].LastCompletedAt) {
+			t := r.CreatedAt
+			out[i].LastCompletedAt = &t
+		}
 	}
 	return out
 }
@@ -247,6 +261,9 @@ func MarkSectionCompleted(c *gin.Context, progressRepo VBookProgressRepository) 
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	// Best-effort: also update last-read position.
+	_ = progressRepo.UpsertLastRead(fan.ID, id, body.ChapterID, body.SectionID)
+
 	rows, err := progressRepo.GetForFanVBook(fan.ID, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -283,4 +300,123 @@ func ResetVBookProgress(c *gin.Context, progressRepo VBookProgressRepository) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Progress reset"})
+}
+
+// UnmarkSectionCompleted godoc
+// @Summary Unmark a chapter section as completed for the current fan
+// @Tags vbook
+// @Produce json
+// @Param id path int true "VBook ID"
+// @Param chapterId path string true "Chapter ID"
+// @Param sectionId path string true "Section ID"
+// @Success 200 {object} MessageResponse
+// @Router /vbook/{id}/progress/{chapterId}/{sectionId} [delete]
+func UnmarkSectionCompleted(c *gin.Context, progressRepo VBookProgressRepository) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid vBook ID"})
+		return
+	}
+	chapterID := c.Param("chapterId")
+	sectionID := c.Param("sectionId")
+	if chapterID == "" || sectionID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "chapter_id and section_id required"})
+		return
+	}
+	user, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+	fan, ok := user.(*auth.Fan)
+	if !ok || fan == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user"})
+		return
+	}
+	if err := progressRepo.UnmarkCompleted(fan.ID, id, chapterID, sectionID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	rows, err := progressRepo.GetForFanVBook(fan.ID, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "ok", "progress": aggregateProgress(rows)})
+}
+
+// ResetChapterProgress godoc
+// @Summary Reset progress for a single chapter for the current fan
+// @Tags vbook
+// @Produce json
+// @Param id path int true "VBook ID"
+// @Param chapterId path string true "Chapter ID"
+// @Success 200 {object} MessageResponse
+// @Router /vbook/{id}/progress/{chapterId} [delete]
+func ResetChapterProgress(c *gin.Context, progressRepo VBookProgressRepository) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid vBook ID"})
+		return
+	}
+	chapterID := c.Param("chapterId")
+	if chapterID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "chapter_id required"})
+		return
+	}
+	user, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+	fan, ok := user.(*auth.Fan)
+	if !ok || fan == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user"})
+		return
+	}
+	if err := progressRepo.ResetChapter(fan.ID, id, chapterID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Chapter progress reset"})
+}
+
+// UpdateLastRead godoc
+// @Summary Update the last-read position for the current fan
+// @Tags vbook
+// @Accept json
+// @Produce json
+// @Param id path int true "VBook ID"
+// @Success 200 {object} MessageResponse
+// @Router /vbook/{id}/last-read [put]
+func UpdateLastRead(c *gin.Context, progressRepo VBookProgressRepository) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid vBook ID"})
+		return
+	}
+	type req struct {
+		ChapterID string `json:"chapter_id" binding:"required"`
+		SectionID string `json:"section_id" binding:"required"`
+	}
+	var body req
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	user, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+	fan, ok := user.(*auth.Fan)
+	if !ok || fan == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user"})
+		return
+	}
+	if err := progressRepo.UpsertLastRead(fan.ID, id, body.ChapterID, body.SectionID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }

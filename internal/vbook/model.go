@@ -28,6 +28,18 @@ type VBookProgress struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+// VBookLastRead remembers the most recent chapter+section a fan was reading.
+// One row per (fan, vbook); upserted on every section navigation.
+type VBookLastRead struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	FanID     uint      `gorm:"uniqueIndex:idx_vbook_last_read;not null" json:"fan_id"`
+	VBookID   int       `gorm:"uniqueIndex:idx_vbook_last_read;not null" json:"vbook_id"`
+	ChapterID string    `gorm:"type:varchar(64);not null" json:"chapter_id"`
+	SectionID string    `gorm:"type:varchar(64);not null" json:"section_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 // VBookShort is the compact list payload shown on the vBooks index page.
 type VBookShort struct {
 	ID            int       `json:"id"`
@@ -42,9 +54,17 @@ type VBookShort struct {
 
 // ChapterProgress aggregates how many sections inside one chapter the fan has finished.
 type ChapterProgress struct {
-	ChapterID        string   `json:"chapter_id"`
-	CompletedCount   int      `json:"completed_count"`
-	CompletedSection []string `json:"completed_sections"`
+	ChapterID        string     `json:"chapter_id"`
+	CompletedCount   int        `json:"completed_count"`
+	CompletedSection []string   `json:"completed_sections"`
+	LastCompletedAt  *time.Time `json:"last_completed_at,omitempty"`
+}
+
+// LastReadInfo is the JSON-friendly representation of VBookLastRead.
+type LastReadInfo struct {
+	ChapterID string    `json:"chapter_id"`
+	SectionID string    `json:"section_id"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // VBookWithProgress is what GET /api/vbook/:id returns.
@@ -52,4 +72,5 @@ type ChapterProgress struct {
 type VBookWithProgress struct {
 	VBook
 	Progress []ChapterProgress `json:"progress"`
+	LastRead *LastReadInfo      `json:"last_read"`
 }

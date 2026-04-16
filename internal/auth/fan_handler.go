@@ -322,7 +322,7 @@ func (h *FanHandler) UploadProfilePhoto(c *gin.Context, imgPath, imgURLPrefix st
 	filename := "/profile-img-" + strconv.FormatInt(timestamp, 10) + "-" + file.Filename
 
 	// Save file
-	if err := c.SaveUploadedFile(file, imgPath+filename); err != nil {
+	if err := util.CompressAndSave(file, imgPath+filename); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
 		return
 	}

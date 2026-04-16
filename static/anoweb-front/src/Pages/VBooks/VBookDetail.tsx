@@ -8,7 +8,20 @@ import { apiFetch, apiJson } from "../../lib/api";
 import { chapters } from "./chapters/quant-research";
 import AsyncImage from "../../Components/async_image";
 import EditVBookModal from "./EditVBookModal";
+import ProgressRing from "./ProgressRing";
 import type { VBookWithProgress } from "./types";
+
+function formatRelative(iso: string): string {
+  const d = new Date(iso);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffDays = Math.floor(diffMs / 86_400_000);
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
 
 export default function VBookDetail() {
   const { vbookId } = useParams<{ vbookId: string }>();
@@ -21,7 +34,7 @@ export default function VBookDetail() {
   const [vbook, setVBook] = useState<VBookWithProgress | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
+  const [resettingTarget, setResettingTarget] = useState<string | null>(null);
 
   const fetchVBook = () => {
     if (!vbookId) return;
@@ -46,6 +59,17 @@ export default function VBookDetail() {
     return map;
   }, [vbook]);
 
+  const completionDateByChapter = useMemo(() => {
+    const map: Record<string, string> = {};
+    if (!vbook) return map;
+    for (const cp of vbook.progress || []) {
+      if (cp.last_completed_at) {
+        map[cp.chapter_id] = cp.last_completed_at;
+      }
+    }
+    return map;
+  }, [vbook]);
+
   const overallProgress = useMemo(() => {
     const totalSections = chapters.reduce((acc, c) => acc + c.sections.length, 0);
     const done = chapters.reduce(
@@ -56,21 +80,47 @@ export default function VBookDetail() {
     return Math.round((done / totalSections) * 100);
   }, [progressByChapter]);
 
-  const handleResetProgress = async () => {
+  const totalDone = useMemo(() => {
+    return chapters.reduce(
+      (acc, c) => acc + Math.min(progressByChapter[c.id] ?? 0, c.sections.length),
+      0
+    );
+  }, [progressByChapter]);
+
+  const totalSections = useMemo(() => {
+    return chapters.reduce((acc, c) => acc + c.sections.length, 0);
+  }, []);
+
+  // Build "Continue reading" link from last_read
+  const continueLink = useMemo(() => {
+    if (!vbook?.last_read) return null;
+    const lr = vbook.last_read;
+    // Find the chapter to make sure it's valid
+    const ch = chapters.find((c) => c.id === lr.chapter_id);
+    if (!ch) return null;
+    const sectionExists = ch.sections.some((s) => s.id === lr.section_id);
+    const sParam = sectionExists ? `?s=${lr.section_id}` : "";
+    return `/vbooks/${vbookId}/${lr.chapter_id}${sParam}`;
+  }, [vbook, vbookId]);
+
+  const handleReset = async (chapterId?: string, e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     if (!vbookId) return;
-    if (!confirm("Reset your progress on this vBook?")) return;
-    setIsResetting(true);
+    const isChapter = !!chapterId;
+    if (!confirm(isChapter ? "Reset progress for this chapter?" : "Reset your progress on this vBook?")) return;
+    setResettingTarget(chapterId ?? "all");
     try {
-      await apiFetch(`/vbook/${vbookId}/progress`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      notifySuccess("Progress reset");
+      await apiFetch(
+        isChapter ? `/vbook/${vbookId}/progress/${chapterId}` : `/vbook/${vbookId}/progress`,
+        { method: "DELETE", credentials: "include" },
+      );
+      notifySuccess(isChapter ? "Chapter progress reset" : "Progress reset");
       fetchVBook();
     } catch (err) {
-      notifyError(err, "Failed to reset progress");
+      notifyError(err, isChapter ? "Failed to reset chapter progress" : "Failed to reset progress");
     } finally {
-      setIsResetting(false);
+      setResettingTarget(null);
     }
   };
 
@@ -195,47 +245,62 @@ export default function VBookDetail() {
             </p>
 
             <div
-              className="rounded-2xl p-4 space-y-3"
+              className="rounded-2xl p-5 flex items-center gap-5"
               style={{
                 background: "var(--gb-bg-soft)",
                 boxShadow: "var(--gb-shadow-inset)",
               }}
             >
-              <div className="flex items-center justify-between text-sm">
-                <span style={{ color: "var(--gb-fg-soft)" }}>
-                  {isAuthenticated ? "Your progress" : "Progress (sign in to save)"}
-                </span>
+              <ProgressRing size={96} strokeWidth={7} progress={overallProgress}>
                 <span
-                  className="font-semibold"
+                  className="text-lg font-bold"
                   style={{ color: "var(--gb-fg)" }}
                 >
                   {overallProgress}%
                 </span>
-              </div>
-              <div
-                className="h-2 rounded-full overflow-hidden"
-                style={{ background: "var(--gb-bg-muted)" }}
-              >
+              </ProgressRing>
+              <div className="flex-1 min-w-0 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="text-sm font-semibold"
+                    style={{ color: "var(--gb-fg)" }}
+                  >
+                    {totalDone} / {totalSections} sections
+                  </span>
+                  {isAuthenticated && overallProgress > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => handleReset()}
+                      disabled={resettingTarget === "all"}
+                      className="w-5 h-5 rounded-full flex items-center justify-center opacity-30 hover:opacity-100 transition-opacity disabled:opacity-20"
+                      style={{ color: "var(--gb-fg-muted)" }}
+                      title="Reset all progress"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
                 <div
-                  className="h-full transition-all duration-500"
-                  style={{
-                    width: `${overallProgress}%`,
-                    background:
-                      "linear-gradient(90deg, var(--gb-accent), var(--gb-primary))",
-                  }}
-                />
-              </div>
-              {isAuthenticated && overallProgress > 0 && (
-                <button
-                  type="button"
-                  onClick={handleResetProgress}
-                  disabled={isResetting}
-                  className="text-xs font-medium hover:underline disabled:opacity-50"
-                  style={{ color: "var(--gb-error)" }}
+                  className="text-xs"
+                  style={{ color: "var(--gb-fg-muted)" }}
                 >
-                  {isResetting ? "Resetting..." : "Reset my progress"}
-                </button>
-              )}
+                  {isAuthenticated ? "Your progress" : "Sign in to save progress"}
+                </div>
+                {continueLink && (
+                  <Link
+                    to={continueLink}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all hover:shadow-md hover:scale-105 active:scale-95"
+                    style={{ background: "var(--gb-accent)", color: "var(--gb-bg)" }}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.891a1.5 1.5 0 000-2.538L6.3 2.841z" />
+                    </svg>
+                    Continue reading
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -255,7 +320,9 @@ export default function VBookDetail() {
               chapter.sections.length
             );
             const pct = Math.round((done / chapter.sections.length) * 100);
-            const status = done === 0 ? "Start" : done >= chapter.sections.length ? "Review" : "Continue";
+            const isComplete = done >= chapter.sections.length;
+            const completionDate = completionDateByChapter[chapter.id];
+            const ringColor = isComplete ? "var(--gb-success)" : "var(--gb-accent)";
             return (
               <Link
                 key={chapter.id}
@@ -266,7 +333,7 @@ export default function VBookDetail() {
                   boxShadow: "var(--gb-shadow-card)",
                 }}
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-4">
                   <div className="flex-1 min-w-0">
                     <div
                       className="text-xs font-semibold uppercase tracking-wider mb-1"
@@ -281,45 +348,48 @@ export default function VBookDetail() {
                       {chapter.title}
                     </h3>
                     <div
-                      className="text-xs"
+                      className="text-xs flex items-center gap-2"
                       style={{ color: "var(--gb-fg-muted)" }}
                     >
-                      {chapter.sections.length} sections
+                      <span>{done} / {chapter.sections.length} sections</span>
+                      {isComplete && completionDate && (
+                        <>
+                          <span>·</span>
+                          <span style={{ color: "var(--gb-success)" }}>
+                            {formatRelative(completionDate)}
+                          </span>
+                        </>
+                      )}
+                      {isAuthenticated && done > 0 && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleReset(chapter.id, e)}
+                          disabled={resettingTarget === chapter.id}
+                          className="w-4 h-4 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity disabled:!opacity-20"
+                          style={{ color: "var(--gb-fg-muted)" }}
+                          title="Reset chapter progress"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                   </div>
-                  <span
-                    className="inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-semibold"
-                    style={{
-                      background: "var(--gb-accent)",
-                      color: "var(--gb-bg)",
-                    }}
-                  >
-                    {status}
-                  </span>
-                </div>
-
-                <div className="mt-4 space-y-2">
-                  <div
-                    className="h-1.5 rounded-full overflow-hidden"
-                    style={{ background: "var(--gb-bg-muted)" }}
-                  >
-                    <div
-                      className="h-full transition-all duration-300"
-                      style={{
-                        width: `${pct}%`,
-                        background: "var(--gb-primary)",
-                      }}
-                    />
-                  </div>
-                  <div
-                    className="flex items-center justify-between text-xs"
-                    style={{ color: "var(--gb-fg-muted)" }}
-                  >
-                    <span>
-                      {done} / {chapter.sections.length} done
-                    </span>
-                    <span>{pct}%</span>
-                  </div>
+                  <ProgressRing size={48} strokeWidth={4} progress={pct} color={ringColor}>
+                    {isComplete ? (
+                      <svg className="w-4 h-4" fill={ringColor} viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    ) : (
+                      <span
+                        className="text-xs font-bold"
+                        style={{ color: "var(--gb-fg)" }}
+                      >
+                        {pct}%
+                      </span>
+                    )}
+                  </ProgressRing>
                 </div>
               </Link>
             );

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { FanContext } from "../../Contexts/fan_context";
 import { useErrorNotifier } from "../../Contexts/error_context";
 import { apiFetch, apiJson, apiUrl } from "../../lib/api";
@@ -11,6 +11,7 @@ export default function VBookReader() {
   const params = useParams<{ vbookId: string; chapterId: string }>();
   const vbookId = params.vbookId ?? "";
   const chapterId = params.chapterId ?? "ch1";
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useContext(FanContext);
   const notifyError = useErrorNotifier();
@@ -18,8 +19,7 @@ export default function VBookReader() {
   const [vbook, setVBook] = useState<VBookWithProgress | null>(null);
   const [completed, setCompleted] = useState<Record<string, Set<string>>>({});
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [sectionsOpen, setSectionsOpen] = useState(false);
-  const [chapterMenuOpen, setChapterMenuOpen] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
 
   const chapter = useMemo(() => chapters.find((c) => c.id === chapterId), [chapterId]);
   const chapterIdx = useMemo(() => chapters.findIndex((c) => c.id === chapterId), [chapterId]);
@@ -29,8 +29,8 @@ export default function VBookReader() {
   const saveRef = useRef({ vbookId, chapterId, sectionId: current?.id });
   saveRef.current = { vbookId, chapterId, sectionId: current?.id };
 
-  const sectionsRef = useRef<HTMLDivElement>(null);
-  const chapterRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
+  const initialSectionApplied = useRef(false);
 
   useEffect(() => {
     if (!vbookId) return;
@@ -46,19 +46,43 @@ export default function VBookReader() {
       .catch((err) => notifyError(err, "Failed to load vBook"));
   }, [vbookId, notifyError]);
 
+  // Restore section from ?s= query param on chapter change
   useEffect(() => {
-    setCurrentIdx(0);
+    const sParam = searchParams.get("s");
+    if (sParam && chapter) {
+      const idx = chapter.sections.findIndex((s) => s.id === sParam);
+      if (idx >= 0) {
+        setCurrentIdx(idx);
+        setSearchParams({}, { replace: true });
+        initialSectionApplied.current = true;
+        return;
+      }
+    }
+    if (!initialSectionApplied.current) {
+      setCurrentIdx(0);
+    }
+    initialSectionApplied.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapterId]);
+
+  // Send last-read on mount/chapter change
+  useEffect(() => {
+    if (!vbookId || !isAuthenticated || !chapter) return;
+    const sectionId = sections[0]?.id;
+    if (!sectionId) return;
+    apiFetch(`/vbook/${vbookId}/last-read`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ chapter_id: chapterId, section_id: sectionId }),
+    }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vbookId, chapterId, isAuthenticated]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
-      if (
-        target &&
-        (target.tagName === "INPUT" || target.tagName === "TEXTAREA")
-      ) {
-        return;
-      }
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
       if (e.key === "ArrowRight") go(Math.min(currentIdx + 1, sections.length - 1));
       if (e.key === "ArrowLeft") go(Math.max(currentIdx - 1, 0));
     };
@@ -67,20 +91,14 @@ export default function VBookReader() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIdx, chapterId, sections.length]);
 
+  // Close nav on Escape key
   useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      if (sectionsRef.current && !sectionsRef.current.contains(e.target as Node)) {
-        setSectionsOpen(false);
-      }
-      if (chapterRef.current && !chapterRef.current.contains(e.target as Node)) {
-        setChapterMenuOpen(false);
-      }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setNavOpen(false);
     };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
-
-  const completedSet = completed[chapterId] ?? new Set<string>();
 
   useEffect(() => {
     return () => {
@@ -117,26 +135,81 @@ export default function VBookReader() {
     }
   };
 
+  const toggleCompleted = async (sectionId: string, chId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const set = completed[chId] ?? new Set<string>();
+    const isDone = set.has(sectionId);
+    if (isDone) {
+      setCompleted((prev) => {
+        const next = { ...prev };
+        const s = new Set(next[chId] ?? []);
+        s.delete(sectionId);
+        next[chId] = s;
+        return next;
+      });
+      if (!vbookId) return;
+      try {
+        await apiFetch(`/vbook/${vbookId}/progress/${chId}/${sectionId}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
+      } catch {
+        setCompleted((prev) => {
+          const next = { ...prev };
+          const s = new Set(next[chId] ?? []);
+          s.add(sectionId);
+          next[chId] = s;
+          return next;
+        });
+      }
+    } else {
+      setCompleted((prev) => {
+        const next = { ...prev };
+        const s = new Set(next[chId] ?? []);
+        s.add(sectionId);
+        next[chId] = s;
+        return next;
+      });
+      if (!vbookId) return;
+      try {
+        await apiFetch(`/vbook/${vbookId}/progress`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ chapter_id: chId, section_id: sectionId }),
+        });
+      } catch {
+        // silent
+      }
+    }
+  };
+
   const go = (idx: number) => {
     if (idx < 0 || idx >= sections.length) return;
     if (sections[currentIdx]) {
       void markCompleted(sections[currentIdx].id);
     }
     setCurrentIdx(idx);
-    setSectionsOpen(false);
+    setNavOpen(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const jumpTo = (chId: string, sectionId: string, sectionIdx: number) => {
+    setNavOpen(false);
+    if (chId === chapterId) {
+      go(sectionIdx);
+    } else {
+      if (sections[currentIdx]) {
+        void markCompleted(sections[currentIdx].id);
+      }
+      navigate(`/vbooks/${vbookId}/${chId}?s=${sectionId}`);
+    }
   };
 
   const switchChapter = (newId: string) => {
     if (newId === chapterId) return;
-    setChapterMenuOpen(false);
     navigate(`/vbooks/${vbookId}/${newId}`);
   };
-
-  const progressPct = useMemo(() => {
-    if (sections.length <= 1) return 0;
-    return Math.round((currentIdx / (sections.length - 1)) * 100);
-  }, [currentIdx, sections.length]);
 
   if (!chapter || !current) {
     return (
@@ -165,274 +238,200 @@ export default function VBookReader() {
 
   return (
     <div className="space-y-4">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-center gap-4 min-w-0">
-          <Link
-            to={`/vbooks/${vbookId}`}
-            className="group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 flex-shrink-0"
-            style={{ background: "var(--gb-accent)", color: "var(--gb-bg)" }}
+      <header className="flex items-center gap-3">
+        <Link
+          to={`/vbooks/${vbookId}`}
+          className="group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 flex-shrink-0"
+          style={{ background: "var(--gb-accent)", color: "var(--gb-bg)" }}
+        >
+          <svg
+            className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
-            </svg>
-            Back
-          </Link>
-          {vbook && (
-            <div className="min-w-0">
-              <h1
-                className="text-xl md:text-2xl font-semibold truncate"
-                style={{ color: "var(--gb-fg)" }}
-              >
-                {vbook.title}
-              </h1>
-              <div
-                className="text-xs mt-0.5 truncate"
-                style={{ color: "var(--gb-fg-muted)" }}
-              >
-                {chapter.label}: {chapter.title}
-              </div>
-            </div>
-          )}
-        </div>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back
+        </Link>
+        {vbook && (
+          <h1 className="flex-1 text-lg md:text-xl font-semibold truncate min-w-0" style={{ color: "var(--gb-fg)" }}>
+            {vbook.title}
+          </h1>
+        )}
       </header>
 
-      {/* Toolbar: chapter nav + section dropdown + progress */}
-      <section
-        className="rounded-2xl p-3 sm:p-4 flex flex-wrap items-center gap-3 sm:gap-4"
-        style={{
-          background: "var(--gb-bg)",
-          boxShadow: "var(--gb-shadow-card)",
-        }}
-      >
-        {/* Chapter navigator */}
-        <div className="relative flex items-center gap-1 flex-shrink-0" ref={chapterRef}>
-          <button
-            type="button"
-            onClick={() => chapterIdx > 0 && switchChapter(chapters[chapterIdx - 1].id)}
-            disabled={chapterIdx <= 0}
-            className="rounded-lg p-1.5 transition-colors disabled:opacity-30"
-            style={{ color: "var(--gb-fg-soft)" }}
-            aria-label="Previous chapter"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            onClick={() => setChapterMenuOpen((v) => !v)}
-            className="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150"
-            style={{
-              background: "var(--gb-accent)",
-              color: "var(--gb-bg)",
-            }}
-          >
-            {chapter.shortLabel ?? chapter.label}
-            <svg className="w-3 h-3 ml-1.5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            onClick={() => chapterIdx < chapters.length - 1 && switchChapter(chapters[chapterIdx + 1].id)}
-            disabled={chapterIdx >= chapters.length - 1}
-            className="rounded-lg p-1.5 transition-colors disabled:opacity-30"
-            style={{ color: "var(--gb-fg-soft)" }}
-            aria-label="Next chapter"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-
-          {chapterMenuOpen && (
-            <div
-              className="absolute top-full left-0 mt-2 z-20 rounded-xl py-1 min-w-[200px]"
-              style={{ background: "var(--gb-bg)", boxShadow: "var(--gb-shadow-card-hover)" }}
-            >
-              {chapters.map((c, i) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => switchChapter(c.id)}
-                  className="w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center gap-2"
-                  style={{
-                    color: c.id === chapterId ? "var(--gb-accent)" : "var(--gb-fg-soft)",
-                    background: c.id === chapterId ? "color-mix(in srgb, var(--gb-accent) 10%, transparent)" : "transparent",
-                    fontWeight: c.id === chapterId ? 600 : 400,
-                  }}
-                >
-                  <span className="text-xs font-bold tabular-nums" style={{ color: "var(--gb-fg-muted)" }}>{i + 1}</span>
-                  {c.title}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Section dropdown */}
-        <div className="relative flex-shrink-0" ref={sectionsRef}>
-          <button
-            type="button"
-            onClick={() => setSectionsOpen((v) => !v)}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150"
-            style={{
-              background: "var(--gb-bg-soft)",
-              color: "var(--gb-fg-soft)",
-              boxShadow: "var(--gb-shadow-inset)",
-            }}
-          >
-            <span>{current.emoji}</span>
-            <span className="max-w-[120px] sm:max-w-[180px] truncate">{current.label}</span>
-            <svg className={`w-3 h-3 transition-transform duration-150 ${sectionsOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-
-          {sectionsOpen && (
-            <div
-              className="absolute top-full left-0 mt-2 z-20 rounded-xl py-1 min-w-[220px] max-h-[60vh] overflow-y-auto"
-              style={{ background: "var(--gb-bg)", boxShadow: "var(--gb-shadow-card-hover)" }}
-            >
-              {sections.map((s, idx) => {
-                const isActive = idx === currentIdx;
-                const isDone = completedSet.has(s.id);
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => go(idx)}
-                    className="w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center gap-3"
-                    style={{
-                      color: isActive ? "var(--gb-accent)" : "var(--gb-fg-soft)",
-                      background: isActive ? "color-mix(in srgb, var(--gb-accent) 10%, transparent)" : "transparent",
-                      fontWeight: isActive ? 600 : 400,
-                    }}
-                  >
-                    <span className="flex-shrink-0">{s.emoji}</span>
-                    <span className="flex-1 truncate">{s.label}</span>
-                    {isDone && !isActive && (
-                      <span className="text-xs flex-shrink-0" style={{ color: "var(--gb-success)" }}>✓</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Progress bar */}
-        <div className="flex-1 min-w-[100px] flex items-center gap-3">
-          <div
-            className="flex-1 h-1.5 rounded-full overflow-hidden"
-            style={{ background: "var(--gb-bg-muted)" }}
-          >
-            <div
-              className="h-full transition-all duration-500"
-              style={{
-                width: `${progressPct}%`,
-                background:
-                  "linear-gradient(90deg, var(--gb-accent), var(--gb-primary))",
-              }}
-            />
-          </div>
-          <div
-            className="text-xs font-medium tabular-nums whitespace-nowrap"
-            style={{ color: "var(--gb-fg-muted)" }}
-          >
-            {currentIdx + 1} / {sections.length}
-          </div>
-        </div>
-      </section>
-
-      {/* Content (no sidebar, full width) */}
-      <section
-        className="qi-learn-content rounded-2xl sm:rounded-3xl p-3 sm:p-6 md:p-8 min-h-[70vh]"
-        style={{
-          background: "var(--gb-bg)",
-          boxShadow: "var(--gb-shadow-card)",
-        }}
-      >
+      {/* Content */}
+      <div className="qi-learn-content">
         <div className="ql-main" style={{ padding: 0 }}>
-          <div key={`${chapterId}-${current.id}`} className="ql-section-wrap">
+          <div key={`${chapterId}-${current.id}`} className="ql-section-wrap content-enter">
             <Body data={data} onStart={() => go(1)} />
           </div>
 
-          <div className="controls">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => go(currentIdx - 1)}
-              disabled={currentIdx === 0}
-            >
-              ← Previous
-            </button>
-            <div className="step-indicator">
-              {sections.map((s, i) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  className={`dot ${i === currentIdx ? "active" : ""} ${
-                    i < currentIdx ? "done" : ""
-                  }`}
-                  onClick={() => go(i)}
-                  title={s.label}
-                />
-              ))}
-            </div>
-            {currentIdx === sections.length - 1 && chapterIdx < chapters.length - 1 ? (
+          {/* End-of-chapter prompt */}
+          {currentIdx === sections.length - 1 && chapterIdx < chapters.length - 1 && (
+            <div className="flex justify-center pt-8 pb-4">
               <button
                 type="button"
-                className="btn btn-primary"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:scale-105 active:scale-95"
+                style={{ background: "var(--gb-accent)", color: "var(--gb-bg)" }}
                 onClick={() => {
                   void markCompleted(sections[currentIdx].id);
                   switchChapter(chapters[chapterIdx + 1].id);
                 }}
               >
-                Next Chapter →
+                Next Chapter
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </button>
-            ) : (
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Backdrop */}
+      {navOpen && (
+        <div
+          className="fixed inset-0 z-30 backdrop-enter"
+          style={{ background: "rgba(0,0,0,0.2)" }}
+          onClick={() => setNavOpen(false)}
+        />
+      )}
+
+      {/* Floating menu */}
+      <div className="fixed bottom-4 left-4 z-40" ref={navRef} style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+        {navOpen && (
+          <div
+            className="absolute bottom-14 left-0 mb-1 rounded-2xl overflow-hidden flex flex-col popover-enter-up"
+            style={{
+              background: "var(--gb-bg)",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
+              width: "min(320px, calc(100vw - 2rem))",
+              maxHeight: "min(70vh, 480px)",
+            }}
+          >
+            {/* Prev / Next bar */}
+            <div
+              className="flex items-center border-b flex-shrink-0"
+              style={{ borderColor: "var(--gb-bg-muted)" }}
+            >
               <button
                 type="button"
-                className="btn btn-primary"
-                onClick={() => go(currentIdx + 1)}
-                disabled={currentIdx === sections.length - 1}
+                onClick={() => go(currentIdx - 1)}
+                disabled={currentIdx === 0}
+                className="flex-1 py-3 text-xs font-medium transition-colors active:bg-black/5 disabled:opacity-25 flex items-center justify-center gap-1.5"
+                style={{ color: "var(--gb-fg-soft)" }}
               >
-                Next →
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Prev
               </button>
-            )}
-          </div>
-        </div>
-      </section>
+              <div
+                className="text-xs font-semibold tabular-nums px-3"
+                style={{ color: "var(--gb-fg-muted)" }}
+              >
+                {currentIdx + 1} / {sections.length}
+              </div>
+              <button
+                type="button"
+                onClick={() => go(currentIdx + 1)}
+                disabled={currentIdx >= sections.length - 1}
+                className="flex-1 py-3 text-xs font-medium transition-colors active:bg-black/5 disabled:opacity-25 flex items-center justify-center gap-1.5"
+                style={{ color: "var(--gb-fg-soft)" }}
+              >
+                Next
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
 
-      {!isAuthenticated && (
-        <div
-          className="rounded-2xl p-4 text-sm flex items-center gap-3"
-          style={{
-            background: "var(--gb-bg-soft)",
-            color: "var(--gb-fg-muted)",
-            boxShadow: "var(--gb-shadow-card)",
-          }}
+            {/* TOC */}
+            <div className="overflow-y-auto overscroll-contain py-1">
+              {chapters.map((ch) => {
+                const chSet = completed[ch.id] ?? new Set<string>();
+                const chDone = chSet.size;
+                const chTotal = ch.sections.length;
+                const isCurrent = ch.id === chapterId;
+                return (
+                  <div key={ch.id}>
+                    <div
+                      className="px-4 pt-3 pb-1 flex items-center gap-2"
+                      style={{ color: isCurrent ? "var(--gb-accent)" : "var(--gb-fg)" }}
+                    >
+                      <span className="text-xs font-bold uppercase tracking-wider flex-1 truncate">
+                        {ch.label}: {ch.title}
+                      </span>
+                      <span
+                        className="text-[10px] font-semibold tabular-nums flex-shrink-0"
+                        style={{ color: chDone >= chTotal && chTotal > 0 ? "var(--gb-success)" : "var(--gb-fg-muted)" }}
+                      >
+                        {chDone}/{chTotal}
+                      </span>
+                    </div>
+                    {ch.sections.map((s, sIdx) => {
+                      const isActive = isCurrent && sIdx === currentIdx;
+                      const isDone = chSet.has(s.id);
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => jumpTo(ch.id, s.id, sIdx)}
+                          className="w-full text-left pl-7 pr-4 min-h-[44px] py-2.5 text-sm transition-colors flex items-center gap-2.5"
+                          style={{
+                            color: isActive ? "var(--gb-accent)" : "var(--gb-fg-soft)",
+                            background: isActive ? "color-mix(in srgb, var(--gb-accent) 8%, transparent)" : "transparent",
+                            fontWeight: isActive ? 600 : 400,
+                          }}
+                        >
+                          <span className="flex-shrink-0 text-xs">{s.emoji}</span>
+                          <span className="flex-1 truncate">{s.label}</span>
+                          {isAuthenticated && isDone && (
+                            <span
+                              className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-[10px] cursor-pointer"
+                              style={{ color: "var(--gb-success)" }}
+                              onClick={(e) => toggleCompleted(s.id, ch.id, e)}
+                              title="Click to unmark"
+                            >
+                              ✓
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+              {!isAuthenticated && (
+                <div
+                  className="px-4 pt-3 pb-2 text-[11px] border-t mt-1"
+                  style={{ color: "var(--gb-fg-muted)", borderColor: "var(--gb-bg-muted)" }}
+                >
+                  Log in to save progress across sessions
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setNavOpen((v) => !v)}
+          className="w-12 h-12 rounded-full flex items-center justify-center fab-enter transition-all hover:scale-105 active:scale-95"
+          style={{ background: "var(--gb-accent)", color: "var(--gb-bg)", boxShadow: "0 2px 16px rgba(0,0,0,0.2)" }}
+          aria-label="Open navigation"
         >
-          <span className="text-lg" aria-hidden>
-            ℹ️
-          </span>
-          <span>
-            Log in to save your progress across sessions. Right now your progress is
-            local to this browser tab.
-          </span>
-        </div>
-      )}
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {navOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }

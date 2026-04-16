@@ -14,7 +14,7 @@ Personal website `zhouzhouzhang.co.uk`. Go/Gin backend (`cmd/anoweb`) + React 19
 - Run one package: `go test ./internal/vbook/`
 - Run a single test: `go test ./internal/vbook/ -run TestAggregateProgress_EmptyInput`
 - Requires a `.env` file (see `env-example`). Loaded via `godotenv.Load()` at startup; missing `PORT`/`DB*`/`DOMAIN`/`ADMIN_PASS`/`IMG_PATH`/`IMG_URL_PREFIX` causes `log.Fatal`.
-- Regenerate Swagger after API changes: entry file with swag annotations is `cmd/anoweb/main.go` (README's `src/main.go` command is stale).
+- Regenerate Swagger after API changes: `swag init -g cmd/anoweb/main.go -o ./docs` (README's `src/main.go` path is stale).
 
 ### Frontend (`static/anoweb-front`)
 - Dev: `npm run dev` (Vite dev server; use this for local iteration — see "Local vs production paths" below).
@@ -43,13 +43,15 @@ Adding a feature touches **five** places — miss any and it won't boot:
 
 `internal/blog/` + `Pages/Blogs/` is the canonical end-to-end reference — mirror it for new CRUD features. `internal/vbook/` is a more recent example that also includes per-fan progress tracking and a boot-time `SeedDefaults` call.
 
+Note: `internal/learning/` has a model and repository but is **not wired into routes** — it is only in `AutoMigrate`. It is an incomplete feature.
+
 ### Database
 `internal/store/database.go` only wires **MySQL** via GORM, despite `gorm.io/driver/sqlite` appearing in `go.mod`. Production and local both hit MySQL. `AGENTS.md` mentions SQLite for testing, but no test bootstrap currently uses it — existing tests (see `internal/vbook/handler_test.go`) exercise pure functions and avoid the DB entirely. Follow that pattern: isolate testable logic from GORM calls.
 
 In dev mode (`APP_ENV != "production"`), `config.Load()` swaps `DBNAME` for `DBNAME_TEST` from the env.
 
 ### Auth model
-One user type: `auth.Fan` (see `internal/auth/fan_model.go`). Sessions are cookie-based (`session_token` HTTP cookie), resolved in `internal/auth/middleware.go`:
+One user type: `auth.Fan` (see `internal/auth/fan_model.go`). Two sign-up paths: email/password with SMTP-based email verification, or Google OAuth (`internal/auth/oauth_handler.go`, configured via `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GOOGLE_REDIRECT_URL` env vars). Sessions are cookie-based (`session_token` HTTP cookie), resolved in `internal/auth/middleware.go`:
 - `AuthMiddleware(sessionRepo)` — rejects unauthenticated requests.
 - `OptionalAuthMiddleware(sessionRepo)` — sets `user` in context if the cookie is valid, otherwise continues.
 - `AdminMiddleware()` — requires `fan.IsAdmin == true`; must be chained after one of the above.
@@ -65,7 +67,10 @@ Admin status is granted by redeeming mystery codes (see `internal/mysterycode/` 
 ### Two unrelated write-protection systems
 Don't confuse them:
 - **Session-based `AdminMiddleware`** — the modern path, used by most feature admin routes (vbook, blog, etc.).
-- **`middlewares.KeyChecker(key)`** — a legacy pre-session guard that looks for a `key` value in query/form/cookie/JSON body on write methods. Still used by a few routes (e.g. `static/upload-image` when the caller is unauthenticated, admin routes). The value comes from `CONFIG.KEY` in the env. When both exist, the session path short-circuits the key check (see `static_routes.go`).
+- **`middlewares.KeyChecker(key)`** — a legacy pre-session guard that looks for a `key` value in query/form/cookie/JSON body on write methods. Still referenced by a few route registrations (e.g. `static/upload-image`, admin routes), but **effectively disabled**: `main.go` passes `""` as the `key` argument to `InitRoutes` (line 114), so `KeyChecker` always sees an empty key.
+
+### VBooks hybrid architecture
+VBooks have a split data model. The **backend** (DB) stores VBook metadata and per-fan/per-chapter/per-section progress. The **frontend** defines chapter content entirely in TypeScript files under `Pages/VBooks/chapters/<book-slug>/`. Each book has an `index.ts` that exports a `ChapterDef[]` array — chapter titles, section IDs, and the React component for each section. Adding a new chapter means adding TS files and re-exporting from the book's `index.ts`; no backend change is needed unless the VBook itself is new (in which case `SeedDefaults` or an admin API call creates the DB record).
 
 ### Frontend SSR pipeline
 `npm run build` is a four-step pipeline:

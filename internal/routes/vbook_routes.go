@@ -45,5 +45,14 @@ func registerVBookRoutes(r *gin.Engine, vbookRepo vbook.VBookRepository, progres
 		authed.DELETE("/:id/progress", func(c *gin.Context) {
 			vbook.ResetVBookProgress(c, progressRepo)
 		})
+		authed.DELETE("/:id/progress/:chapterId", func(c *gin.Context) {
+			vbook.ResetChapterProgress(c, progressRepo)
+		})
+		authed.DELETE("/:id/progress/:chapterId/:sectionId", func(c *gin.Context) {
+			vbook.UnmarkSectionCompleted(c, progressRepo)
+		})
+		authed.PUT("/:id/last-read", func(c *gin.Context) {
+			vbook.UpdateLastRead(c, progressRepo)
+		})
 	}
 }

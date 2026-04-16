@@ -431,7 +431,7 @@ export default function PostWorkspace() {
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl shadow-sm p-6 max-h-[80vh] overflow-auto" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }} ref={previewRef}>
+        <div ref={previewRef}>
           <MDEditor.Markdown
             source={content || "_No content._"}
             remarkPlugins={[remarkGfm, remarkMath]}

@@ -1,5 +1,6 @@
 import * as Ch1Data from "./data/chapter1";
 import * as Ch2Data from "./data/chapter2";
+import * as Ch3Data from "./ch3/data";
 
 import Ch1Intro from "./components/Intro";
 import Ch1Questions from "./components/Questions";
@@ -20,6 +21,17 @@ import Ch2RealizedVol from "./components/ch2/RealizedVol";
 import Ch2Ewma from "./components/ch2/Ewma";
 import Ch2Quiz from "./components/Quiz";
 import Ch2Summary from "./components/ch2/Summary";
+
+import Ch3Intro from "./ch3/Intro";
+import Ch3Questions from "./ch3/Questions";
+import Ch3FactorModel from "./ch3/FactorModel";
+import Ch3Interpretations from "./ch3/Interpretations";
+import Ch3Alpha from "./ch3/Alpha";
+import Ch3Transformations from "./ch3/Transformations";
+import Ch3Applications from "./ch3/Applications";
+import Ch3FactorTypes from "./ch3/FactorTypes";
+import Ch3Quiz from "./ch3/Quiz";
+import Ch3Summary from "./ch3/Summary";
 
 import type { ComponentType } from "react";
 
@@ -74,6 +86,25 @@ export const chapters: ChapterDef[] = [
       { id: "ewma", label: "EWMA & State-Space", emoji: "🔗", Component: Ch2Ewma },
       { id: "quiz", label: "Check Your Understanding", emoji: "✅", Component: Ch2Quiz },
       { id: "summary", label: "Takeaways", emoji: "🎓", Component: Ch2Summary },
+    ],
+  },
+  {
+    id: "ch3",
+    label: "Chapter 3",
+    shortLabel: "Ch 3",
+    title: "Linear Models of Returns",
+    data: Ch3Data,
+    sections: [
+      { id: "intro", label: "Welcome", emoji: "👋", Component: Ch3Intro },
+      { id: "questions", label: "The 3 Questions", emoji: "🎯", Component: Ch3Questions },
+      { id: "factormodel", label: "The Factor Model", emoji: "📐", Component: Ch3FactorModel },
+      { id: "interpretations", label: "Three Perspectives", emoji: "🔍", Component: Ch3Interpretations },
+      { id: "alpha", label: "Alpha Decomposition", emoji: "💎", Component: Ch3Alpha },
+      { id: "transformations", label: "Transformations", emoji: "🔄", Component: Ch3Transformations },
+      { id: "applications", label: "Applications", emoji: "🛠️", Component: Ch3Applications },
+      { id: "factortypes", label: "Model Types", emoji: "📋", Component: Ch3FactorTypes },
+      { id: "quiz", label: "Chapter Quiz", emoji: "✅", Component: Ch3Quiz },
+      { id: "summary", label: "Takeaways", emoji: "🎓", Component: Ch3Summary },
     ],
   },
 ];

@@ -61,6 +61,7 @@ func main() {
 		&announcement.Announcement{},
 		&vbook.VBook{},
 		&vbook.VBookProgress{},
+		&vbook.VBookLastRead{},
 	); err != nil {
 		log.Fatal(err)
 	}

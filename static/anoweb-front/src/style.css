@@ -469,6 +469,63 @@
   color: var(--gb-syntax-builtin);
 }
 
+/* Toast slide-in from right */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(100%); }
+}
+.toast-enter {
+  animation: toast-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Popover / dropdown scale-in */
+@keyframes popover-in {
+  from { opacity: 0; transform: scale(0.95) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes popover-in-up {
+  from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.popover-enter {
+  animation: popover-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.popover-enter-up {
+  animation: popover-in-up 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Backdrop fade */
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.backdrop-enter {
+  animation: backdrop-in 0.2s ease forwards;
+}
+
+/* Floating button pulse on mount */
+@keyframes fab-in {
+  0% { opacity: 0; transform: scale(0.5); }
+  60% { transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.fab-enter {
+  animation: fab-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Section content fade */
+@keyframes content-fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.content-enter {
+  animation: content-fade 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 /* Horizontal scroll animation for New Fans */
 @keyframes scroll-left {
   0% { transform: translateX(0); }

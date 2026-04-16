@@ -87,8 +87,12 @@ type VBookProgressRepository interface {
 	MarkCompleted(fanID uint, vbookID int, chapterID, sectionID string) error
 	UnmarkCompleted(fanID uint, vbookID int, chapterID, sectionID string) error
 	ResetForVBook(fanID uint, vbookID int) error
+	ResetChapter(fanID uint, vbookID int, chapterID string) error
 	GetForFanVBook(fanID uint, vbookID int) ([]*VBookProgress, error)
 	DeleteByFanID(fanID uint) error
+	UpsertLastRead(fanID uint, vbookID int, chapterID, sectionID string) error
+	GetLastRead(fanID uint, vbookID int) (*VBookLastRead, error)
+	DeleteLastReadByFanID(fanID uint) error
 }
 
 type vbookProgressRepository struct {
@@ -139,4 +143,41 @@ func (r *vbookProgressRepository) GetForFanVBook(fanID uint, vbookID int) ([]*VB
 
 func (r *vbookProgressRepository) DeleteByFanID(fanID uint) error {
 	return r.db.Where("fan_id = ?", fanID).Delete(&VBookProgress{}).Error
+}
+
+func (r *vbookProgressRepository) ResetChapter(fanID uint, vbookID int, chapterID string) error {
+	return r.db.Where("fan_id = ? AND v_book_id = ? AND chapter_id = ?",
+		fanID, vbookID, chapterID).Delete(&VBookProgress{}).Error
+}
+
+func (r *vbookProgressRepository) UpsertLastRead(fanID uint, vbookID int, chapterID, sectionID string) error {
+	var existing VBookLastRead
+	err := r.db.Where("fan_id = ? AND v_book_id = ?", fanID, vbookID).First(&existing).Error
+	if err == nil {
+		return r.db.Model(&existing).Updates(map[string]interface{}{
+			"chapter_id": chapterID,
+			"section_id": sectionID,
+		}).Error
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	return r.db.Create(&VBookLastRead{
+		FanID:     fanID,
+		VBookID:   vbookID,
+		ChapterID: chapterID,
+		SectionID: sectionID,
+	}).Error
+}
+
+func (r *vbookProgressRepository) GetLastRead(fanID uint, vbookID int) (*VBookLastRead, error) {
+	var lr VBookLastRead
+	if err := r.db.Where("fan_id = ? AND v_book_id = ?", fanID, vbookID).First(&lr).Error; err != nil {
+		return nil, err
+	}
+	return &lr, nil
+}
+
+func (r *vbookProgressRepository) DeleteLastReadByFanID(fanID uint) error {
+	return r.db.Where("fan_id = ?", fanID).Delete(&VBookLastRead{}).Error
 }
