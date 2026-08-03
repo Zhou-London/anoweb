@@ -46,8 +46,8 @@ export function PostsGrid({
   }, [posts]);
 
   return (
-    <section className="rounded-2xl sm:rounded-3xl shadow-lg p-4 sm:p-6 md:p-8" style={{ background: 'var(--gb-bg)', boxShadow: 'var(--gb-shadow-card)' }}>
-      <div className="flex items-center justify-between gap-4 mb-5">
+    <section>
+      <div className="flex items-center justify-between gap-4 mb-4">
         <h3 className="text-lg font-bold" style={{ color: 'var(--gb-fg)' }}>Posts</h3>
         {showAdminFeatures && (
           <button

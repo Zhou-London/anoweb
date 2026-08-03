@@ -1,6 +1,7 @@
 import * as Ch1Data from "./data/chapter1";
 import * as Ch2Data from "./data/chapter2";
 import * as Ch3Data from "./ch3/data";
+import * as Ch4Data from "./ch4/data";
 
 import Ch1Intro from "./components/Intro";
 import Ch1Questions from "./components/Questions";
@@ -32,6 +33,18 @@ import Ch3Applications from "./ch3/Applications";
 import Ch3FactorTypes from "./ch3/FactorTypes";
 import Ch3Quiz from "./ch3/Quiz";
 import Ch3Summary from "./ch3/Summary";
+
+import Ch4Intro from "./ch4/Intro";
+import Ch4Questions from "./ch4/Questions";
+import Ch4BestPractices from "./ch4/BestPractices";
+import Ch4LeakageGame from "./ch4/LeakageGame";
+import Ch4Backtesting from "./ch4/Backtesting";
+import Ch4WalkForward from "./ch4/WalkForward";
+import Ch4CoinFlipGame from "./ch4/CoinFlipGame";
+import Ch4Rademacher from "./ch4/Rademacher";
+import Ch4HaircutCalc from "./ch4/HaircutCalc";
+import Ch4Quiz from "./ch4/Quiz";
+import Ch4Summary from "./ch4/Summary";
 
 import type { ComponentType } from "react";
 
@@ -105,6 +118,26 @@ export const chapters: ChapterDef[] = [
       { id: "factortypes", label: "Model Types", emoji: "📋", Component: Ch3FactorTypes },
       { id: "quiz", label: "Chapter Quiz", emoji: "✅", Component: Ch3Quiz },
       { id: "summary", label: "Takeaways", emoji: "🎓", Component: Ch3Summary },
+    ],
+  },
+  {
+    id: "ch4",
+    label: "Chapter 4",
+    shortLabel: "Ch 4",
+    title: "Evaluating Excess Returns",
+    data: Ch4Data,
+    sections: [
+      { id: "intro", label: "Welcome", emoji: "👋", Component: Ch4Intro },
+      { id: "questions", label: "The 3 Questions", emoji: "🎯", Component: Ch4Questions },
+      { id: "bestpractices", label: "Best Practices", emoji: "📋", Component: Ch4BestPractices },
+      { id: "leakagegame", label: "Spot the Leakage", emoji: "🎮", Component: Ch4LeakageGame },
+      { id: "backtesting", label: "Cross-Validation", emoji: "🔄", Component: Ch4Backtesting },
+      { id: "walkforward", label: "Walk-Forward", emoji: "⏩", Component: Ch4WalkForward },
+      { id: "coinflip", label: "Multiple Testing Trap", emoji: "🎲", Component: Ch4CoinFlipGame },
+      { id: "rademacher", label: "Rademacher Anti-Serum", emoji: "🛡️", Component: Ch4Rademacher },
+      { id: "haircut", label: "Haircut Calculator", emoji: "🧮", Component: Ch4HaircutCalc },
+      { id: "quiz", label: "Chapter Quiz", emoji: "✅", Component: Ch4Quiz },
+      { id: "summary", label: "Takeaways", emoji: "🎓", Component: Ch4Summary },
     ],
   },
 ];

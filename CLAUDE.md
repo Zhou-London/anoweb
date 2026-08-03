@@ -67,7 +67,7 @@ Admin status is granted by redeeming mystery codes (see `internal/mysterycode/` 
 ### Two unrelated write-protection systems
 Don't confuse them:
 - **Session-based `AdminMiddleware`** — the modern path, used by most feature admin routes (vbook, blog, etc.).
-- **`middlewares.KeyChecker(key)`** — a legacy pre-session guard that looks for a `key` value in query/form/cookie/JSON body on write methods. Still referenced by a few route registrations (e.g. `static/upload-image`, admin routes), but **effectively disabled**: `main.go` passes `""` as the `key` argument to `InitRoutes` (line 114), so `KeyChecker` always sees an empty key.
+- **`middlewares.KeyChecker(key)`** — a legacy pre-session guard that looks for a `key` value in query/form/cookie/JSON body on write methods. Still referenced by a few route registrations (e.g. `static/upload-image`, admin routes), but **effectively disabled**: `main.go` passes `""` as the `key` argument to `InitRoutes`, so `KeyChecker` always sees an empty key.
 
 ### VBooks hybrid architecture
 VBooks have a split data model. The **backend** (DB) stores VBook metadata and per-fan/per-chapter/per-section progress. The **frontend** defines chapter content entirely in TypeScript files under `Pages/VBooks/chapters/<book-slug>/`. Each book has an `index.ts` that exports a `ChapterDef[]` array — chapter titles, section IDs, and the React component for each section. Adding a new chapter means adding TS files and re-exporting from the book's `index.ts`; no backend change is needed unless the VBook itself is new (in which case `SeedDefaults` or an admin API call creates the DB record).
