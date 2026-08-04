@@ -6,6 +6,7 @@ import (
 	"anonchihaya.co.uk/internal/announcement"
 	"anonchihaya.co.uk/internal/auth"
 	"anonchihaya.co.uk/internal/blog"
+	"anonchihaya.co.uk/internal/comment"
 	"anonchihaya.co.uk/internal/config"
 	"anonchihaya.co.uk/internal/coreskill"
 	"anonchihaya.co.uk/internal/education"
@@ -20,7 +21,6 @@ import (
 	"anonchihaya.co.uk/internal/statistics"
 	"anonchihaya.co.uk/internal/store"
 	"anonchihaya.co.uk/internal/tracking"
-	"anonchihaya.co.uk/internal/vbook"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -59,9 +59,8 @@ func main() {
 		&blog.Blog{},
 		&blog.BlogLike{},
 		&announcement.Announcement{},
-		&vbook.VBook{},
-		&vbook.VBookProgress{},
-		&vbook.VBookLastRead{},
+		&comment.Comment{},
+		&comment.CommentLike{},
 	); err != nil {
 		log.Fatal(err)
 	}
@@ -93,17 +92,10 @@ func main() {
 	blog_repo := blog.NewBlogRepository()
 	blog_like_repo := blog.NewBlogLikeRepository()
 	announcement_repo := announcement.NewAnnouncementRepository()
-	vbook_repo := vbook.NewVBookRepository()
-	vbook_progress_repo := vbook.NewVBookProgressRepository()
-	if err := vbook.SeedDefaults(vbook_repo); err != nil {
-		log.Printf("Warning: failed to seed default vBook: %v", err)
-	}
+	comment_repo := comment.NewCommentRepository()
 
 	if CONFIG.DOMAIN == "" {
 		log.Fatal("Error configuring domain from .env file")
-	}
-	if CONFIG.ADMIN_PASS == "" {
-		log.Fatal("Error configuring admin password from .env file")
 	}
 	if CONFIG.IMG_PATH == "" {
 		log.Fatal("Error configuring image path from .env file")
@@ -112,7 +104,11 @@ func main() {
 		log.Fatal("Error configuring image url prefix from .env file")
 	}
 
-	routes.InitRoutes(r, CONFIG.DOMAIN, CONFIG.ADMIN_PASS, "", CONFIG.IMG_PATH, CONFIG.IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo, blog_repo, blog_like_repo, announcement_repo, vbook_repo, vbook_progress_repo)
+	routes.InitRoutes(r, CONFIG.DOMAIN, CONFIG.IMG_PATH, CONFIG.IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo, blog_repo, blog_like_repo, announcement_repo, comment_repo)
 
-	r.Run("localhost:" + CONFIG.SERVER_PORT)
+	host := CONFIG.LISTEN_HOST
+	if host == "" {
+		host = "localhost"
+	}
+	r.Run(host + ":" + CONFIG.SERVER_PORT)
 }

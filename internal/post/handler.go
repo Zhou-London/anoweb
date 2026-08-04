@@ -4,11 +4,34 @@ import (
 	"net/http"
 	"strconv"
 
+	"anonchihaya.co.uk/internal/auth"
 	"anonchihaya.co.uk/internal/util"
 	"github.com/gin-gonic/gin"
 )
 
 const MaxContentLength = 7500
+
+// currentFan extracts the authenticated fan set by AuthMiddleware.
+func currentFan(c *gin.Context) *auth.Fan {
+	user, ok := c.Get("user")
+	if !ok {
+		return nil
+	}
+	fan, _ := user.(*auth.Fan)
+	return fan
+}
+
+// canModify reports whether the fan may edit or delete the post:
+// admins always, authors their own posts.
+func canModify(fan *auth.Fan, post *Post) bool {
+	if fan == nil {
+		return false
+	}
+	if fan.IsAdmin {
+		return true
+	}
+	return post.AuthorID != nil && *post.AuthorID == fan.ID
+}
 
 // GetPostLatest godoc
 // @Summary Get latest post
@@ -35,7 +58,7 @@ func GetPostLatest(c *gin.Context, post_repo PostRepository) {
 // @Failure 500 {object} ErrorResponse
 // @Router /post [get]
 func GetPosts(c *gin.Context, post_repo PostRepository) {
-	posts, err := post_repo.GetAll()
+	posts, err := post_repo.GetAllWithAuthor()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -87,7 +110,7 @@ func GetPost(c *gin.Context, post_repo PostRepository) {
 		return
 	}
 
-	post, err := post_repo.GetByID(postID)
+	post, err := post_repo.GetByIDWithAuthor(postID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -126,11 +149,25 @@ func PostPost(c *gin.Context, post_repo PostRepository) {
 		return
 	}
 
+	fan := currentFan(c)
+	if fan == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+
+	// Posts may live under a project or stand alone as general discussions.
+	parentType := "general"
+	if postReq.ParentID > 0 {
+		parentType = "project"
+	}
+
 	post := Post{
 		ParentID:   postReq.ParentID,
-		ParentType: "project",
+		ParentType: parentType,
 		Name:       postReq.Name,
 		ContentMD:  postReq.ContentMD,
+		AuthorID:   &fan.ID,
+		AuthorName: fan.Username,
 	}
 
 	id, err := post_repo.Create(&post)
@@ -183,14 +220,17 @@ func PutPost(c *gin.Context, post_repo PostRepository) {
 		return
 	}
 
-	var newPost Post
-	newPost.ID = putPostReq.ID
-	newPost.ParentID = oldPost.ParentID
-	newPost.ParentType = oldPost.ParentType
-	newPost.Name = util.PickOrDefault(putPostReq.Name, oldPost.Name)
-	newPost.ContentMD = util.PickOrDefault(putPostReq.ContentMD, oldPost.ContentMD)
+	if !canModify(currentFan(c), oldPost) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You can only edit your own posts"})
+		return
+	}
 
-	updatedPost, err := post_repo.Update(newPost.ID, &newPost)
+	// Mutate the loaded row so author, parent and created_at survive the
+	// repository's full-row Save.
+	oldPost.Name = util.PickOrDefault(putPostReq.Name, oldPost.Name)
+	oldPost.ContentMD = util.PickOrDefault(putPostReq.ContentMD, oldPost.ContentMD)
+
+	updatedPost, err := post_repo.Update(oldPost.ID, oldPost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -213,6 +253,20 @@ func DeletePost(c *gin.Context, post_repo PostRepository) {
 	postID, err := strconv.Atoi(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
+		return
+	}
+
+	existing, err := post_repo.GetByID(postID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"DeletePost() error": err.Error()})
+		return
+	}
+	if existing == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Post not found"})
+		return
+	}
+	if !canModify(currentFan(c), existing) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You can only delete your own posts"})
 		return
 	}
 

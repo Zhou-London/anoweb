@@ -112,12 +112,15 @@ func PutProject(c *gin.Context, project_repo ProjectRepository) {
 		return
 	}
 
-	project.Name = util.PickOrDefault(project.Name, oldProject.Name)
-	project.Description = util.PickOrDefault(project.Description, oldProject.Description)
-	project.Link = util.PickOrDefault(project.Link, oldProject.Link)
-	project.ImageURL = util.PickOrDefault(project.ImageURL, oldProject.ImageURL)
+	// Mutate the loaded row so created_at survives the repository's
+	// full-row Save (a zero time is rejected by MySQL strict mode).
+	updated := *oldProject
+	updated.Name = util.PickOrDefault(project.Name, oldProject.Name)
+	updated.Description = util.PickOrDefault(project.Description, oldProject.Description)
+	updated.Link = util.PickOrDefault(project.Link, oldProject.Link)
+	updated.ImageURL = util.PickOrDefault(project.ImageURL, oldProject.ImageURL)
 
-	updatedProject, err := project_repo.Update(project.ID, &project)
+	updatedProject, err := project_repo.Update(updated.ID, &updated)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -80,15 +80,18 @@ func PutCoreSkill(c *gin.Context, coreSkillRepo CoreSkillRepository) {
 		return
 	}
 
-	coreSkill.Name = util.PickOrDefault(coreSkill.Name, oldCoreSkill.Name)
-	if coreSkill.BulletPoints == nil {
-		coreSkill.BulletPoints = oldCoreSkill.BulletPoints
+	// Mutate the loaded row so created_at survives the repository's
+	// full-row Save (a zero time is rejected by MySQL strict mode).
+	updated := *oldCoreSkill
+	updated.Name = util.PickOrDefault(coreSkill.Name, oldCoreSkill.Name)
+	if coreSkill.BulletPoints != nil {
+		updated.BulletPoints = coreSkill.BulletPoints
 	}
-	if coreSkill.OrderIndex == 0 {
-		coreSkill.OrderIndex = oldCoreSkill.OrderIndex
+	if coreSkill.OrderIndex != 0 {
+		updated.OrderIndex = coreSkill.OrderIndex
 	}
 
-	updatedCoreSkill, err := coreSkillRepo.Update(coreSkill.ID, &coreSkill)
+	updatedCoreSkill, err := coreSkillRepo.Update(updated.ID, &updated)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

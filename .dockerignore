@@ -1,0 +1,13 @@
+# Keep the build context small and never bake secrets into the image.
+.git
+.env
+
+# Local Go caches (can be hundreds of MB).
+.cache
+.gocache
+.gomodcache
+
+# Not needed to compile the backend.
+README.md
+CLAUDE.md
+AGENTS.md

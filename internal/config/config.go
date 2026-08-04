@@ -4,9 +4,11 @@ import "os"
 
 type Config struct {
 	SERVER_PORT string
+	// Address to bind on. Empty defaults to "localhost"; the Docker
+	// deployment sets LISTEN_HOST=0.0.0.0 so Caddy can reach the app
+	// across the compose bridge network.
+	LISTEN_HOST string
 	DOMAIN      string
-	ADMIN_PASS  string
-	KEY         string
 
 	DBUSER string
 	DBPASS string
@@ -36,9 +38,8 @@ func Load() Config {
 	if env == "production" {
 		return Config{
 			SERVER_PORT:          os.Getenv("PORT"),
+			LISTEN_HOST:          os.Getenv("LISTEN_HOST"),
 			DOMAIN:               os.Getenv("DOMAIN"),
-			ADMIN_PASS:           os.Getenv("ADMIN_PASS"),
-			KEY:                  os.Getenv("KEY"),
 			DBUSER:               os.Getenv("DBUSER"),
 			DBPASS:               os.Getenv("DBPASS"),
 			DBHOST:               os.Getenv("DBHOST"),
@@ -55,9 +56,8 @@ func Load() Config {
 	// Default to development settings or load from .env
 	return Config{
 		SERVER_PORT:          os.Getenv("PORT"),
+		LISTEN_HOST:          os.Getenv("LISTEN_HOST"),
 		DOMAIN:               os.Getenv("DOMAIN"),
-		ADMIN_PASS:           os.Getenv("ADMIN_PASS"),
-		KEY:                  os.Getenv("KEY"),
 		DBUSER:               os.Getenv("DBUSER"),
 		DBPASS:               os.Getenv("DBPASS"),
 		DBHOST:               os.Getenv("DBHOST"),

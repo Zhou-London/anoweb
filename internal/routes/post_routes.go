@@ -2,20 +2,13 @@ package routes
 
 import (
 	"anonchihaya.co.uk/internal/auth"
-	"anonchihaya.co.uk/internal/middlewares"
 	"anonchihaya.co.uk/internal/post"
 	"github.com/gin-gonic/gin"
 )
 
-func registerPostRoutes(r *gin.Engine, key string, postsRepo post.PostRepository, sessionRepo *auth.SessionRepository) {
+func registerPostRoutes(r *gin.Engine, postsRepo post.PostRepository, sessionRepo *auth.SessionRepository) {
+	// Reads are public.
 	postGroup := r.Group(prefix + "/post")
-	postGroup.Use(auth.OptionalAuthMiddleware(sessionRepo))
-	postGroup.Use(func(c *gin.Context) {
-		_, hasUser := c.Get("user")
-		if !hasUser {
-			middlewares.KeyChecker(key)(c)
-		}
-	})
 	{
 		postGroup.GET("", func(ctx *gin.Context) {
 			post.GetPosts(ctx, postsRepo)
@@ -29,13 +22,20 @@ func registerPostRoutes(r *gin.Engine, key string, postsRepo post.PostRepository
 		postGroup.GET("/:id", func(ctx *gin.Context) {
 			post.GetPost(ctx, postsRepo)
 		})
-		postGroup.POST("", func(ctx *gin.Context) {
+	}
+
+	// Writes require a session: any fan may create; edits and deletes are
+	// checked in the handlers (author or admin only).
+	postWrite := r.Group(prefix + "/post")
+	postWrite.Use(auth.AuthMiddleware(sessionRepo))
+	{
+		postWrite.POST("", func(ctx *gin.Context) {
 			post.PostPost(ctx, postsRepo)
 		})
-		postGroup.PUT("", func(ctx *gin.Context) {
+		postWrite.PUT("", func(ctx *gin.Context) {
 			post.PutPost(ctx, postsRepo)
 		})
-		postGroup.DELETE("/:id", func(ctx *gin.Context) {
+		postWrite.DELETE("/:id", func(ctx *gin.Context) {
 			post.DeletePost(ctx, postsRepo)
 		})
 	}

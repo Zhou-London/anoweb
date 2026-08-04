@@ -1,5 +1,6 @@
 APP_ENV= # production | dev
 PORT=
+LISTEN_HOST= # empty = localhost; Docker deployment sets 0.0.0.0 (compose publishes 127.0.0.1:8080 only)
 DBUSER=
 DBPASS=
 DBHOST=
@@ -7,9 +8,7 @@ DBPORT=
 DBNAME=
 DBNAME_TEST=
 DOMAIN=
-ADMIN_PASS=
-KEY=
-IMG_PATH=
+IMG_PATH= # Docker deployment uses /data/images (bind mount of /home/Zhou/apps/anoweb/images)
 IMG_URL_PREFIX=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
@@ -21,3 +20,7 @@ SMTP_HOST=
 SMTP_PORT=
 SMTP_USER=
 SMTP_PASS=
+
+# MySQL container (read by docker-compose only, not the app;
+# DBUSER/DBPASS/DBNAME above are also reused as the container's credentials)
+MYSQL_ROOT_PASSWORD=

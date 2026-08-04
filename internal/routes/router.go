@@ -4,6 +4,7 @@ import (
 	"anonchihaya.co.uk/internal/announcement"
 	"anonchihaya.co.uk/internal/auth"
 	"anonchihaya.co.uk/internal/blog"
+	"anonchihaya.co.uk/internal/comment"
 	"anonchihaya.co.uk/internal/coreskill"
 	"anonchihaya.co.uk/internal/education"
 	"anonchihaya.co.uk/internal/experience"
@@ -14,7 +15,6 @@ import (
 	"anonchihaya.co.uk/internal/project"
 	"anonchihaya.co.uk/internal/statistics"
 	"anonchihaya.co.uk/internal/tracking"
-	"anonchihaya.co.uk/internal/vbook"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,8 +23,6 @@ const prefix string = "/api"
 func InitRoutes(
 	r *gin.Engine,
 	domain string,
-	adminPass string,
-	key string,
 	imgPath string,
 	imgURLPrefix string,
 	profileRepo profile.ProfileRepository,
@@ -42,24 +40,22 @@ func InitRoutes(
 	blogRepo blog.BlogRepository,
 	blogLikeRepo blog.BlogLikeRepository,
 	announcementRepo announcement.AnnouncementRepository,
-	vbookRepo vbook.VBookRepository,
-	vbookProgressRepo vbook.VBookProgressRepository,
+	commentRepo comment.CommentRepository,
 ) {
 	registerSwaggerRoutes(r)
 	registerFanRoutes(r, domain, imgPath, imgURLPrefix, fanRepo, sessionRepo, trackingRepo, blogLikeRepo)
-	registerAdminRoutes(r, domain, adminPass, key)
-	registerStaticRoutes(r, key, imgPath, imgURLPrefix, sessionRepo)
-	registerProfileRoutes(r, key, imgPath, imgURLPrefix, profileRepo, sessionRepo)
-	registerExperienceRoutes(r, key, imgPath, imgURLPrefix, experiencesRepo, sessionRepo)
-	registerProjectRoutes(r, key, projectsRepo, sessionRepo)
-	registerEducationRoutes(r, key, imgPath, imgURLPrefix, educationsRepo, sessionRepo)
-	registerPostRoutes(r, key, postsRepo, sessionRepo)
-	registerTrackingRoutes(r, key, trackingRepo, sessionRepo)
-	registerMysteryCodeRoutes(r, key, mysteryCodeRepo, fanRepo, sessionRepo)
-	registerGuestPopupRoutes(r, key, popupRepo, sessionRepo)
+	registerStaticRoutes(r, imgPath, imgURLPrefix, sessionRepo)
+	registerProfileRoutes(r, imgPath, imgURLPrefix, profileRepo, sessionRepo)
+	registerExperienceRoutes(r, imgPath, imgURLPrefix, experiencesRepo, sessionRepo)
+	registerProjectRoutes(r, projectsRepo, sessionRepo)
+	registerEducationRoutes(r, imgPath, imgURLPrefix, educationsRepo, sessionRepo)
+	registerPostRoutes(r, postsRepo, sessionRepo)
+	registerTrackingRoutes(r, trackingRepo, sessionRepo)
+	registerMysteryCodeRoutes(r, mysteryCodeRepo, fanRepo, sessionRepo)
+	registerGuestPopupRoutes(r, popupRepo, sessionRepo)
 	registerStatisticsRoutes(r, statsRepo, trackingRepo, sessionRepo)
-	registerCoreSkillRoutes(r, key, coreSkillRepo, sessionRepo)
+	registerCoreSkillRoutes(r, coreSkillRepo, sessionRepo)
 	registerBlogRoutes(r, blogRepo, blogLikeRepo, sessionRepo)
 	registerAnnouncementRoutes(r, announcementRepo, sessionRepo)
-	registerVBookRoutes(r, vbookRepo, vbookProgressRepo, sessionRepo)
+	registerCommentRoutes(r, commentRepo, postsRepo, sessionRepo)
 }

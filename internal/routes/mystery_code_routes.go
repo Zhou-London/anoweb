@@ -2,14 +2,12 @@ package routes
 
 import (
 	"anonchihaya.co.uk/internal/auth"
-	"anonchihaya.co.uk/internal/middlewares"
 	"anonchihaya.co.uk/internal/mysterycode"
 	"github.com/gin-gonic/gin"
 )
 
 func registerMysteryCodeRoutes(
 	r *gin.Engine,
-	key string,
 	mysteryCodeRepo *mysterycode.MysteryCodeRepository,
 	fanRepo *auth.FanRepository,
 	sessionRepo *auth.SessionRepository,
@@ -23,9 +21,8 @@ func registerMysteryCodeRoutes(
 		mysteryCodeUser.POST("/verify", handler.VerifyCode)
 	}
 
-	// Admin endpoints (require KeyChecker and AdminMiddleware)
+	// Admin endpoints
 	mysteryCodeAdmin := r.Group(prefix + "/mystery-code")
-	mysteryCodeAdmin.Use(middlewares.KeyChecker(key))
 	mysteryCodeAdmin.Use(auth.AuthMiddleware(sessionRepo))
 	mysteryCodeAdmin.Use(auth.AdminMiddleware())
 	{
