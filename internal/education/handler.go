@@ -3,10 +3,27 @@ package education
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"anonchihaya.co.uk/internal/util"
 	"github.com/gin-gonic/gin"
 )
+
+// normalizeDatePtr trims a date value to its YYYY-MM-DD part and maps empty
+// values to NULL — MySQL rejects '' for DATE columns in strict mode.
+func normalizeDatePtr(v *string) *string {
+	if v == nil {
+		return nil
+	}
+	s := strings.TrimSpace(*v)
+	if i := strings.IndexAny(s, "T "); i > 0 {
+		s = s[:i]
+	}
+	if s == "" {
+		return nil
+	}
+	return &s
+}
 
 // UploadEducationImg godoc
 // @Summary Upload education image
@@ -67,6 +84,9 @@ func PostEducation(c *gin.Context, education_repo EducationRepository) {
 		c.JSON(http.StatusBadRequest, gin.H{"PostEducation() error 1": err.Error()})
 		return
 	}
+
+	education.StartDate = normalizeDatePtr(education.StartDate)
+	education.EndDate = normalizeDatePtr(education.EndDate)
 
 	id, err := education_repo.Create(&education)
 	if err != nil {
@@ -141,10 +161,20 @@ func PutEducation(c *gin.Context, education_repo EducationRepository) {
 
 	education.School = util.PickOrDefault(education.School, oldEducation.School)
 	education.Degree = util.PickOrDefault(education.Degree, oldEducation.Degree)
-	education.StartDate = util.PickOrDefault(education.StartDate, oldEducation.StartDate)
-	education.EndDate = util.PickOrDefault(education.EndDate, oldEducation.EndDate)
+	// A nil date means "not sent" (keep old); a sent-but-empty date clears to NULL.
+	if education.StartDate == nil {
+		education.StartDate = oldEducation.StartDate
+	}
+	if education.EndDate == nil {
+		education.EndDate = oldEducation.EndDate
+	}
+	education.StartDate = normalizeDatePtr(education.StartDate)
+	education.EndDate = normalizeDatePtr(education.EndDate)
 	education.ImageURL = util.PickOrDefault(education.ImageURL, oldEducation.ImageURL)
 	education.Link = util.PickOrDefault(education.Link, oldEducation.Link)
+	if education.BulletPoints == nil {
+		education.BulletPoints = oldEducation.BulletPoints
+	}
 
 	updatedEducation, err := education_repo.Update(education.ID, &education)
 	if err != nil {

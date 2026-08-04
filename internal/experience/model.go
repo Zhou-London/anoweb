@@ -1,12 +1,14 @@
 package experience
 
 // Experience captures work history entries.
+// EndDate is nullable: ongoing roles (Present) have no end date, and MySQL
+// rejects '' for DATE columns in strict mode — empty must be stored as NULL.
 type Experience struct {
 	ID           int      `gorm:"primaryKey" json:"id"`
 	Company      string   `json:"company"`
 	Position     string   `json:"position"`
 	StartDate    string   `gorm:"type:date" json:"start_date"`
-	EndDate      string   `gorm:"type:date" json:"end_date"`
+	EndDate      *string  `gorm:"type:date" json:"end_date"`
 	Present      bool     `json:"present"`
 	Description  string   `json:"description"`
 	ImageURL     string   `json:"image_url"`
@@ -19,7 +21,7 @@ type ExperienceShort struct {
 	Company      string   `json:"company"`
 	Position     string   `json:"position"`
 	StartDate    string   `json:"start_date"`
-	EndDate      string   `json:"end_date"`
+	EndDate      *string  `json:"end_date"`
 	Present      bool     `json:"present"`
 	ImageURL     string   `json:"image_url"`
 	OrderIndex   int      `json:"order_index"`
