@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"anonchihaya.co.uk/internal/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -43,6 +44,14 @@ func normalizeDateString(value string) (string, error) {
 	return value, nil
 }
 
+// nilIfEmpty maps an empty date string to NULL for nullable DATE columns.
+func nilIfEmpty(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
+}
+
 // UploadExperienceImg godoc
 // @Summary Upload experience image
 // @Tags experience
@@ -61,7 +70,7 @@ func UploadExperienceImg(c *gin.Context, img_path string, img_url_prefix string)
 	}
 
 	dst := img_path + "/experience-img-" + file.Filename
-	if err := c.SaveUploadedFile(file, dst); err != nil {
+	if err := util.CompressAndSave(file, dst); err != nil {
 		c.String(http.StatusInternalServerError, "save failed: %s", err)
 		return
 	}
@@ -155,12 +164,15 @@ func PostExperience(c *gin.Context, experience_repo ExperienceRepository) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
+	if req.Present {
+		endDate = ""
+	}
 
 	exp := Experience{
 		Company:      req.Company,
 		Position:     req.Position,
 		StartDate:    startDate,
-		EndDate:      endDate,
+		EndDate:      nilIfEmpty(endDate),
 		Present:      req.Present,
 		Description:  req.Description,
 		ImageURL:     req.ImageURL,
@@ -240,7 +252,7 @@ func PutExperience(c *gin.Context, experience_repo ExperienceRepository) {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		exp.EndDate = endDate
+		exp.EndDate = nilIfEmpty(endDate)
 	}
 	if req.Present != nil {
 		exp.Present = *req.Present
@@ -267,13 +279,18 @@ func PutExperience(c *gin.Context, experience_repo ExperienceRepository) {
 		exp.StartDate = startDate
 	}
 
-	if req.EndDate == nil {
-		endDate, err := normalizeDateString(exp.EndDate)
+	if req.EndDate == nil && exp.EndDate != nil {
+		endDate, err := normalizeDateString(*exp.EndDate)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		exp.EndDate = endDate
+		exp.EndDate = nilIfEmpty(endDate)
+	}
+
+	// An ongoing role has no end date.
+	if exp.Present {
+		exp.EndDate = nil
 	}
 
 	_, err = experience_repo.Update(exp.ID, &exp)

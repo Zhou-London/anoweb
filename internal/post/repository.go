@@ -5,8 +5,13 @@ import (
 	"gorm.io/gorm"
 )
 
+const authorJoin = "LEFT JOIN users ON users.id = posts.author_id"
+const authorPhotoCol = "COALESCE(users.profile_photo, '') AS author_photo"
+
 type PostRepository interface {
 	GetByID(id int) (*Post, error)
+	GetByIDWithAuthor(id int) (*PostWithAuthor, error)
+	GetAllWithAuthor() ([]*PostWithAuthor, error)
 	GetShortByID(id int) (*PostShort, error)
 	GetByProject(project_id int) ([]*Post, error)
 	GetShortByProject(project_id int) ([]*PostShort, error)
@@ -36,7 +41,7 @@ func (r *postRepository) GetByID(id int) (*Post, error) {
 
 func (r *postRepository) GetShortByID(id int) (*PostShort, error) {
 	var post PostShort
-	if err := r.db.Model(&Post{}).Select("id", "parent_id", "parent_type", "name", "updated_at").First(&post, id).Error; err != nil {
+	if err := r.db.Model(&Post{}).Select("id", "parent_id", "parent_type", "name", "author_name", "updated_at").First(&post, id).Error; err != nil {
 		return nil, err
 	}
 	return &post, nil
@@ -52,13 +57,41 @@ func (r *postRepository) GetByProject(project_id int) ([]*Post, error) {
 
 func (r *postRepository) GetShortByProject(project_id int) ([]*PostShort, error) {
 	var posts []*PostShort
-	if err := r.db.Model(&Post{}).
-		Select("id", "parent_id", "parent_type", "name", "updated_at").
-		Where("parent_id = ? AND parent_type = ?", project_id, "project").
-		Find(&posts).Error; err != nil {
+	if err := r.db.Table("posts").
+		Select("posts.id, posts.parent_id, posts.parent_type, posts.name, posts.author_name, "+authorPhotoCol+", posts.updated_at").
+		Joins(authorJoin).
+		Where("posts.parent_id = ? AND posts.parent_type = ?", project_id, "project").
+		Scan(&posts).Error; err != nil {
 		return nil, err
 	}
 	return posts, nil
+}
+
+func (r *postRepository) GetAllWithAuthor() ([]*PostWithAuthor, error) {
+	var posts []*PostWithAuthor
+	if err := r.db.Table("posts").
+		Select("posts.*, " + authorPhotoCol).
+		Joins(authorJoin).
+		Order("posts.updated_at DESC").
+		Scan(&posts).Error; err != nil {
+		return nil, err
+	}
+	return posts, nil
+}
+
+func (r *postRepository) GetByIDWithAuthor(id int) (*PostWithAuthor, error) {
+	var post PostWithAuthor
+	if err := r.db.Table("posts").
+		Select("posts.*, "+authorPhotoCol).
+		Joins(authorJoin).
+		Where("posts.id = ?", id).
+		Scan(&post).Error; err != nil {
+		return nil, err
+	}
+	if post.ID == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return &post, nil
 }
 
 func (r *postRepository) GetLatest() (*Post, error) {

@@ -1,50 +1,65 @@
 # zhouzhouzhang.co.uk
 
-My web.
+My web. Go/Gin backend. The React frontend is a separate project: `~/projects/anoweb-front`.
 
-## Install
+## Server layout
 
-Build Go application.
+| Path | Role |
+| --- | --- |
+| `/home/Zhou/projects/anoweb` | backend source — compile & Docker build happen here |
+| `/home/Zhou/projects/anoweb-front` | frontend source — builds the static site |
+| `/home/Zhou/apps/anoweb` | runtime — `docker-compose.yml`, `.env`, `www/` (SPA), `images/` (uploads) |
+
+Caddy (`/etc/caddy/Caddyfile`, tracked copy in `docs/Caddyfile`) proxies `/api*` to `localhost:8080`, serves `/image/*` from `~/apps/anoweb/images` and everything else from `~/apps/anoweb/www`.
+
+## Deploy backend
+
+The Go compile runs inside Docker (single-stage image, host networking).
 
 ```zsh
-$ cd <root-dir>
-$ go build -o ../../apps/anoweb ./cmd/anoweb/
+$ cd ~/apps/anoweb
+$ docker compose up -d --build
 ```
 
-Start/restart systemctl.
+Logs:
 
 ```zsh
-sudo systemctl restart myserver
+$ docker logs -f anoweb
 ```
 
-Build React application.
+## Deploy frontend
 
 ```zsh
-$ cd static/anoweb-front
+$ cd ~/projects/anoweb-front
 $ npm run build
 ```
 
-Deliver to a web server (Caddy am I using). Use whatever editor you wish.
+Writes the prerendered SPA straight into `~/apps/anoweb/www`. Deploy host only.
+
+## Caddy
 
 ```zsh
-$ vim /etc/caddy/Caddyfile
+$ sudo cp docs/Caddyfile /etc/caddy/Caddyfile
+$ sudo systemctl reload caddy
 ```
 
-Configure systemd
+## Local development
 
 ```zsh
-% vim /etc/systemd/system/myserver.service
+$ go build ./cmd/anoweb/
+$ go test ./...
+$ go run ./cmd/anoweb/   # needs a .env file, see env-example
 ```
 
 ## API Docs
 
-Swagger UI is served at `/api/swagger/index.html`ß
+Swagger UI is served at `/api/swagger/index.html`
 
 Regenerate docs after API changes:
 
 ```zsh
 $ go install github.com/swaggo/swag/cmd/swag@v1.16.6
-$ swag init -g src/main.go -d ./src -o ./docs
+$ swag init -g cmd/anoweb/main.go -o ./docs
 ```
 
 ## AI Coding

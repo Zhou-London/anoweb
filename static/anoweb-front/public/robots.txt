@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://zhouzhouzhang.co.uk/sitemap.xml

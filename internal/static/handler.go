@@ -33,7 +33,7 @@ func UploadImage(c *gin.Context, img_path string, img_url_prefix string) {
 
 	timestamp := time.Now().UnixMilli()
 	filename := "/img-" + strconv.FormatInt(timestamp, 10) + "-" + file.Filename
-	if err := c.SaveUploadedFile(file, img_path+filename); err != nil {
+	if err := util.CompressAndSave(file, img_path+filename); err != nil {
 		c.String(http.StatusInternalServerError, "save failed: %s", err)
 		return
 	}

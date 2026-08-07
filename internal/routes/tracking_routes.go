@@ -8,7 +8,7 @@ import (
 
 func registerTrackingRoutes(
 	r *gin.Engine,
-	key string,
+
 	trackingRepo *tracking.FanTrackingRepository,
 	sessionRepo *auth.SessionRepository,
 ) {

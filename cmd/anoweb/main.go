@@ -2,10 +2,13 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"anonchihaya.co.uk/internal/announcement"
 	"anonchihaya.co.uk/internal/auth"
 	"anonchihaya.co.uk/internal/blog"
+	"anonchihaya.co.uk/internal/cleanup"
+	"anonchihaya.co.uk/internal/comment"
 	"anonchihaya.co.uk/internal/config"
 	"anonchihaya.co.uk/internal/coreskill"
 	"anonchihaya.co.uk/internal/education"
@@ -58,6 +61,8 @@ func main() {
 		&blog.Blog{},
 		&blog.BlogLike{},
 		&announcement.Announcement{},
+		&comment.Comment{},
+		&comment.CommentLike{},
 	); err != nil {
 		log.Fatal(err)
 	}
@@ -89,12 +94,10 @@ func main() {
 	blog_repo := blog.NewBlogRepository()
 	blog_like_repo := blog.NewBlogLikeRepository()
 	announcement_repo := announcement.NewAnnouncementRepository()
+	comment_repo := comment.NewCommentRepository()
 
 	if CONFIG.DOMAIN == "" {
 		log.Fatal("Error configuring domain from .env file")
-	}
-	if CONFIG.ADMIN_PASS == "" {
-		log.Fatal("Error configuring admin password from .env file")
 	}
 	if CONFIG.IMG_PATH == "" {
 		log.Fatal("Error configuring image path from .env file")
@@ -103,7 +106,15 @@ func main() {
 		log.Fatal("Error configuring image url prefix from .env file")
 	}
 
-	routes.InitRoutes(r, CONFIG.DOMAIN, CONFIG.ADMIN_PASS, "", CONFIG.IMG_PATH, CONFIG.IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo, blog_repo, blog_like_repo, announcement_repo)
+	// Sweep unreferenced uploaded images at startup and every 48h; files
+	// younger than 24h are spared so images in unsaved drafts survive.
+	cleanup.Start(store.DB, CONFIG.IMG_PATH, 48*time.Hour, 24*time.Hour)
 
-	r.Run("localhost:" + CONFIG.SERVER_PORT)
+	routes.InitRoutes(r, CONFIG.DOMAIN, CONFIG.IMG_PATH, CONFIG.IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo, blog_repo, blog_like_repo, announcement_repo, comment_repo)
+
+	host := CONFIG.LISTEN_HOST
+	if host == "" {
+		host = "localhost"
+	}
+	r.Run(host + ":" + CONFIG.SERVER_PORT)
 }

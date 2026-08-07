@@ -3,23 +3,13 @@ package routes
 import (
 	"anonchihaya.co.uk/internal/auth"
 	"anonchihaya.co.uk/internal/experience"
-	"anonchihaya.co.uk/internal/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
-func registerExperienceRoutes(r *gin.Engine, key, imgPath, imgURLPrefix string, experiencesRepo experience.ExperienceRepository, sessionRepo *auth.SessionRepository) {
+func registerExperienceRoutes(r *gin.Engine, imgPath, imgURLPrefix string, experiencesRepo experience.ExperienceRepository, sessionRepo *auth.SessionRepository) {
+	// Public reads.
 	exp := r.Group(prefix + "/experience")
-	exp.Use(auth.OptionalAuthMiddleware(sessionRepo))
-	exp.Use(func(c *gin.Context) {
-		_, hasUser := c.Get("user")
-		if !hasUser {
-			middlewares.KeyChecker(key)(c)
-		}
-	})
 	{
-		exp.POST("/upload-experience-img", func(ctx *gin.Context) {
-			experience.UploadExperienceImg(ctx, imgPath, imgURLPrefix)
-		})
 		exp.GET("", func(ctx *gin.Context) {
 			experience.GetAllExperiences(ctx, experiencesRepo)
 		})
@@ -29,17 +19,27 @@ func registerExperienceRoutes(r *gin.Engine, key, imgPath, imgURLPrefix string, 
 		exp.GET("/:id", func(ctx *gin.Context) {
 			experience.GetExperienceByID(ctx, experiencesRepo)
 		})
-		exp.PUT("/order", func(ctx *gin.Context) {
-			experience.PutExperienceOrder(ctx, experiencesRepo)
-		})
-		exp.POST("", func(ctx *gin.Context) {
+	}
+
+	// Owner content: writes are admin-only.
+	expAdmin := r.Group(prefix + "/experience")
+	expAdmin.Use(auth.AuthMiddleware(sessionRepo))
+	expAdmin.Use(auth.AdminMiddleware())
+	{
+		expAdmin.POST("", func(ctx *gin.Context) {
 			experience.PostExperience(ctx, experiencesRepo)
 		})
-		exp.PUT("", func(ctx *gin.Context) {
+		expAdmin.PUT("", func(ctx *gin.Context) {
 			experience.PutExperience(ctx, experiencesRepo)
 		})
-		exp.DELETE("/:id", func(ctx *gin.Context) {
+		expAdmin.PUT("/order", func(ctx *gin.Context) {
+			experience.PutExperienceOrder(ctx, experiencesRepo)
+		})
+		expAdmin.DELETE("/:id", func(ctx *gin.Context) {
 			experience.DeleteExperience(ctx, experiencesRepo)
+		})
+		expAdmin.POST("/upload-experience-img", func(ctx *gin.Context) {
+			experience.UploadExperienceImg(ctx, imgPath, imgURLPrefix)
 		})
 	}
 }
