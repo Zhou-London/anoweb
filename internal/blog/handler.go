@@ -3,13 +3,15 @@ package blog
 import (
 	"net/http"
 	"strconv"
+	"unicode/utf8"
 
 	"anonchihaya.co.uk/internal/auth"
 	"anonchihaya.co.uk/internal/util"
 	"github.com/gin-gonic/gin"
 )
 
-const MaxContentLength = 7500
+// MaxContentLength is in characters (runes), matching the frontend counter.
+const MaxContentLength = 20000
 
 // GetBlogs godoc
 // @Summary List all blogs
@@ -106,8 +108,8 @@ func CreateBlog(c *gin.Context, blogRepo BlogRepository) {
 	}
 
 	// Validate content length
-	if len(req.ContentMD) > MaxContentLength {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 7,500 character limit"})
+	if utf8.RuneCountInString(req.ContentMD) > MaxContentLength {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 20,000 character limit"})
 		return
 	}
 
@@ -152,8 +154,8 @@ func UpdateBlog(c *gin.Context, blogRepo BlogRepository) {
 	}
 
 	// Validate content length
-	if len(req.ContentMD) > MaxContentLength {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 7,500 character limit"})
+	if utf8.RuneCountInString(req.ContentMD) > MaxContentLength {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 20,000 character limit"})
 		return
 	}
 
@@ -256,6 +258,20 @@ func IncrementView(c *gin.Context, blogRepo BlogRepository) {
 	blogID, err := strconv.Atoi(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid blog ID"})
+		return
+	}
+
+	// The admin's own visits don't count as readership.
+	if user, exists := c.Get("user"); exists {
+		if fan, ok := user.(*auth.Fan); ok && fan != nil && fan.IsAdmin {
+			c.JSON(http.StatusOK, gin.H{"message": "View not counted"})
+			return
+		}
+	}
+
+	// One view per visitor per blog per dedup window.
+	if !shouldCountView(c, blogID) {
+		c.JSON(http.StatusOK, gin.H{"message": "View not counted"})
 		return
 	}
 

@@ -2,10 +2,12 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"anonchihaya.co.uk/internal/announcement"
 	"anonchihaya.co.uk/internal/auth"
 	"anonchihaya.co.uk/internal/blog"
+	"anonchihaya.co.uk/internal/cleanup"
 	"anonchihaya.co.uk/internal/comment"
 	"anonchihaya.co.uk/internal/config"
 	"anonchihaya.co.uk/internal/coreskill"
@@ -103,6 +105,10 @@ func main() {
 	if CONFIG.IMG_URL_PREFIX == "" {
 		log.Fatal("Error configuring image url prefix from .env file")
 	}
+
+	// Sweep unreferenced uploaded images at startup and every 48h; files
+	// younger than 24h are spared so images in unsaved drafts survive.
+	cleanup.Start(store.DB, CONFIG.IMG_PATH, 48*time.Hour, 24*time.Hour)
 
 	routes.InitRoutes(r, CONFIG.DOMAIN, CONFIG.IMG_PATH, CONFIG.IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo, blog_repo, blog_like_repo, announcement_repo, comment_repo)
 
