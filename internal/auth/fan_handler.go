@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -323,6 +324,10 @@ func (h *FanHandler) UploadProfilePhoto(c *gin.Context, imgPath, imgURLPrefix st
 
 	// Save file
 	if err := util.CompressAndSave(file, imgPath+filename); err != nil {
+		if errors.Is(err, util.ErrUnsafeSVG) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
 		return
 	}

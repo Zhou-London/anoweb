@@ -1,3 +1,7 @@
+# anoweb site config. Served by the shared Caddy stack in /home/Zhou/apps/caddy,
+# which imports this file; paths below are host paths, bind-mounted into the
+# Caddy container unchanged. Upstreams are reached over the "caddy-net" network.
+
 www.zhouzhouzhang.co.uk, anonchihaya.co.uk, www.anonchihaya.co.uk {
     redir https://zhouzhouzhang.co.uk{uri} permanent
 }
@@ -11,9 +15,13 @@ zhouzhouzhang.co.uk {
         Referrer-Policy "strict-origin-when-cross-origin"
         X-Frame-Options "SAMEORIGIN"
         Permissions-Policy "camera=(), microphone=(), geolocation=()"
-        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'"
         -Server
     }
+
+    # The -Server delete above defers the whole block to response time, which
+    # would overwrite the stricter /image/* CSP — so scope the page CSP here.
+    @notimage not path /image/*
+    header @notimage Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'"
 
     @api path /api*
     handle @api {
@@ -22,8 +30,11 @@ zhouzhouzhang.co.uk {
     }
 
     handle_path /image/* {
-        root * /srv/images
+        root * /home/Zhou/apps/anoweb/images
         header Cache-Control "public, max-age=604800"
+        # Uploads include user-supplied SVG; forbid script execution if the
+        # image URL is opened directly (both CSP headers are enforced).
+        header Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:"
         file_server
     }
 

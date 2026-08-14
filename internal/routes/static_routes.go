@@ -7,10 +7,10 @@ import (
 )
 
 func registerStaticRoutes(r *gin.Engine, imgPath, imgURLPrefix string, sessionRepo *auth.SessionRepository) {
-	// Generic image upload feeds admin content editors — admin-only.
+	// Generic image upload feeds the admin content editors and forum post
+	// editors — any signed-in fan (oversized resolutions are downscaled on save).
 	staticGroup := r.Group(prefix + "/static")
 	staticGroup.Use(auth.AuthMiddleware(sessionRepo))
-	staticGroup.Use(auth.AdminMiddleware())
 	{
 		staticGroup.POST("/upload-image", func(ctx *gin.Context) {
 			static.UploadImage(ctx, imgPath, imgURLPrefix)

@@ -47,7 +47,7 @@ Key decisions baked into `Dockerfile` / `docker-compose.yml` — don't undo them
 
 Frontend deployment: `cd /home/Zhou/apps/anoweb && docker compose up -d --build frontend` (builds the Next.js image from `/home/Zhou/projects/anoweb-front` and restarts the `anoweb-front` container).
 
-After changing the Caddy config: `cp docs/Caddyfile /home/Zhou/apps/anoweb/Caddyfile && docker exec anoweb-caddy caddy reload --config /etc/caddy/Caddyfile` (no sudo needed; the file is bind-mounted into the container).
+After changing the Caddy config: `cat docs/Caddyfile > /home/Zhou/apps/anoweb/Caddyfile && docker exec caddy caddy reload --config /etc/caddy/Caddyfile`. Caddy now runs as a **shared stack** in `/home/Zhou/apps/caddy` (container name `caddy`) whose main Caddyfile `import`s `/home/Zhou/apps/anoweb/Caddyfile`; both files are bind-mounted **as single files**, so always overwrite in place (`cat >`, not an editor's atomic rename or anything that replaces the inode) and confirm with `docker exec caddy md5sum /home/Zhou/apps/anoweb/Caddyfile` — if the hashes differ the mount is pinned to a stale inode and the container needs `docker restart caddy`.
 
 ## Architecture
 
@@ -88,7 +88,7 @@ fan, _ := user.(*auth.Fan)
 Admin status is granted by redeeming mystery codes (see `internal/mysterycode/` and `docs/MYSTERY_CODE_SETUP.md`).
 
 ### Write protection
-One system only: cookie sessions + `AdminMiddleware`. Owner content (profile, experience, education, project, core-skill, static uploads, blog, announcements, mystery codes, guest popup) is admin-only on writes; forum posts are writable by any signed-in fan with author/admin checks on edit and delete; reads are public. The legacy `KeyChecker`/`ADMIN_PASS`/`KEY` system was removed in 2026-08 — `ADMIN_PASS` and `KEY` env vars are no longer read.
+One system only: cookie sessions + `AdminMiddleware`. Owner content (profile, experience, education, project, core-skill, blog, announcements, mystery codes, guest popup) is admin-only on writes; forum posts are writable by any signed-in fan with author/admin checks on edit and delete; the generic image upload (`/api/static/upload-image`) is open to any signed-in fan (feeds forum post editors as well as admin editors — no file-size cap; raster images above 1920px are downscaled and recompressed, and SVGs are validated against script content); reads are public. The legacy `KeyChecker`/`ADMIN_PASS`/`KEY` system was removed in 2026-08 — `ADMIN_PASS` and `KEY` env vars are no longer read.
 
 ### Image uploads
 `internal/static/handler.go` writes uploads to `IMG_PATH` (`/data/images` inside the container → `/home/Zhou/apps/anoweb/images` on the host) and returns `IMG_URL_PREFIX` + filename (`/image/...`). The backend never serves the files — Caddy does.
