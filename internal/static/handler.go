@@ -1,6 +1,7 @@
 package static
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -34,6 +35,10 @@ func UploadImage(c *gin.Context, img_path string, img_url_prefix string) {
 	timestamp := time.Now().UnixMilli()
 	filename := "/img-" + strconv.FormatInt(timestamp, 10) + "-" + file.Filename
 	if err := util.CompressAndSave(file, img_path+filename); err != nil {
+		if errors.Is(err, util.ErrUnsafeSVG) {
+			c.String(http.StatusBadRequest, "%s", err)
+			return
+		}
 		c.String(http.StatusInternalServerError, "save failed: %s", err)
 		return
 	}

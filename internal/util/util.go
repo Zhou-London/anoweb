@@ -29,11 +29,11 @@ func PickOrDefault[T comparable](newVal, oldVal T) T {
 }
 
 func IsImage(filename string) bool {
-	if len(filename) < 4 {
-		return false
+	switch strings.ToLower(filepath.Ext(filename)) {
+	case ".png", ".jpg", ".jpeg", ".svg":
+		return true
 	}
-	ext := filename[len(filename)-4:]
-	return ext == ".png" || ext == ".jpg" || ext == "jpeg"
+	return false
 }
 
 // CompressAndSave decodes an uploaded image, resizes it if either dimension
@@ -53,6 +53,15 @@ func CompressAndSave(fh *multipart.FileHeader, destPath string) error {
 		return fmt.Errorf("read upload: %w", err)
 	}
 
+	// SVG is vector — nothing to recompress; validate it instead (a scripted
+	// SVG served from the site origin would run with first-party cookies).
+	if strings.ToLower(filepath.Ext(destPath)) == ".svg" {
+		if err := ValidateSVG(raw); err != nil {
+			return err
+		}
+		return os.WriteFile(destPath, raw, 0644)
+	}
+
 	img, err := imaging.Decode(bytes.NewReader(raw), imaging.AutoOrientation(true))
 	if err != nil {
 		// Not decodable — save the original bytes as-is.
@@ -69,7 +78,8 @@ func CompressAndSave(fh *multipart.FileHeader, destPath string) error {
 	ext := strings.ToLower(filepath.Ext(destPath))
 	switch ext {
 	case ".png":
-		err = png.Encode(&buf, img)
+		enc := png.Encoder{CompressionLevel: png.BestCompression}
+		err = enc.Encode(&buf, img)
 	default:
 		err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: jpegQual})
 	}
