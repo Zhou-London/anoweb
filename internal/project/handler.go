@@ -8,20 +8,56 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// projectSortFields whitelists the ?sort= values the project list accepts;
+// see util.OrderClause — anything else falls back to newest first.
+var projectSortFields = map[string]util.SortField{
+	"name":    {Column: "projects.name", DefaultDir: "ASC"},
+	"updated": {Column: "projects.updated_at", DefaultDir: "DESC"},
+	"created": {Column: "projects.created_at", DefaultDir: "DESC"},
+}
+
+const (
+	projectOrderFallback = "projects.created_at DESC"
+	projectOrderTiebreak = "projects.id DESC"
+)
+
 // GetProjects godoc
 // @Summary List projects
+// @Description Ordering and paging happen here. Without ?page= the response is
+// @Description a bare array of every project; with it, a util.PagedResponse
+// @Description envelope.
 // @Tags project
 // @Produce json
+// @Param sort query string false "name | updated | created" Enums(name, updated, created)
+// @Param order query string false "asc | desc" Enums(asc, desc)
+// @Param page query int false "1-based page number; omit for the full list"
+// @Param page_size query int false "Rows per page (default 10, max 100)"
 // @Success 200 {array} models.Project
 // @Failure 500 {object} ErrorResponse
 // @Router /project [get]
 func GetProjects(c *gin.Context, project_repo ProjectRepository) {
-	projects, err := project_repo.GetAll()
+	q := ProjectQuery{
+		Order: util.OrderClause(
+			c.Query("sort"), c.Query("order"),
+			projectSortFields, projectOrderFallback, projectOrderTiebreak,
+		),
+	}
+
+	page, paged := util.ParsePage(c.Query("page"), c.Query("page_size"))
+	if paged {
+		q.Limit, q.Offset = page.Limit(), page.Offset()
+	}
+
+	projects, total, err := project_repo.List(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	if paged {
+		c.JSON(http.StatusOK, util.NewPagedResponse(projects, total, page))
+		return
+	}
 	c.JSON(http.StatusOK, projects)
 }
 

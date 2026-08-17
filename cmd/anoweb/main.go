@@ -73,6 +73,15 @@ func main() {
 		log.Printf("Warning: Failed to mark existing fans as verified: %v", err)
 	}
 
+	// Catch up projects whose newest discussion predates the stamp that post
+	// writes now leave (migration). Idempotent — a no-op once caught up.
+	projectRepoForMigration := project.NewProjectRepository()
+	if n, err := projectRepoForMigration.BackfillActivity(); err != nil {
+		log.Printf("Warning: Failed to backfill project activity: %v", err)
+	} else if n > 0 {
+		log.Printf("project activity: backfilled %d project(s) from their newest discussion", n)
+	}
+
 	sqlDB, err := store.DB.DB()
 	if err != nil {
 		log.Fatal(err)

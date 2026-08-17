@@ -49,7 +49,7 @@ func InitRoutes(
 	registerExperienceRoutes(r, imgPath, imgURLPrefix, experiencesRepo, sessionRepo)
 	registerProjectRoutes(r, projectsRepo, sessionRepo)
 	registerEducationRoutes(r, imgPath, imgURLPrefix, educationsRepo, sessionRepo)
-	registerPostRoutes(r, postsRepo, sessionRepo)
+	registerPostRoutes(r, postsRepo, projectsRepo, sessionRepo)
 	registerTrackingRoutes(r, trackingRepo, sessionRepo)
 	registerMysteryCodeRoutes(r, mysteryCodeRepo, fanRepo, sessionRepo)
 	registerGuestPopupRoutes(r, popupRepo, sessionRepo)

@@ -1,6 +1,7 @@
 package post
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -10,6 +11,39 @@ import (
 )
 
 const MaxContentLength = 7500
+
+// ProjectToucher stamps a project as active when one of its discussions
+// changes. project.ProjectRepository satisfies it; declaring the one method
+// here keeps internal/post from importing internal/project.
+type ProjectToucher interface {
+	Touch(id int) error
+}
+
+// touchParentProject marks the project this thread belongs to as active, so
+// the project list's "newest" order and "New" badge track discussion activity.
+// Best-effort: the post is already written, and a failed stamp only costs the
+// project its place at the top of the list.
+func touchParentProject(projects ProjectToucher, post *Post) {
+	if post.ParentType != "project" {
+		return
+	}
+	if err := projects.Touch(post.ParentID); err != nil {
+		log.Printf("project activity: post %d: failed to stamp project %d: %v", post.ID, post.ParentID, err)
+	}
+}
+
+// postSortFields whitelists the ?sort= values the forum list accepts; see
+// util.OrderClause — anything else falls back to newest activity first.
+var postSortFields = map[string]util.SortField{
+	"name":    {Column: "posts.name", DefaultDir: "ASC"},
+	"updated": {Column: "posts.updated_at", DefaultDir: "DESC"},
+	"created": {Column: "posts.created_at", DefaultDir: "DESC"},
+}
+
+const (
+	postOrderFallback = "posts.updated_at DESC"
+	postOrderTiebreak = "posts.id DESC"
+)
 
 // currentFan extracts the authenticated fan set by AuthMiddleware.
 func currentFan(c *gin.Context) *auth.Fan {
@@ -52,26 +86,64 @@ func GetPostLatest(c *gin.Context, post_repo PostRepository) {
 
 // GetPosts godoc
 // @Summary List posts
+// @Description Filtering, ordering and paging all happen here. Without ?page=
+// @Description the response is a bare array of every matching thread; with it
+// @Description the response is a util.PagedResponse envelope.
 // @Tags post
 // @Produce json
+// @Param project query int false "Filter: 0 = general threads, N = project N's threads, omitted = all"
+// @Param sort query string false "name | updated | created" Enums(name, updated, created)
+// @Param order query string false "asc | desc" Enums(asc, desc)
+// @Param page query int false "1-based page number; omit for the full list"
+// @Param page_size query int false "Rows per page (default 10, max 100)"
 // @Success 200 {array} models.Post
+// @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /post [get]
 func GetPosts(c *gin.Context, post_repo PostRepository) {
-	posts, err := post_repo.GetAllWithAuthor()
+	q := PostQuery{
+		Order: util.OrderClause(
+			c.Query("sort"), c.Query("order"),
+			postSortFields, postOrderFallback, postOrderTiebreak,
+		),
+	}
+
+	if raw := c.Query("project"); raw != "" {
+		projectID, err := strconv.Atoi(raw)
+		if err != nil || projectID < 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project filter"})
+			return
+		}
+		q.ProjectID = &projectID
+	}
+
+	page, paged := util.ParsePage(c.Query("page"), c.Query("page_size"))
+	if paged {
+		q.Limit, q.Offset = page.Limit(), page.Offset()
+	}
+
+	posts, total, err := post_repo.ListWithAuthor(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	if paged {
+		c.JSON(http.StatusOK, util.NewPagedResponse(posts, total, page))
+		return
+	}
 	c.JSON(http.StatusOK, posts)
 }
 
 // GetPostsShort godoc
 // @Summary List posts for project
+// @Description Always ordered by newest activity. Without ?page= the response
+// @Description is a bare array; with it, a util.PagedResponse envelope.
 // @Tags post
 // @Produce json
 // @Param id path int true "Project ID"
+// @Param page query int false "1-based page number; omit for the full list"
+// @Param page_size query int false "Rows per page (default 10, max 100)"
 // @Success 200 {array} models.Post
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
@@ -84,12 +156,22 @@ func GetPostsShort(c *gin.Context, post_repo PostRepository) {
 		return
 	}
 
-	posts, err := post_repo.GetShortByProject(projectID)
+	page, paged := util.ParsePage(c.Query("page"), c.Query("page_size"))
+	limit, offset := 0, 0
+	if paged {
+		limit, offset = page.Limit(), page.Offset()
+	}
+
+	posts, total, err := post_repo.ListShortByProject(projectID, limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	if paged {
+		c.JSON(http.StatusOK, util.NewPagedResponse(posts, total, page))
+		return
+	}
 	c.JSON(http.StatusOK, posts)
 }
 
@@ -129,7 +211,7 @@ func GetPost(c *gin.Context, post_repo PostRepository) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /post [post]
-func PostPost(c *gin.Context, post_repo PostRepository) {
+func PostPost(c *gin.Context, post_repo PostRepository, project_repo ProjectToucher) {
 
 	type PostPostReq struct {
 		ParentID  int    `json:"parent_id"`
@@ -177,6 +259,7 @@ func PostPost(c *gin.Context, post_repo PostRepository) {
 	}
 
 	post.ID = id
+	touchParentProject(project_repo, &post)
 	c.JSON(http.StatusCreated, post)
 }
 
@@ -190,7 +273,7 @@ func PostPost(c *gin.Context, post_repo PostRepository) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /post [put]
-func PutPost(c *gin.Context, post_repo PostRepository) {
+func PutPost(c *gin.Context, post_repo PostRepository, project_repo ProjectToucher) {
 	type PutPostReq struct {
 		ID        int    `json:"id"`
 		Name      string `json:"name"`
@@ -236,6 +319,9 @@ func PutPost(c *gin.Context, post_repo PostRepository) {
 		return
 	}
 
+	// An edited thread counts as news on the forum, so it counts for its
+	// project too.
+	touchParentProject(project_repo, updatedPost)
 	c.JSON(http.StatusOK, updatedPost)
 }
 

@@ -68,6 +68,34 @@ Adding a feature touches **five** places — miss any and it won't boot:
 
 Note: `internal/learning/` has a model and repository but is **not wired into routes** — it is only in `AutoMigrate`. It is an incomplete feature.
 
+### List endpoints: two response shapes
+`GET /api/post`, `/api/post/project/:id`, `/api/project` and `/api/blog` answer in **one of two shapes**, chosen by whether the request carries `?page=`:
+
+- **No `?page=`** → a bare JSON array of every matching row, exactly as before. The sitemap, the home page, `/forum/new`, the project/thread pages' project lookups and every admin manager depend on this — don't "tidy" it into an envelope without fixing all of them.
+- **With `?page=`** → a `util.PagedResponse` envelope: `{items, total, page, page_size, total_pages}`. `page_size` defaults to 10 and is capped at 100 (`util.ParsePage`).
+
+Sorting is **always** server-side (`?sort=`/`?order=`, resolved by `util.OrderClause`). The sort key is interpolated into SQL, so it is resolved through a per-package whitelist — `postSortFields` / `projectSortFields` — and anything unrecognised silently falls back to the default order. Never build an `ORDER BY` from a raw query value. `OrderClause` also appends an `id` tiebreaker: without it, rows sharing an `updated_at` can swap places between requests and be duplicated or skipped across page boundaries.
+
+Filtering belongs on the server for the same reason paging does. `GET /api/post?project=` takes `0` for "general" threads — no project parent, **or** a parent project that has since been deleted (`NOT EXISTS` against `projects`) — and `N` for one project's threads; omit it for all. The frontend used to apply this rule client-side; splitting it across the wire would page the unfiltered set and then filter it, showing short pages.
+
+### `projects.updated_at` means "last activity", not "row last edited"
+A project's place under `?sort=updated` and its "New" badge both read
+`projects.updated_at`, and the frontend treats a project as fresh when its
+newest **discussion** is recent. So `post.PostPost`/`post.PutPost` stamp the
+parent project through `ProjectRepository.Touch` (declared in `internal/post`
+as the one-method `ProjectToucher` interface, to keep `post` from importing
+`project`) — a single-column write per post, instead of the project list
+joining posts and taking a `MAX(updated_at)` for every row on every request.
+
+Consequences worth knowing before you change it:
+- An admin editing the project also counts as activity — that has always been
+  the behavior, and `MarkSeen` on the project page records the same field.
+- **Deleting** a discussion deliberately does not roll the stamp back: there is
+  no separate record of the project's own last edit to fall back to.
+- `ProjectRepository.BackfillActivity` runs at boot (`cmd/anoweb/main.go`) and
+  lifts any project whose newest discussion is more recent than its
+  `updated_at`. It is idempotent — once caught up, it matches no rows.
+
 ### Database
 `internal/store/database.go` only wires **MySQL** via GORM, despite `gorm.io/driver/sqlite` appearing in `go.mod`. Production and local both hit MySQL (production MySQL runs on the host, listening on `127.0.0.1:3306` — reachable from the container thanks to host networking). There are currently no test files; when adding tests, exercise pure functions and avoid the DB entirely — isolate testable logic from GORM calls.
 

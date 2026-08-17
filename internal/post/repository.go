@@ -8,13 +8,24 @@ import (
 const authorJoin = "LEFT JOIN users ON users.id = posts.author_id"
 const authorPhotoCol = "COALESCE(users.profile_photo, '') AS author_photo"
 
+// PostQuery selects, orders and slices the forum list. ProjectID is nil for
+// every thread, 0 for general threads (no project, or one whose project has
+// since been deleted) and >0 for a single project's threads. Limit 0 means
+// "no paging" — return the whole filtered set.
+type PostQuery struct {
+	ProjectID *int
+	Order     string
+	Limit     int
+	Offset    int
+}
+
 type PostRepository interface {
 	GetByID(id int) (*Post, error)
 	GetByIDWithAuthor(id int) (*PostWithAuthor, error)
-	GetAllWithAuthor() ([]*PostWithAuthor, error)
+	ListWithAuthor(q PostQuery) ([]*PostWithAuthor, int, error)
 	GetShortByID(id int) (*PostShort, error)
 	GetByProject(project_id int) ([]*Post, error)
-	GetShortByProject(project_id int) ([]*PostShort, error)
+	ListShortByProject(projectID, limit, offset int) ([]*PostShort, int, error)
 	GetLatest() (*Post, error)
 	GetAll() ([]*Post, error)
 	Create(post *Post) (int, error)
@@ -55,28 +66,88 @@ func (r *postRepository) GetByProject(project_id int) ([]*Post, error) {
 	return posts, nil
 }
 
-func (r *postRepository) GetShortByProject(project_id int) ([]*PostShort, error) {
-	var posts []*PostShort
-	if err := r.db.Table("posts").
+// ListShortByProject returns one project's discussions, newest activity
+// first, plus the unpaginated total. limit 0 returns them all.
+func (r *postRepository) ListShortByProject(projectID, limit, offset int) ([]*PostShort, int, error) {
+	scope := func() *gorm.DB {
+		return r.db.Table("posts").
+			Where("posts.parent_id = ? AND posts.parent_type = ?", projectID, "project")
+	}
+
+	total := 0
+	if limit > 0 {
+		var n int64
+		if err := scope().Count(&n).Error; err != nil {
+			return nil, 0, err
+		}
+		total = int(n)
+	}
+
+	db := scope().
 		Select("posts.id, posts.parent_id, posts.parent_type, posts.name, posts.author_name, "+authorPhotoCol+", posts.updated_at").
 		Joins(authorJoin).
-		Where("posts.parent_id = ? AND posts.parent_type = ?", project_id, "project").
-		Scan(&posts).Error; err != nil {
-		return nil, err
+		Order("posts.updated_at DESC, posts.id DESC")
+	if limit > 0 {
+		db = db.Limit(limit).Offset(offset)
 	}
-	return posts, nil
+
+	posts := []*PostShort{}
+	if err := db.Scan(&posts).Error; err != nil {
+		return nil, 0, err
+	}
+	if limit == 0 {
+		total = len(posts)
+	}
+	return posts, total, nil
 }
 
-func (r *postRepository) GetAllWithAuthor() ([]*PostWithAuthor, error) {
-	var posts []*PostWithAuthor
-	if err := r.db.Table("posts").
+// listScope builds the WHERE side of a PostQuery. Kept separate so the count
+// and the page share exactly one definition of "which threads match".
+func (r *postRepository) listScope(q PostQuery) *gorm.DB {
+	db := r.db.Table("posts")
+	switch {
+	case q.ProjectID == nil:
+		// Every thread.
+	case *q.ProjectID == 0:
+		// "General": no project parent, or a parent project that was deleted.
+		db = db.Where(
+			"posts.parent_type <> ? OR NOT EXISTS (SELECT 1 FROM projects WHERE projects.id = posts.parent_id)",
+			"project",
+		)
+	default:
+		db = db.Where("posts.parent_type = ? AND posts.parent_id = ?", "project", *q.ProjectID)
+	}
+	return db
+}
+
+// ListWithAuthor returns the filtered, ordered forum list plus the total
+// number of matching threads (before paging) so the caller can size a pager.
+func (r *postRepository) ListWithAuthor(q PostQuery) ([]*PostWithAuthor, int, error) {
+	total := 0
+	if q.Limit > 0 {
+		var n int64
+		if err := r.listScope(q).Count(&n).Error; err != nil {
+			return nil, 0, err
+		}
+		total = int(n)
+	}
+
+	db := r.listScope(q).
 		Select("posts.*, " + authorPhotoCol).
 		Joins(authorJoin).
-		Order("posts.updated_at DESC").
-		Scan(&posts).Error; err != nil {
-		return nil, err
+		Order(q.Order)
+	if q.Limit > 0 {
+		db = db.Limit(q.Limit).Offset(q.Offset)
 	}
-	return posts, nil
+
+	posts := []*PostWithAuthor{}
+	if err := db.Scan(&posts).Error; err != nil {
+		return nil, 0, err
+	}
+	if q.Limit == 0 {
+		total = len(posts)
+	}
+	return posts, total, nil
 }
 
 func (r *postRepository) GetByIDWithAuthor(id int) (*PostWithAuthor, error) {
@@ -94,9 +165,12 @@ func (r *postRepository) GetByIDWithAuthor(id int) (*PostWithAuthor, error) {
 	return &post, nil
 }
 
+// GetLatest returns the most recently *active* thread — ordered by
+// updated_at, not created_at, so an edit to an old thread also counts. The
+// header's "New" dot reads this.
 func (r *postRepository) GetLatest() (*Post, error) {
 	var post Post
-	if err := r.db.Order("created_at DESC").First(&post).Error; err != nil {
+	if err := r.db.Order("updated_at DESC, id DESC").First(&post).Error; err != nil {
 		return nil, err
 	}
 	return &post, nil

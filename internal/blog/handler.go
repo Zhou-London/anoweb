@@ -15,15 +15,31 @@ const MaxContentLength = 20000
 
 // GetBlogs godoc
 // @Summary List all blogs
+// @Description Always ordered by newest activity. Without ?page= the response
+// @Description is a bare array of every post; with it, a util.PagedResponse
+// @Description envelope.
 // @Tags blog
 // @Produce json
+// @Param page query int false "1-based page number; omit for the full list"
+// @Param page_size query int false "Rows per page (default 10, max 100)"
 // @Success 200 {array} BlogShort
 // @Failure 500 {object} ErrorResponse
 // @Router /blog [get]
 func GetBlogs(c *gin.Context, blogRepo BlogRepository) {
-	blogs, err := blogRepo.GetAll()
+	page, paged := util.ParsePage(c.Query("page"), c.Query("page_size"))
+	limit, offset := 0, 0
+	if paged {
+		limit, offset = page.Limit(), page.Offset()
+	}
+
+	blogs, total, err := blogRepo.List(limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if paged {
+		c.JSON(http.StatusOK, util.NewPagedResponse(blogs, total, page))
 		return
 	}
 	c.JSON(http.StatusOK, blogs)

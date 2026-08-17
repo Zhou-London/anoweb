@@ -3,10 +3,11 @@ package routes
 import (
 	"anonchihaya.co.uk/internal/auth"
 	"anonchihaya.co.uk/internal/post"
+	"anonchihaya.co.uk/internal/project"
 	"github.com/gin-gonic/gin"
 )
 
-func registerPostRoutes(r *gin.Engine, postsRepo post.PostRepository, sessionRepo *auth.SessionRepository) {
+func registerPostRoutes(r *gin.Engine, postsRepo post.PostRepository, projectsRepo project.ProjectRepository, sessionRepo *auth.SessionRepository) {
 	// Reads are public.
 	postGroup := r.Group(prefix + "/post")
 	{
@@ -30,10 +31,10 @@ func registerPostRoutes(r *gin.Engine, postsRepo post.PostRepository, sessionRep
 	postWrite.Use(auth.AuthMiddleware(sessionRepo))
 	{
 		postWrite.POST("", func(ctx *gin.Context) {
-			post.PostPost(ctx, postsRepo)
+			post.PostPost(ctx, postsRepo, projectsRepo)
 		})
 		postWrite.PUT("", func(ctx *gin.Context) {
-			post.PutPost(ctx, postsRepo)
+			post.PutPost(ctx, postsRepo, projectsRepo)
 		})
 		postWrite.DELETE("/:id", func(ctx *gin.Context) {
 			post.DeletePost(ctx, postsRepo)
