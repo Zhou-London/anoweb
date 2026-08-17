@@ -5,9 +5,18 @@ import (
 	"gorm.io/gorm"
 )
 
+// ProjectQuery orders and slices the project list. Limit 0 means "no paging"
+// — return every project.
+type ProjectQuery struct {
+	Order  string
+	Limit  int
+	Offset int
+}
+
 type ProjectRepository interface {
 	GetByID(id int) (*Project, error)
 	GetAll() ([]*Project, error)
+	List(q ProjectQuery) ([]*Project, int, error)
 	Create(project *Project) (int, error)
 	Update(id int, project *Project) (*Project, error)
 	UpdateImageUrl(id int, image_url string) (*Project, error)
@@ -37,6 +46,33 @@ func (r *projectRepository) GetAll() ([]*Project, error) {
 		return nil, err
 	}
 	return projects, nil
+}
+
+// List returns the ordered project list plus the total row count (before
+// paging) so the caller can size a pager.
+func (r *projectRepository) List(q ProjectQuery) ([]*Project, int, error) {
+	total := 0
+	if q.Limit > 0 {
+		var n int64
+		if err := r.db.Model(&Project{}).Count(&n).Error; err != nil {
+			return nil, 0, err
+		}
+		total = int(n)
+	}
+
+	db := r.db.Model(&Project{}).Order(q.Order)
+	if q.Limit > 0 {
+		db = db.Limit(q.Limit).Offset(q.Offset)
+	}
+
+	projects := []*Project{}
+	if err := db.Find(&projects).Error; err != nil {
+		return nil, 0, err
+	}
+	if q.Limit == 0 {
+		total = len(projects)
+	}
+	return projects, total, nil
 }
 
 func (r *projectRepository) Create(project *Project) (int, error) {

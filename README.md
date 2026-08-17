@@ -2,7 +2,7 @@
 
 <img src="https://capsule-render.vercel.app/api?type=waving&height=200&color=0:0F172A,50:0EA5E9,100:00ADD8&text=anoweb&fontSize=72&fontColor=FFFFFF&fontAlignY=36&desc=Go%20%C2%B7%20Gin%20backend%20for%20zhouzhouzhang.co.uk&descSize=16&descAlignY=56&animation=fadeIn&section=header" alt="anoweb" />
 
-![Release](https://img.shields.io/badge/release-v1.2-22C55E?style=for-the-badge)
+![Release](https://img.shields.io/badge/release-v1.3-22C55E?style=for-the-badge)
 ![Go](https://img.shields.io/badge/Go-1.25-00ADD8?style=for-the-badge&logo=go&logoColor=white)
 ![Gin](https://img.shields.io/badge/Gin-1.10-008ECF?style=for-the-badge&logo=gin&logoColor=white)
 ![MySQL](https://img.shields.io/badge/GORM-MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
@@ -18,6 +18,34 @@
 My web. Go/Gin backend. The React frontend is a separate project: `~/projects/anoweb-front`.
 
 ## Release notes
+
+### v1.3 — 2026-08-17
+
+<div align="center">
+
+![Sorting](https://img.shields.io/badge/lists-server--side%20sort-0EA5E9?style=flat-square)
+![Paging](https://img.shields.io/badge/paging-10%20per%20page-6366F1?style=flat-square)
+![Filter](https://img.shields.io/badge/forum-server--side%20filter-14B8A6?style=flat-square)
+![Safety](https://img.shields.io/badge/ORDER%20BY-whitelisted-22C55E?style=flat-square)
+
+</div>
+
+**Added**
+
+- **Sorting and paging on the list endpoints, done entirely in SQL.** `/api/post`, `/api/post/project/:id`, `/api/project` and `/api/blog` accept `?page=` / `?page_size=` (default 10, capped at 100) and answer with a `util.PagedResponse` envelope — `{items, total, page, page_size, total_pages}`. Without `?page=` they return the same bare array as before, which is what the sitemap, the home page and the admin managers consume.
+- **`?sort=name|updated|created` with `?order=asc|desc`** on the forum and project lists. The key is resolved through a per-package whitelist (`util.OrderClause`) because it is interpolated into `ORDER BY`; unknown keys fall back to the default order instead of erroring. An `id` tiebreaker is always appended — rows sharing an `updated_at` would otherwise be free to swap places between requests and get duplicated or skipped across a page boundary.
+- **Server-side forum filtering: `/api/post?project=`.** `0` selects general threads — no project parent, *or* a parent project that has since been deleted — and `N` selects one project's threads. This rule used to live in the frontend; leaving it there would have paged the unfiltered set and then filtered it.
+- Unit tests for both helpers (`internal/util/paging_test.go`, `sorting_test.go`), including a case that pins the `ORDER BY` whitelist against injection attempts.
+
+**Changed**
+
+- `/api/post/latest` now returns the most recently **updated** thread rather than the most recently created one, so an edit to an old thread also lights the header's "New" dot.
+- `internal/post` gained `ListWithAuthor(PostQuery)` and `ListShortByProject`, replacing `GetAllWithAuthor`/`GetShortByProject`; `internal/project` gained `List(ProjectQuery)` and `internal/blog` gained `List(limit, offset)`. Each returns the pre-paging total alongside the rows so a handler can size a pager in one round trip.
+- Empty pages serialise as `[]` rather than `null`.
+
+**Known issue**
+
+- `swag init` cannot regenerate `docs/` on this tree — it fails to resolve the request types in `internal/api/swagger_models.go` from the handler comments, which predates this release. The new `@Param` annotations are in the source but Swagger UI still shows the old signatures for these four endpoints.
 
 ### v1.2 — 2026-08-17
 
@@ -67,8 +95,10 @@ The Go compile runs inside Docker (single-stage image, host networking).
 
 ```zsh
 $ cd ~/apps/anoweb
-$ docker compose up -d --build
+$ docker compose up -d --build --force-recreate anoweb
 ```
+
+`--force-recreate` is required — on the host's compose 2.37.1 a plain `up -d --build` rebuilds the image but leaves the container running the old one. Verify with `docker inspect --format '{{.Image}}' anoweb` against `docker inspect --format '{{.Id}}' anoweb:latest`.
 
 Logs:
 

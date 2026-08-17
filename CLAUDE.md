@@ -34,8 +34,15 @@ There is **no systemd unit anymore**; the backend runs as a Docker container.
 
 ```sh
 cd /home/Zhou/apps/anoweb
-docker compose up -d --build   # recompile (inside Docker) and restart
-docker compose logs -f         # logs (container name: anoweb)
+docker compose up -d --build --force-recreate anoweb   # recompile (inside Docker) and restart
+docker compose logs -f                                 # logs (container name: anoweb)
+```
+
+`--force-recreate` is **not optional** on the host's compose 2.37.1: `up -d --build` rebuilds the image, reports `Container anoweb Running`, and leaves the container on the *old* image. Always confirm the swap took:
+
+```sh
+docker inspect --format '{{.Image}}' anoweb   # must equal:
+docker inspect --format '{{.Id}}' anoweb:latest
 ```
 
 Key decisions baked into `Dockerfile` / `docker-compose.yml` — don't undo them casually:
@@ -45,7 +52,7 @@ Key decisions baked into `Dockerfile` / `docker-compose.yml` — don't undo them
 - The app container runs as `user: "1002:1003"` (Zhou) so uploaded images stay owned by Zhou on the host.
 - `.env` is excluded from the image via `.dockerignore` and bind-mounted at runtime instead.
 
-Frontend deployment: `cd /home/Zhou/apps/anoweb && docker compose up -d --build frontend` (builds the Next.js image from `/home/Zhou/projects/anoweb-front` and restarts the `anoweb-front` container).
+Frontend deployment: `cd /home/Zhou/apps/anoweb && docker compose build frontend && docker compose up -d --force-recreate frontend` (builds the Next.js image from `/home/Zhou/projects/anoweb-front` and restarts the `anoweb-front` container — same compose 2.37.1 caveat as above).
 
 After changing the Caddy config: `cat docs/Caddyfile > /home/Zhou/apps/anoweb/Caddyfile && docker exec caddy caddy reload --config /etc/caddy/Caddyfile`. Caddy now runs as a **shared stack** in `/home/Zhou/apps/caddy` (container name `caddy`) whose main Caddyfile `import`s `/home/Zhou/apps/anoweb/Caddyfile`; both files are bind-mounted **as single files**, so always overwrite in place (`cat >`, not an editor's atomic rename or anything that replaces the inode) and confirm with `docker exec caddy md5sum /home/Zhou/apps/anoweb/Caddyfile` — if the hashes differ the mount is pinned to a stale inode and the container needs `docker restart caddy`.
 
@@ -67,6 +74,16 @@ Adding a feature touches **five** places — miss any and it won't boot:
 `internal/blog/` is the canonical reference — mirror it for new CRUD features (its frontend counterpart is `src/app/blog/` in the frontend repo).
 
 Note: `internal/learning/` has a model and repository but is **not wired into routes** — it is only in `AutoMigrate`. It is an incomplete feature.
+
+### List endpoints: two response shapes
+`GET /api/post`, `/api/post/project/:id`, `/api/project` and `/api/blog` answer in **one of two shapes**, chosen by whether the request carries `?page=`:
+
+- **No `?page=`** → a bare JSON array of every matching row, exactly as before. The sitemap, the home page, `/forum/new`, the project/thread pages' project lookups and every admin manager depend on this — don't "tidy" it into an envelope without fixing all of them.
+- **With `?page=`** → a `util.PagedResponse` envelope: `{items, total, page, page_size, total_pages}`. `page_size` defaults to 10 and is capped at 100 (`util.ParsePage`).
+
+Sorting is **always** server-side (`?sort=`/`?order=`, resolved by `util.OrderClause`). The sort key is interpolated into SQL, so it is resolved through a per-package whitelist — `postSortFields` / `projectSortFields` — and anything unrecognised silently falls back to the default order. Never build an `ORDER BY` from a raw query value. `OrderClause` also appends an `id` tiebreaker: without it, rows sharing an `updated_at` can swap places between requests and be duplicated or skipped across page boundaries.
+
+Filtering belongs on the server for the same reason paging does. `GET /api/post?project=` takes `0` for "general" threads — no project parent, **or** a parent project that has since been deleted (`NOT EXISTS` against `projects`) — and `N` for one project's threads; omit it for all. The frontend used to apply this rule client-side; splitting it across the wire would page the unfiltered set and then filter it, showing short pages.
 
 ### Database
 `internal/store/database.go` only wires **MySQL** via GORM, despite `gorm.io/driver/sqlite` appearing in `go.mod`. Production and local both hit MySQL (production MySQL runs on the host, listening on `127.0.0.1:3306` — reachable from the container thanks to host networking). There are currently no test files; when adding tests, exercise pure functions and avoid the DB entirely — isolate testable logic from GORM calls.

@@ -8,6 +8,7 @@ import (
 type BlogRepository interface {
 	GetByID(id int) (*Blog, error)
 	GetAll() ([]*BlogShort, error)
+	List(limit, offset int) ([]*BlogShort, int, error)
 	GetRecent(limit int) ([]*BlogShort, error)
 	Create(blog *Blog) (int, error)
 	Update(id int, blog *Blog) (*Blog, error)
@@ -44,6 +45,35 @@ func (r *blogRepository) GetAll() ([]*BlogShort, error) {
 		return nil, err
 	}
 	return blogs, nil
+}
+
+// List returns one page of the blog index (newest activity first) plus the
+// total post count. limit 0 returns every post.
+func (r *blogRepository) List(limit, offset int) ([]*BlogShort, int, error) {
+	total := 0
+	if limit > 0 {
+		var n int64
+		if err := r.db.Model(&Blog{}).Count(&n).Error; err != nil {
+			return nil, 0, err
+		}
+		total = int(n)
+	}
+
+	db := r.db.Model(&Blog{}).
+		Select("id", "title", "image_url", "views", "likes_count", "created_at", "updated_at").
+		Order("updated_at DESC, id DESC")
+	if limit > 0 {
+		db = db.Limit(limit).Offset(offset)
+	}
+
+	blogs := []*BlogShort{}
+	if err := db.Find(&blogs).Error; err != nil {
+		return nil, 0, err
+	}
+	if limit == 0 {
+		total = len(blogs)
+	}
+	return blogs, total, nil
 }
 
 func (r *blogRepository) GetRecent(limit int) ([]*BlogShort, error) {
