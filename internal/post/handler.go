@@ -1,6 +1,7 @@
 package post
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -10,6 +11,26 @@ import (
 )
 
 const MaxContentLength = 7500
+
+// ProjectToucher stamps a project as active when one of its discussions
+// changes. project.ProjectRepository satisfies it; declaring the one method
+// here keeps internal/post from importing internal/project.
+type ProjectToucher interface {
+	Touch(id int) error
+}
+
+// touchParentProject marks the project this thread belongs to as active, so
+// the project list's "newest" order and "New" badge track discussion activity.
+// Best-effort: the post is already written, and a failed stamp only costs the
+// project its place at the top of the list.
+func touchParentProject(projects ProjectToucher, post *Post) {
+	if post.ParentType != "project" {
+		return
+	}
+	if err := projects.Touch(post.ParentID); err != nil {
+		log.Printf("project activity: post %d: failed to stamp project %d: %v", post.ID, post.ParentID, err)
+	}
+}
 
 // postSortFields whitelists the ?sort= values the forum list accepts; see
 // util.OrderClause — anything else falls back to newest activity first.
@@ -190,7 +211,7 @@ func GetPost(c *gin.Context, post_repo PostRepository) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /post [post]
-func PostPost(c *gin.Context, post_repo PostRepository) {
+func PostPost(c *gin.Context, post_repo PostRepository, project_repo ProjectToucher) {
 
 	type PostPostReq struct {
 		ParentID  int    `json:"parent_id"`
@@ -238,6 +259,7 @@ func PostPost(c *gin.Context, post_repo PostRepository) {
 	}
 
 	post.ID = id
+	touchParentProject(project_repo, &post)
 	c.JSON(http.StatusCreated, post)
 }
 
@@ -251,7 +273,7 @@ func PostPost(c *gin.Context, post_repo PostRepository) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /post [put]
-func PutPost(c *gin.Context, post_repo PostRepository) {
+func PutPost(c *gin.Context, post_repo PostRepository, project_repo ProjectToucher) {
 	type PutPostReq struct {
 		ID        int    `json:"id"`
 		Name      string `json:"name"`
@@ -297,6 +319,9 @@ func PutPost(c *gin.Context, post_repo PostRepository) {
 		return
 	}
 
+	// An edited thread counts as news on the forum, so it counts for its
+	// project too.
+	touchParentProject(project_repo, updatedPost)
 	c.JSON(http.StatusOK, updatedPost)
 }
 

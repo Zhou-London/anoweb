@@ -2,7 +2,7 @@
 
 <img src="https://capsule-render.vercel.app/api?type=waving&height=200&color=0:0F172A,50:0EA5E9,100:00ADD8&text=anoweb&fontSize=72&fontColor=FFFFFF&fontAlignY=36&desc=Go%20%C2%B7%20Gin%20backend%20for%20zhouzhouzhang.co.uk&descSize=16&descAlignY=56&animation=fadeIn&section=header" alt="anoweb" />
 
-![Release](https://img.shields.io/badge/release-v1.3-22C55E?style=for-the-badge)
+![Release](https://img.shields.io/badge/release-v1.4-22C55E?style=for-the-badge)
 ![Go](https://img.shields.io/badge/Go-1.25-00ADD8?style=for-the-badge&logo=go&logoColor=white)
 ![Gin](https://img.shields.io/badge/Gin-1.10-008ECF?style=for-the-badge&logo=gin&logoColor=white)
 ![MySQL](https://img.shields.io/badge/GORM-MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
@@ -18,6 +18,30 @@
 My web. Go/Gin backend. The React frontend is a separate project: `~/projects/anoweb-front`.
 
 ## Release notes
+
+### v1.4 — 2026-08-17
+
+<div align="center">
+
+![Projects](https://img.shields.io/badge/projects-ranked%20by%20discussion-0EA5E9?style=flat-square)
+![Denormalised](https://img.shields.io/badge/updated__at-stamped%20on%20write-6366F1?style=flat-square)
+![Migration](https://img.shields.io/badge/backfill-idempotent-22C55E?style=flat-square)
+
+</div>
+
+**Changed**
+
+- **A project's `updated_at` now means "last activity", not "row last edited".** `POST /api/post` and `PUT /api/post` stamp the parent project through the new `ProjectRepository.Touch`, so `/api/project?sort=updated` ranks projects by their newest discussion and the frontend's "New" badge lights for projects the forum has been busy in. One single-column write per post, instead of the project list joining `posts` and taking a `MAX(updated_at)` per row on every request.
+- `internal/post` declares the one-method `ProjectToucher` interface rather than importing `internal/project`, and `registerPostRoutes` now takes the project repository.
+
+**Added**
+
+- **`ProjectRepository.BackfillActivity()`**, run once at boot next to the existing fan-verification migration. It lifts any project whose newest discussion is more recent than its own `updated_at`, so existing rows rank correctly from the first deploy. Idempotent — once caught up the `WHERE` matches nothing, and a project edited *after* its last post is left alone rather than rolled back.
+
+**Known limits**
+
+- Deleting a discussion does not roll the stamp back: `updated_at` also carries the project's own last edit, and there is no separate column to recompute from. A project can stay "recently active" for up to the 3-day freshness window after its only thread is deleted.
+- Comments do not count as activity — they don't bump `posts.updated_at` either, so neither a thread nor its project turns "new" when someone replies.
 
 ### v1.3 — 2026-08-17
 
@@ -87,7 +111,7 @@ Baseline release. See `git log 1450c6e` for the full history.
 | `/home/Zhou/projects/anoweb-front` | frontend source — builds the static site |
 | `/home/Zhou/apps/anoweb` | runtime — `docker-compose.yml`, `.env`, `www/` (SPA), `images/` (uploads) |
 
-Caddy (`/etc/caddy/Caddyfile`, tracked copy in `docs/Caddyfile`) proxies `/api*` to `localhost:8080`, serves `/image/*` from `~/apps/anoweb/images` and everything else from `~/apps/anoweb/www`.
+Caddy runs as a container too (tracked config in `docs/Caddyfile`, bind-mounted to `~/apps/anoweb/Caddyfile`). It proxies `/api*` to the backend, serves `/image/*` from `~/apps/anoweb/images` and sends everything else to the Next.js container.
 
 ## Deploy backend
 
@@ -95,10 +119,8 @@ The Go compile runs inside Docker (single-stage image, host networking).
 
 ```zsh
 $ cd ~/apps/anoweb
-$ docker compose up -d --build --force-recreate anoweb
+$ docker compose up -d --build anoweb
 ```
-
-`--force-recreate` is required — on the host's compose 2.37.1 a plain `up -d --build` rebuilds the image but leaves the container running the old one. Verify with `docker inspect --format '{{.Image}}' anoweb` against `docker inspect --format '{{.Id}}' anoweb:latest`.
 
 Logs:
 
@@ -109,18 +131,22 @@ $ docker logs -f anoweb
 ## Deploy frontend
 
 ```zsh
-$ cd ~/projects/anoweb-front
-$ npm run build
+$ cd ~/apps/anoweb
+$ docker compose up -d --build frontend
 ```
 
-Writes the prerendered SPA straight into `~/apps/anoweb/www`. Deploy host only.
+Builds the Next.js image from `~/projects/anoweb-front`. Deploy host only.
 
 ## Caddy
 
 ```zsh
-$ sudo cp docs/Caddyfile /etc/caddy/Caddyfile
-$ sudo systemctl reload caddy
+$ cat docs/Caddyfile > ~/apps/anoweb/Caddyfile
+$ docker exec caddy caddy reload --config /etc/caddy/Caddyfile
 ```
+
+The Caddyfile is bind-mounted **as a single file**, so overwrite it in place
+(`cat >`) — anything that replaces the inode leaves the container pinned to the
+old one.
 
 ## Local development
 
