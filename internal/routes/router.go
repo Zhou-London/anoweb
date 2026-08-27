@@ -13,6 +13,7 @@ import (
 	"anonchihaya.co.uk/internal/post"
 	"anonchihaya.co.uk/internal/profile"
 	"anonchihaya.co.uk/internal/project"
+	"anonchihaya.co.uk/internal/resume"
 	"anonchihaya.co.uk/internal/statistics"
 	"anonchihaya.co.uk/internal/tracking"
 	"github.com/gin-gonic/gin"
@@ -41,6 +42,7 @@ func InitRoutes(
 	blogLikeRepo blog.BlogLikeRepository,
 	announcementRepo announcement.AnnouncementRepository,
 	commentRepo comment.CommentRepository,
+	resumeRepo resume.Repository,
 ) {
 	registerSwaggerRoutes(r)
 	registerFanRoutes(r, domain, imgPath, imgURLPrefix, fanRepo, sessionRepo, trackingRepo, blogLikeRepo)
@@ -58,4 +60,5 @@ func InitRoutes(
 	registerBlogRoutes(r, blogRepo, blogLikeRepo, sessionRepo)
 	registerAnnouncementRoutes(r, announcementRepo, sessionRepo)
 	registerCommentRoutes(r, commentRepo, postsRepo, sessionRepo)
+	registerResumeRoutes(r, resumeRepo, sessionRepo)
 }

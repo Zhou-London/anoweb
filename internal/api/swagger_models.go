@@ -23,6 +23,10 @@ type AdminStatusResponse struct {
 	IsAdmin bool `json:"isAdmin"`
 }
 
+type ResumeDownloadsResponse struct {
+	Downloads int64 `json:"downloads"`
+}
+
 type ImageUploadResponse struct {
 	Message string `json:"message"`
 	ImgPath string `json:"img_path"`

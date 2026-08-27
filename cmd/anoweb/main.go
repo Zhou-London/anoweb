@@ -19,6 +19,7 @@ import (
 	"anonchihaya.co.uk/internal/post"
 	"anonchihaya.co.uk/internal/profile"
 	"anonchihaya.co.uk/internal/project"
+	"anonchihaya.co.uk/internal/resume"
 	"anonchihaya.co.uk/internal/routes"
 	"anonchihaya.co.uk/internal/statistics"
 	"anonchihaya.co.uk/internal/store"
@@ -63,6 +64,7 @@ func main() {
 		&announcement.Announcement{},
 		&comment.Comment{},
 		&comment.CommentLike{},
+		&resume.Stats{},
 	); err != nil {
 		log.Fatal(err)
 	}
@@ -104,6 +106,7 @@ func main() {
 	blog_like_repo := blog.NewBlogLikeRepository()
 	announcement_repo := announcement.NewAnnouncementRepository()
 	comment_repo := comment.NewCommentRepository()
+	resume_repo := resume.NewRepository()
 
 	if CONFIG.DOMAIN == "" {
 		log.Fatal("Error configuring domain from .env file")
@@ -119,7 +122,7 @@ func main() {
 	// younger than 24h are spared so images in unsaved drafts survive.
 	cleanup.Start(store.DB, CONFIG.IMG_PATH, 48*time.Hour, 24*time.Hour)
 
-	routes.InitRoutes(r, CONFIG.DOMAIN, CONFIG.IMG_PATH, CONFIG.IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo, blog_repo, blog_like_repo, announcement_repo, comment_repo)
+	routes.InitRoutes(r, CONFIG.DOMAIN, CONFIG.IMG_PATH, CONFIG.IMG_URL_PREFIX, profile_repo, experiences_repo, educations_repo, projects_repo, posts_repo, fan_repo, session_repo, tracking_repo, mystery_code_repo, popup_repo, stats_repo, core_skill_repo, blog_repo, blog_like_repo, announcement_repo, comment_repo, resume_repo)
 
 	host := CONFIG.LISTEN_HOST
 	if host == "" {
