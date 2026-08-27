@@ -29,19 +29,9 @@ My web. Go/Gin backend. The React frontend is a separate project: `~/projects/an
 
 </div>
 
-**Changed**
-
-- **A project's `updated_at` now means "last activity", not "row last edited".** `POST /api/post` and `PUT /api/post` stamp the parent project through the new `ProjectRepository.Touch`, so `/api/project?sort=updated` ranks projects by their newest discussion and the frontend's "New" badge lights for projects the forum has been busy in. One single-column write per post, instead of the project list joining `posts` and taking a `MAX(updated_at)` per row on every request.
-- `internal/post` declares the one-method `ProjectToucher` interface rather than importing `internal/project`, and `registerPostRoutes` now takes the project repository.
-
-**Added**
-
-- **`ProjectRepository.BackfillActivity()`**, run once at boot next to the existing fan-verification migration. It lifts any project whose newest discussion is more recent than its own `updated_at`, so existing rows rank correctly from the first deploy. Idempotent — once caught up the `WHERE` matches nothing, and a project edited *after* its last post is left alone rather than rolled back.
-
-**Known limits**
-
-- Deleting a discussion does not roll the stamp back: `updated_at` also carries the project's own last edit, and there is no separate column to recompute from. A project can stay "recently active" for up to the 3-day freshness window after its only thread is deleted.
-- Comments do not count as activity — they don't bump `posts.updated_at` either, so neither a thread nor its project turns "new" when someone replies.
+- **Projects rank by their newest discussion.** `POST`/`PUT /api/post` stamp the parent project's `updated_at` (`ProjectRepository.Touch`), so `/api/project?sort=updated` and the frontend's "New" badge follow forum activity — one single-column write per post instead of a `MAX(updated_at)` join on every list request.
+- `ProjectRepository.BackfillActivity()` runs once at boot to lift existing rows; idempotent, and a project edited *after* its last post is left alone.
+- Limits: deleting a thread does not roll the stamp back, and comments do not count as activity.
 
 ### v1.3 — 2026-08-17
 
@@ -54,22 +44,11 @@ My web. Go/Gin backend. The React frontend is a separate project: `~/projects/an
 
 </div>
 
-**Added**
-
-- **Sorting and paging on the list endpoints, done entirely in SQL.** `/api/post`, `/api/post/project/:id`, `/api/project` and `/api/blog` accept `?page=` / `?page_size=` (default 10, capped at 100) and answer with a `util.PagedResponse` envelope — `{items, total, page, page_size, total_pages}`. Without `?page=` they return the same bare array as before, which is what the sitemap, the home page and the admin managers consume.
-- **`?sort=name|updated|created` with `?order=asc|desc`** on the forum and project lists. The key is resolved through a per-package whitelist (`util.OrderClause`) because it is interpolated into `ORDER BY`; unknown keys fall back to the default order instead of erroring. An `id` tiebreaker is always appended — rows sharing an `updated_at` would otherwise be free to swap places between requests and get duplicated or skipped across a page boundary.
-- **Server-side forum filtering: `/api/post?project=`.** `0` selects general threads — no project parent, *or* a parent project that has since been deleted — and `N` selects one project's threads. This rule used to live in the frontend; leaving it there would have paged the unfiltered set and then filtered it.
-- Unit tests for both helpers (`internal/util/paging_test.go`, `sorting_test.go`), including a case that pins the `ORDER BY` whitelist against injection attempts.
-
-**Changed**
-
-- `/api/post/latest` now returns the most recently **updated** thread rather than the most recently created one, so an edit to an old thread also lights the header's "New" dot.
-- `internal/post` gained `ListWithAuthor(PostQuery)` and `ListShortByProject`, replacing `GetAllWithAuthor`/`GetShortByProject`; `internal/project` gained `List(ProjectQuery)` and `internal/blog` gained `List(limit, offset)`. Each returns the pre-paging total alongside the rows so a handler can size a pager in one round trip.
-- Empty pages serialise as `[]` rather than `null`.
-
-**Known issue**
-
-- `swag init` cannot regenerate `docs/` on this tree — it fails to resolve the request types in `internal/api/swagger_models.go` from the handler comments, which predates this release. The new `@Param` annotations are in the source but Swagger UI still shows the old signatures for these four endpoints.
+- **Server-side paging.** `/api/post`, `/api/post/project/:id`, `/api/project` and `/api/blog` take `?page=` / `?page_size=` (default 10, max 100) and answer with `{items, total, page, page_size, total_pages}`. Without `?page=` they still return the bare array the sitemap, home page and admin managers consume; empty pages serialise as `[]`.
+- **Server-side sorting.** `?sort=name|updated|created` with `?order=asc|desc` on the forum and project lists. Keys are whitelisted (`util.OrderClause`) before reaching `ORDER BY`, and an `id` tiebreaker keeps pages stable.
+- **Server-side forum filter.** `/api/post?project=` — `0` for general or orphaned threads, `N` for one project — so the pager counts the filtered set.
+- `/api/post/latest` now orders by `updated_at`, so editing an old thread counts as activity.
+- Known issue: `swag init` cannot regenerate `docs/` on this tree (pre-existing), so Swagger UI still shows the old signatures for these endpoints.
 
 ### v1.2 — 2026-08-17
 
