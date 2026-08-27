@@ -1,8 +1,6 @@
 package resume
 
 import (
-	"errors"
-
 	"anonchihaya.co.uk/internal/store"
 	"gorm.io/gorm"
 )
@@ -21,15 +19,17 @@ func NewRepository() Repository {
 	return &repository{db: store.DB}
 }
 
-// Downloads returns the counter — zero until the first download creates the row.
+// Downloads returns the counter — zero until the first download creates the
+// row. Find rather than First: a missing row is the expected state on a fresh
+// database, not an error worth a log line per request.
 func (r *repository) Downloads() (int64, error) {
 	var s Stats
-	err := r.db.First(&s, StatsID).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return 0, nil
+	res := r.db.Where("id = ?", StatsID).Limit(1).Find(&s)
+	if res.Error != nil {
+		return 0, res.Error
 	}
-	if err != nil {
-		return 0, err
+	if res.RowsAffected == 0 {
+		return 0, nil
 	}
 	return s.Downloads, nil
 }
