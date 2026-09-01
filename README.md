@@ -19,6 +19,21 @@ My web. Go/Gin backend. The React frontend is a separate project: `~/projects/an
 
 ## Release notes
 
+### v1.5 — 2026-09-01
+
+<div align="center">
+
+![Formats](https://img.shields.io/badge/content-markdown%20%7C%20html-0EA5E9?style=flat-square)
+![Admin](https://img.shields.io/badge/html-admin%20only%2C%20raw-F59E0B?style=flat-square)
+![Limit](https://img.shields.io/badge/html-1MB%20%C2%B7%20md%2030k%2F60k-6366F1?style=flat-square)
+
+</div>
+
+- **Posts and blogs carry a `format`** — `markdown` (default; existing rows keep it via the column default) or `html`. `POST`/`PUT /api/post` and `/api/blog` accept `"format"`; on update an empty value keeps the stored one, anything unrecognised is a 400.
+- **HTML is admin-only and stored raw.** An html body is an uploaded document (the frontend only accepts it as a file, never hand-typed) stored in `content_md` without sanitisation and rendered as-is — full fidelity, trusted because only admins can write it: the post handlers return 403 for `format:"html"` from a non-admin (blogs are admin-only anyway), on create and on edit. Capped at 1MB (`util.MaxHTMLBytes`).
+- **Markdown limits raised**: posts 7,500 → 30,000 chars, blogs 20,000 → 60,000 — counted in runes (posts previously counted bytes, so CJK burned 3x), finally agreeing with the frontend counter.
+- Uploading a `.md`/`.html` file is a frontend affair — the file's text arrives here through the same JSON write path.
+
 ### v1.4 — 2026-08-17
 
 <div align="center">

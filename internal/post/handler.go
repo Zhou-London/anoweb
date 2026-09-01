@@ -4,13 +4,16 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"unicode/utf8"
 
 	"anonchihaya.co.uk/internal/auth"
 	"anonchihaya.co.uk/internal/util"
 	"github.com/gin-gonic/gin"
 )
 
-const MaxContentLength = 7500
+// MaxContentLength is in characters (runes), matching the frontend counter.
+// Sized for HTML mode, whose markup runs 2-3x the prose it wraps.
+const MaxContentLength = 30000
 
 // ProjectToucher stamps a project as active when one of its discussions
 // changes. project.ProjectRepository satisfies it; declaring the one method
@@ -217,6 +220,7 @@ func PostPost(c *gin.Context, post_repo PostRepository, project_repo ProjectTouc
 		ParentID  int    `json:"parent_id"`
 		Name      string `json:"name"`
 		ContentMD string `json:"content_md"`
+		Format    string `json:"format"`
 	}
 
 	var postReq PostPostReq
@@ -225,15 +229,35 @@ func PostPost(c *gin.Context, post_repo PostRepository, project_repo ProjectTouc
 		return
 	}
 
-	// Validate content length
-	if len(postReq.ContentMD) > MaxContentLength {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 7,500 character limit"})
+	// Omitted format means markdown (pre-HTML clients).
+	if postReq.Format == "" {
+		postReq.Format = util.FormatMarkdown
+	}
+	if !util.ValidFormat(postReq.Format) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Format must be markdown or html"})
 		return
 	}
 
 	fan := currentFan(c)
 	if fan == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+
+	// An HTML body is a raw uploaded document rendered without sanitisation,
+	// so only admins may store one; it is capped by file size. Markdown keeps
+	// the editor's character limit.
+	if postReq.Format == util.FormatHTML {
+		if !fan.IsAdmin {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Only admins can post HTML content"})
+			return
+		}
+		if len(postReq.ContentMD) > util.MaxHTMLBytes {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "HTML content exceeds the 1MB limit"})
+			return
+		}
+	} else if utf8.RuneCountInString(postReq.ContentMD) > MaxContentLength {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 30,000 character limit"})
 		return
 	}
 
@@ -248,6 +272,7 @@ func PostPost(c *gin.Context, post_repo PostRepository, project_repo ProjectTouc
 		ParentType: parentType,
 		Name:       postReq.Name,
 		ContentMD:  postReq.ContentMD,
+		Format:     postReq.Format,
 		AuthorID:   &fan.ID,
 		AuthorName: fan.Username,
 	}
@@ -278,6 +303,7 @@ func PutPost(c *gin.Context, post_repo PostRepository, project_repo ProjectTouch
 		ID        int    `json:"id"`
 		Name      string `json:"name"`
 		ContentMD string `json:"content_md"`
+		Format    string `json:"format"`
 	}
 
 	var putPostReq PutPostReq
@@ -286,9 +312,9 @@ func PutPost(c *gin.Context, post_repo PostRepository, project_repo ProjectTouch
 		return
 	}
 
-	// Validate content length
-	if len(putPostReq.ContentMD) > MaxContentLength {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 7,500 character limit"})
+	// Empty keeps the stored format, like the other fields.
+	if putPostReq.Format != "" && !util.ValidFormat(putPostReq.Format) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Format must be markdown or html"})
 		return
 	}
 
@@ -303,7 +329,8 @@ func PutPost(c *gin.Context, post_repo PostRepository, project_repo ProjectTouch
 		return
 	}
 
-	if !canModify(currentFan(c), oldPost) {
+	fan := currentFan(c)
+	if !canModify(fan, oldPost) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You can only edit your own posts"})
 		return
 	}
@@ -312,6 +339,25 @@ func PutPost(c *gin.Context, post_repo PostRepository, project_repo ProjectTouch
 	// repository's full-row Save.
 	oldPost.Name = util.PickOrDefault(putPostReq.Name, oldPost.Name)
 	oldPost.ContentMD = util.PickOrDefault(putPostReq.ContentMD, oldPost.ContentMD)
+	oldPost.Format = util.PickOrDefault(putPostReq.Format, oldPost.Format)
+
+	// Validate the merged result — the edit may have changed the content, the
+	// format, or both. HTML is a raw uploaded document rendered without
+	// sanitisation: admin-only, capped by file size. Markdown keeps the
+	// editor's character limit.
+	if oldPost.Format == util.FormatHTML {
+		if !fan.IsAdmin {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Only admins can post HTML content"})
+			return
+		}
+		if len(oldPost.ContentMD) > util.MaxHTMLBytes {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "HTML content exceeds the 1MB limit"})
+			return
+		}
+	} else if utf8.RuneCountInString(oldPost.ContentMD) > MaxContentLength {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 30,000 character limit"})
+		return
+	}
 
 	updatedPost, err := post_repo.Update(oldPost.ID, oldPost)
 	if err != nil {

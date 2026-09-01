@@ -140,12 +140,14 @@ type PostCreateRequest struct {
 	ParentID  int    `json:"parent_id" binding:"required"`
 	Name      string `json:"name" binding:"required"`
 	ContentMD string `json:"content_md" binding:"required"`
+	Format    string `json:"format" enums:"markdown,html"`
 }
 
 type PostUpdateRequest struct {
 	ID        int    `json:"id" binding:"required"`
 	Name      string `json:"name"`
 	ContentMD string `json:"content_md"`
+	Format    string `json:"format" enums:"markdown,html"`
 }
 
 type MysteryCodeRequest struct {

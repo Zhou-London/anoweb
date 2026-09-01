@@ -3,9 +3,14 @@ package blog
 import "time"
 
 type Blog struct {
-	ID         int       `gorm:"primaryKey" json:"id"`
-	Title      string    `json:"title"`
+	ID    int    `gorm:"primaryKey" json:"id"`
+	Title string `json:"title"`
+	// ContentMD holds the body in whichever format Format names: markdown as
+	// written, or a raw HTML document uploaded by an admin (rendered without
+	// sanitisation — see the format checks in handler.go). The MD suffix
+	// predates HTML support — the column name is load-bearing, don't rename.
 	ContentMD  string    `json:"content_md"`
+	Format     string    `gorm:"type:varchar(16);not null;default:'markdown'" json:"format"`
 	ImageURL   string    `json:"image_url"`
 	Views      int64     `gorm:"default:0" json:"views"`
 	LikesCount int64     `gorm:"default:0" json:"likes_count"`

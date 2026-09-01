@@ -3,11 +3,16 @@ package post
 import "time"
 
 type Post struct {
-	ID         int       `gorm:"primaryKey" json:"id"`
-	ParentID   int       `json:"parent_id"`
-	ParentType string    `json:"parent_type"`
-	Name       string    `json:"name"`
+	ID         int    `gorm:"primaryKey" json:"id"`
+	ParentID   int    `json:"parent_id"`
+	ParentType string `json:"parent_type"`
+	Name       string `json:"name"`
+	// ContentMD holds the body in whichever format Format names: markdown as
+	// written, or a raw HTML document uploaded by an admin (rendered without
+	// sanitisation — see the format checks in handler.go). The MD suffix
+	// predates HTML support — the column name is load-bearing, don't rename.
 	ContentMD  string    `json:"content_md"`
+	Format     string    `gorm:"type:varchar(16);not null;default:'markdown'" json:"format"`
 	AuthorID   *uint     `gorm:"index" json:"author_id"`
 	AuthorName string    `gorm:"type:varchar(255)" json:"author_name"`
 	CreatedAt  time.Time `json:"created_at"`

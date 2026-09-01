@@ -11,7 +11,8 @@ import (
 )
 
 // MaxContentLength is in characters (runes), matching the frontend counter.
-const MaxContentLength = 20000
+// Sized for HTML mode, whose markup runs 2-3x the prose it wraps.
+const MaxContentLength = 60000
 
 // GetBlogs godoc
 // @Summary List all blogs
@@ -114,6 +115,7 @@ func CreateBlog(c *gin.Context, blogRepo BlogRepository) {
 	type CreateBlogReq struct {
 		Title     string `json:"title" binding:"required"`
 		ContentMD string `json:"content_md"`
+		Format    string `json:"format"`
 		ImageURL  string `json:"image_url"`
 	}
 
@@ -123,15 +125,32 @@ func CreateBlog(c *gin.Context, blogRepo BlogRepository) {
 		return
 	}
 
-	// Validate content length
-	if utf8.RuneCountInString(req.ContentMD) > MaxContentLength {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 20,000 character limit"})
+	// Omitted format means markdown (pre-HTML clients).
+	if req.Format == "" {
+		req.Format = util.FormatMarkdown
+	}
+	if !util.ValidFormat(req.Format) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Format must be markdown or html"})
+		return
+	}
+
+	// Blogs are admin-only, so no extra role check here: an HTML body is a
+	// raw uploaded document capped by file size; markdown keeps the editor's
+	// character limit.
+	if req.Format == util.FormatHTML {
+		if len(req.ContentMD) > util.MaxHTMLBytes {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "HTML content exceeds the 1MB limit"})
+			return
+		}
+	} else if utf8.RuneCountInString(req.ContentMD) > MaxContentLength {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 60,000 character limit"})
 		return
 	}
 
 	blog := Blog{
 		Title:     req.Title,
 		ContentMD: req.ContentMD,
+		Format:    req.Format,
 		ImageURL:  req.ImageURL,
 	}
 
@@ -160,6 +179,7 @@ func UpdateBlog(c *gin.Context, blogRepo BlogRepository) {
 		ID        int    `json:"id" binding:"required"`
 		Title     string `json:"title"`
 		ContentMD string `json:"content_md"`
+		Format    string `json:"format"`
 		ImageURL  string `json:"image_url"`
 	}
 
@@ -169,9 +189,9 @@ func UpdateBlog(c *gin.Context, blogRepo BlogRepository) {
 		return
 	}
 
-	// Validate content length
-	if utf8.RuneCountInString(req.ContentMD) > MaxContentLength {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 20,000 character limit"})
+	// Empty keeps the stored format, like the other fields.
+	if req.Format != "" && !util.ValidFormat(req.Format) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Format must be markdown or html"})
 		return
 	}
 
@@ -190,10 +210,24 @@ func UpdateBlog(c *gin.Context, blogRepo BlogRepository) {
 	newBlog.ID = req.ID
 	newBlog.Title = util.PickOrDefault(req.Title, oldBlog.Title)
 	newBlog.ContentMD = util.PickOrDefault(req.ContentMD, oldBlog.ContentMD)
+	newBlog.Format = util.PickOrDefault(req.Format, oldBlog.Format)
 	newBlog.ImageURL = util.PickOrDefault(req.ImageURL, oldBlog.ImageURL)
 	newBlog.Views = oldBlog.Views
 	newBlog.LikesCount = oldBlog.LikesCount
 	newBlog.CreatedAt = oldBlog.CreatedAt
+
+	// Validate the merged result — the edit may have changed the content, the
+	// format, or both. HTML is capped by file size; markdown keeps the
+	// editor's character limit.
+	if newBlog.Format == util.FormatHTML {
+		if len(newBlog.ContentMD) > util.MaxHTMLBytes {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "HTML content exceeds the 1MB limit"})
+			return
+		}
+	} else if utf8.RuneCountInString(newBlog.ContentMD) > MaxContentLength {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Content exceeds 60,000 character limit"})
+		return
+	}
 
 	updatedBlog, err := blogRepo.Update(newBlog.ID, &newBlog)
 	if err != nil {
